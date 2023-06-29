@@ -26,9 +26,8 @@ def process_excel_files(folder_path):
                 for row in sheet.iter_rows(values_only=True):
                     filtered_row = [cell_value if cell_value is not None else "" for cell_value in row]
                     data.append(filtered_row)
-                headers = data[0]
-                data = data[1:]
-                print(tabulate(data, headers=headers, tablefmt="grid"))
+
+                print(tabulate(data, tablefmt="grid"))
 
             # Close the workbook
             workbook.close()
