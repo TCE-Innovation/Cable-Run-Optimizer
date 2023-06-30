@@ -1,4 +1,3 @@
-# This is the cable class to store each individual cable's set of information
 class Cable:
     def __init__(self, pull_number, stationing_start, stationing_end, cable_size, express):
         self.pull_number = pull_number
