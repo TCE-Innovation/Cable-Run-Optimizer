@@ -88,6 +88,34 @@ def obtain_cable_data():
         print()
 
 
+def generate_output_file():
+    print("Output file going to be generated")
+    global stationing_values
+
+    # Create a new workbook and select the active sheet
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    print("appended")
+
+    # Write the stationing sections and cables into the Excel file
+    for section, cables in stationing_values.items():
+        # Write the section header
+        sheet.append([f"Between {section[0]} and {section[1]}:"])
+
+        # Write the cable pull numbers
+        for cable in cables:
+            sheet.append([cable])
+
+        # Add an empty row between sections
+        sheet.append([])
+
+    # Save the workbook to a file
+    workbook.save("stationing_sections.xlsx")
+
+    print("Output file generated")
+
+
+# Unnecessary for tool, debugging only
 def process_excel_files():
     # Provide the path to the folder containing the Excel files
     folder_path = r'C:\Users\roneill\Documents\CRO'

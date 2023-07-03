@@ -7,4 +7,8 @@ class Cable:
         self.express = express
 
 
+# List of Cable objects
 cable_list = []
+
+# Initialize an empty set to store unique stationing values
+stationing_values = set()
