@@ -2,7 +2,6 @@ from file_handler import obtain_cable_data
 from messenger_algorithm import sort_stationing
 from messenger_algorithm import stationing_sections
 from PyQt5.QtWidgets import QApplication, QWidget
-# QWidget, QMain Window, QDialog
 import sys
 
 # obtain_cable_data()
