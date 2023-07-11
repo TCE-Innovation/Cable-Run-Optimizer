@@ -13,6 +13,11 @@ def obtain_cable_data():
     for file_name in os.listdir(folder_path):
         # Check if the file is an Excel file
         if file_name.endswith('.xlsx') or file_name.endswith('.xls'):
+            # Check if the file name is "Messenger Cable Sizes"
+            if file_name == 'Messenger Cable Sizes.xlsx':
+                obtain_cable_sizes()
+                continue  # Skip this file and move to the next file
+
             # Construct the full file path
             file_path = os.path.join(folder_path, file_name)
 
@@ -86,6 +91,10 @@ def obtain_cable_data():
         print("Cable Size:", cable.express)
         print("Express:", cable.cable_size)
         print()
+
+
+def obtain_cable_sizes():
+    pass
 
 
 def generate_output_file():

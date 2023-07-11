@@ -3,6 +3,9 @@ from messenger_algorithm import sort_stationing
 from messenger_algorithm import stationing_sections
 from PyQt5.QtWidgets import QApplication, QWidget
 import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
+    QFileDialog, QTabWidget, QRadioButton, QGroupBox, QMessageBox
+from user_interface import user_interface
 
 # obtain_cable_data()
 # sort_stationing()
@@ -12,9 +15,5 @@ import sys
 # print("Cable info")
 # print(cable_list[0].pull_number)
 
-app = QApplication(sys.argv)
 
-window = QWidget()
-
-window.show()
-sys.exit(app.exec_())
+user_interface()

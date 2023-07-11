@@ -1,9 +1,8 @@
 import sys
 import pandas as pd
-# from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
-#     QFileDialog, QTabWidget, QRadioButton, QGroupBox
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
+    QFileDialog, QTabWidget, QRadioButton, QGroupBox, QMessageBox
+from PyQt5.QtGui import QIcon
 
 
 class UI(QWidget):
@@ -11,6 +10,10 @@ class UI(QWidget):
         super().__init__()
         self.setWindowTitle("Cable Run Optimizer")
         self.setWindowIcon(QIcon("TCE Logo.png"))
+
+        # Set the initial window size
+        self.resize(800, 600)
+
         layout = QVBoxLayout()
 
         # Create a group box for the radio buttons
@@ -36,6 +39,11 @@ class UI(QWidget):
 
         self.full_tab_widget = QTabWidget()
         layout.addWidget(self.full_tab_widget)
+
+        self.generate_results_button = QPushButton("Generate Optimized Results")
+        self.generate_results_button.clicked.connect(self.generate_optimized_results)
+        self.generate_results_button.setEnabled(False)  # Disable the button initially
+        layout.addWidget(self.generate_results_button)
 
         self.setLayout(layout)
 
@@ -72,6 +80,9 @@ class UI(QWidget):
                 self.populate_table(full_table, df)
                 self.full_tab_widget.addTab(full_table, f"{sheet_name} (Full Sheet)")
 
+            # Enable the "Generate Optimized Results" button
+            self.generate_results_button.setEnabled(True)
+
     def populate_table(self, table, data_frame):
         table.clear()
 
@@ -89,8 +100,30 @@ class UI(QWidget):
                 item = QTableWidgetItem(str(data_frame.iloc[row, column]))
                 table.setItem(row, column, item)
 
+    def generate_optimized_results(self):
+        # Perform the logic to generate the optimized results Excel file
+        # Replace the following placeholder code with your actual implementation
 
-app = QApplication(sys.argv)
-window = UI()
-window.show()
-sys.exit(app.exec_())
+        # Write your code to generate the optimized results Excel file using the selected file data
+        # Here, you can access the selected file using its path
+        file_path = r'C:\Users\roneill\Documents\CRO\Optimized Results.xlsx'  # Replace with the actual file path
+
+        # Generate the optimized results Excel file
+        # You can use pandas or any other library to generate the Excel file
+        # For example, using pandas:
+        data = [["Optimized Result 1"], ["Optimized Result 2"], ["Optimized Result 3"]]
+        df = pd.DataFrame(data, columns=["Optimized Results"])
+        df.to_excel(file_path, index=False)
+
+        # Show a message box with the "Optimized Results Generated" message
+        QMessageBox.information(self, "Optimized Results", "Optimized Results Generated")
+
+        # Close the UI
+        self.close()
+
+
+def user_interface():
+    app = QApplication(sys.argv)
+    window = UI()
+    window.show()
+    sys.exit(app.exec_())
