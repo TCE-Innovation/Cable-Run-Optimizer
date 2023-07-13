@@ -171,6 +171,9 @@ class CableSizingWindow(QWidget):
         headers = ["Size", "Diameter", "Cable Weight", "Area"]
         self.cable_parameters_table.setHorizontalHeaderLabels(headers)
 
+        # Initialize the area_labels list
+        self.area_labels = []
+
         # Populate the table with the cable parameters
         for row, cable in enumerate(cable_parameters):
             # Set the size as a label
@@ -204,6 +207,9 @@ class CableSizingWindow(QWidget):
             cross_sectional_area_label.setAlignment(QtCore.Qt.AlignCenter)  # Center the text in the label
             self.cable_parameters_table.setCellWidget(row, 3, cross_sectional_area_label)
 
+            # Add the area label to the area_labels list
+            self.area_labels.append(cross_sectional_area_label)
+
         # Set uniform column widths
         for column in range(num_columns):
             self.cable_parameters_table.setColumnWidth(column, 95)
@@ -214,8 +220,8 @@ class CableSizingWindow(QWidget):
     def update_cross_sectional_area(self, row):
         diameter = self.diameter_spinboxes[row].value()
         cross_sectional_area = round(math.pi * (diameter / 2) ** 2, 2)
-        cross_sectional_area_label = QLabel(str(cross_sectional_area))
-        self.cable_parameters_table.setCellWidget(row, 3, cross_sectional_area_label)
+        self.area_labels[row].setText(str(cross_sectional_area))  # Update the text of the existing QLabel widget
+        self.area_labels[row].setAlignment(QtCore.Qt.AlignCenter)  # Center the text in the label
 
 
 class UI(QWidget):
