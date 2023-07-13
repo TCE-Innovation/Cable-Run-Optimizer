@@ -133,8 +133,10 @@ import math
 import pandas as pd
 from cable_classes import *
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
-    QFileDialog, QTabWidget, QRadioButton, QGroupBox, QLabel, QTextEdit, QMessageBox, QHBoxLayout, QDoubleSpinBox, QSplitter
+    QFileDialog, QTabWidget, QRadioButton, QGroupBox, QLabel, QTextEdit, QMessageBox, QHBoxLayout, QDoubleSpinBox, \
+    QSplitter
 from PyQt5.QtGui import QIcon
+from PyQt5 import QtCore
 from file_handler import cable_parameters
 
 
@@ -151,9 +153,8 @@ class CableSizingWindow(QWidget):
 
         self.setLayout(layout)
 
-        # Initialize the spin box widgets
+        # Initialize the diameter spin box list
         self.diameter_spinboxes = []
-        self.cable_weight_spinboxes = []
 
         # Update the cable parameters table
         self.update_cable_parameters()
@@ -167,13 +168,14 @@ class CableSizingWindow(QWidget):
         self.cable_parameters_table.setColumnCount(num_columns)
 
         # Set the table headers
-        headers = ["Size", "Diameter", "Cable Weight", "Cross-Sectional Area"]
+        headers = ["Size", "Diameter", "Cable Weight", "Area"]
         self.cable_parameters_table.setHorizontalHeaderLabels(headers)
 
         # Populate the table with the cable parameters
         for row, cable in enumerate(cable_parameters):
             # Set the size as a label
             size_label = QLabel(cable.size)
+            size_label.setAlignment(QtCore.Qt.AlignCenter)  # Center the text in the label
             self.cable_parameters_table.setCellWidget(row, 0, size_label)
 
             # Set the diameter as a double spin box
@@ -183,6 +185,7 @@ class CableSizingWindow(QWidget):
             diameter_spinbox.setValue(cable.diameter)
             diameter_spinbox.setDecimals(2)
             diameter_spinbox.valueChanged.connect(lambda value, r=row: self.update_cross_sectional_area(r))
+            diameter_spinbox.setAlignment(QtCore.Qt.AlignCenter)  # Center the text in the spin box
             self.diameter_spinboxes.append(diameter_spinbox)
             self.cable_parameters_table.setCellWidget(row, 1, diameter_spinbox)
 
@@ -192,16 +195,21 @@ class CableSizingWindow(QWidget):
             cable_weight_spinbox.setMaximum(1000.0)
             cable_weight_spinbox.setValue(cable.pounds_per_foot)
             cable_weight_spinbox.setDecimals(2)
-            self.cable_weight_spinboxes.append(cable_weight_spinbox)
+            cable_weight_spinbox.setAlignment(QtCore.Qt.AlignCenter)  # Center the text in the spin box
             self.cable_parameters_table.setCellWidget(row, 2, cable_weight_spinbox)
 
             # Set the cross-sectional area as a label
             cross_sectional_area = round(math.pi * (cable.diameter / 2) ** 2, 2)
             cross_sectional_area_label = QLabel(str(cross_sectional_area))
+            cross_sectional_area_label.setAlignment(QtCore.Qt.AlignCenter)  # Center the text in the label
             self.cable_parameters_table.setCellWidget(row, 3, cross_sectional_area_label)
 
-        # Resize the columns to fit the contents
-        self.cable_parameters_table.resizeColumnsToContents()
+        # Set uniform column widths
+        for column in range(num_columns):
+            self.cable_parameters_table.setColumnWidth(column, 95)
+
+        # Resize the rows to fit the contents
+        self.cable_parameters_table.resizeRowsToContents()
 
     def update_cross_sectional_area(self, row):
         diameter = self.diameter_spinboxes[row].value()
@@ -217,7 +225,7 @@ class UI(QWidget):
         self.setWindowIcon(QIcon("TCE Logo.png"))
 
         # Set the initial window size
-        self.resize(600, 600)
+        self.resize(675, 600)
 
         layout = QVBoxLayout()
 
