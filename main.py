@@ -1,20 +1,9 @@
-from PyQt5.QtWidgets import QApplication, QWidget
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
-    QFileDialog, QTabWidget, QRadioButton, QGroupBox, QMessageBox
-from file_handler import*
-from messenger_algorithm import*
+from file_handler import *
 from user_interface import *
+from messenger_algorithm import *
+from visualizer import *
 
-# obtain_cable_data()
-# sort_stationing()
-# stationing_sections()
-# generate_output_file()
+get_cable_sizes()
 
-# print("Cable info")
-# print(cable_list[0].pull_number)
-
-
-user_interface()
-
-# get_cable_sizes()
+print(len(cable_sizes))
+generate_cable_image(cable_sizes[6:11])  # Extract cables from indices 2 to 4 (inclusive)

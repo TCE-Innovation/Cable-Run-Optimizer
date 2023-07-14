@@ -13,7 +13,7 @@ def get_cable_pull_sheet():
         # Check if the file is an Excel file
         if file_name.endswith('.xlsx') or file_name.endswith('.xls'):
             # Check if the file name is "Messenger Cable Sizes"
-            if file_name == 'Messenger Cable Sizes.xlsx':
+            if file_name == 'Cable Sizes.xlsx':
                 get_cable_sizes()
                 continue  # Skip this file and move to the next file
 
@@ -110,7 +110,7 @@ def get_cable_sizes():
 
         # Create a CableParameters object and append it to the list
         cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
-        cable_parameters.append(cable)
+        cable_sizes.append(cable)
 
     # Close the workbook
     workbook.close()
@@ -149,6 +149,3 @@ def generate_output_file():
     workbook.save("stationing_sections.xlsx")
 
     print("Output file generated")
-
-
-get_cable_sizes()

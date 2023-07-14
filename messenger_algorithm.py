@@ -1,5 +1,5 @@
-from cable_classes import cable_list
-from cable_classes import stationing_values
+from cable_classes import *
+
 
 # Take the stationing from the pull sheet and
 # organize it into a numerically ordered list,

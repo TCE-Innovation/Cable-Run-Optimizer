@@ -18,8 +18,8 @@ class CableParameters:
 # List of Cable objects
 cable_list = []
 
-# List to sore cable parameter objects
-cable_parameters =[]
+# List to store cable parameter objects
+cable_sizes = []
 
 # Initialize an empty set to store unique stationing values
 stationing_values = set()

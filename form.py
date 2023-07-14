@@ -53,55 +53,11 @@ class Ui_Widget(object):
         self.label.setText(_translate("Widget", "TextLabel"))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Widget = QtWidgets.QWidget()
-    ui = Ui_Widget()
-    ui.setupUi(Widget)
-    Widget.show()
-    sys.exit(app.exec_())
-
-'''
-Video Tutorial reference code
-
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-import sys
-
-
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Cable Run Optimizer")
-        self.setWindowIcon(QIcon("TCE Logo.png"))
-        # self.setFixedHeight(400)
-        # self.setFixedWidth(400)
-        self.setGeometry(500, 300, 400, 300)  # x,y,width,height
-        self.setStyleSheet("background-color: #728bbe;")
-        self.create_widgets()
-
-    def create_widgets(self):
-        btn = QPushButton(" Optimize", self)
-        # btn.move(100, 100)
-        btn.setGeometry(50, 50, 75, 30)  # x,y, width, height
-        btn.setStyleSheet('background-color:white')
-        btn.setIcon(QIcon("TCE Logo.png"))
-        btn.clicked.connect(self.btn_clicked)
-
-        self.label = QLabel("Click here", self)
-        # self.label.move(50, 25) # x, y
-        self.label.setGeometry(100, 200, 200, 100)
-        self.label.setStyleSheet('color:white')
-        self.label.setFont(QFont("Comic Sans", 15))
-
-    def btn_clicked(self):
-        self.label.setText("Text has changed")
-        self.label.setStyleSheet('background-color:red')
-
-
-app = QApplication([])
-window = Window()
-window.show()
-sys.exit(app.exec_())
-'''
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     Widget = QtWidgets.QWidget()
+#     ui = Ui_Widget()
+#     ui.setupUi(Widget)
+#     Widget.show()
+#     sys.exit(app.exec_())
