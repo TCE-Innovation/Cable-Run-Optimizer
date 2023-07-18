@@ -116,12 +116,12 @@ def get_cable_sizes():
     workbook.close()
 
     # Access the parameters of a cable
-    # for cable in cable_parameters:
-    #     print("Size:", cable.size)
-    #     print("Diameter:", cable.diameter)
-    #     print("Cable Weight:", cable.pounds_per_foot)
-    #     print("Cross Sectional Area:", cable.cross_sectional_area)
-    #     print()
+    for cable in cable_sizes:
+        print("Size:", cable.size)
+        print("Diameter:", cable.diameter)
+        print("Cable Weight:", cable.pounds_per_foot)
+        print("Cross Sectional Area:", cable.cross_sectional_area)
+        print()
 
 
 def generate_output_file():

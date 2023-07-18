@@ -129,7 +129,6 @@
 # get_cable_sizes()
 # generate_cable_image(cable_sizes[7:11])  # Extract cables from indices 7 to 10 (inclusive)
 
-
 from file_handler import *
 from PIL import Image, ImageDraw, ImageFont
 import math
@@ -246,8 +245,8 @@ def generate_cable_image(cables):
         draw.line([line_start, line_end], fill="black", width=1)
 
     # Draw scale in the bottom left corner
-    scale_length_inches = 1
-    scale_length_pixels = scale_length_inches * scaling_factor
+    scale_length_pixels = 100
+    scale_length_inches = scale_length_pixels / scaling_factor  # Convert pixels to inches
     scale_offset = 20
     scale_start = (scale_offset, image_size[1] - scale_offset)
     scale_end = (scale_offset + scale_length_pixels, image_size[1] - scale_offset)
@@ -260,4 +259,5 @@ def generate_cable_image(cables):
 
 
 get_cable_sizes()
-generate_cable_image(cable_sizes[7:11])  # Extract cables from indices 7 to 10 (inclusive)
+# generate_cable_image(cable_sizes[7:11])  # Extract cables from indices 7 to 10 (inclusive)
+generate_cable_image(cable_sizes[7:11])
