@@ -1,8 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
-import math
 from file_handler import *
 from cable_classes import *
-
 
 def draw_cable(draw, x, y, cable, cable_info):
     scaling_factor = 50  # Increase the scaling factor
@@ -142,9 +140,12 @@ def generate_cable_image(cable_list):
 
 cable_list.append((400, 300, Cable('1.160', '500+00', '600+00', '7C#14', 'E')))
 cable_list.append((100, 400, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
+cable_list.append((900, 400, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
+cable_list.append((100, 900, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
+cable_list.append((500, 500, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
 
 # Get the cable sizes
 get_cable_sizes()
 
-# Generate the image with both cables
+# Generate the image with all cables
 generate_cable_image(cable_list)
