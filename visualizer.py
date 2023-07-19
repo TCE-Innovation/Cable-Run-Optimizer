@@ -2,7 +2,6 @@
 # from PIL import Image, ImageDraw, ImageFont
 # import math
 #
-#
 # def generate_cable_image(cables):
 #     # Define the image size and other parameters
 #     image_size = (1000, 1000)  # Higher resolution image size
@@ -22,12 +21,12 @@
 #     for i, cable in enumerate(cables):
 #         # Calculate the scaled radius based on the cable's diameter
 #         diameter = cable.diameter
-#         scaling_factor = 150  # Increase the scaling factor
+#         scaling_factor = 50  # Increase the scaling factor
 #         cable_radius = diameter * scaling_factor / 2  # Adjust the scaling factor here
 #
-#         # Calculate the coordinates for the center of the quadrant based on the index
-#         center_x = (i % 2) * quadrant_size[0] + quadrant_size[0] // 2
-#         center_y = (i // 2) * quadrant_size[1] + quadrant_size[1] // 2
+#         # Calculate the coordinates for the center of the image
+#         center_x = image_size[0] // 2
+#         center_y = image_size[1] // 2
 #         center = (center_x, center_y)
 #
 #         # Draw the cable as a filled circle
@@ -116,12 +115,13 @@
 #         draw.line([line_start, line_end], fill="black", width=1)
 #
 #     # Draw scale in the bottom left corner
-#     scale_length = 50
-#     scale_offset = 0
+#     scale_spacing = radius_spacing  # Spacing between two grid lines
+#     scale_length = scale_spacing  # Length equal to the spacing between two grid lines
+#     scale_offset = 20
 #     scale_start = (scale_offset, image_size[1] - scale_offset)
 #     scale_end = (scale_offset + scale_length, image_size[1] - scale_offset)
 #     draw.line([scale_start, scale_end], fill="black", width=2)
-#     draw.text((scale_start[0], scale_start[1] - 10), f"{scale_length} units", fill="black", font=font)
+#     draw.text((scale_start[0], scale_start[1] - 10), "1 inch", fill="black", font=font)
 #
 #     # Save the image to a file or display it
 #     image.save("cable_image.png", dpi=dpi)  # Higher resolution
@@ -130,63 +130,70 @@
 #
 # get_cable_sizes()
 # generate_cable_image(cable_sizes[11:12])  # Extract cables from indices 7 to 10 (inclusive)
-
 from file_handler import *
 from PIL import Image, ImageDraw, ImageFont
 import math
 
 
+def draw_cable(draw, x, y, cable_data):
+    scaling_factor = 50  # Increase the scaling factor
+    offset_x = 20  # Offset in the x-direction
+    offset_y = 20  # Offset in the y-direction
+    text_margin = 10  # Decreased margin
+    font_size = 12  # Larger font size
+    text_color = "black"
+    font = ImageFont.truetype("arial.ttf", font_size)  # Set the font size
+
+    # Extract cable data attributes
+    size = cable_data.size
+    diameter = cable_data.diameter
+    pounds_per_foot = cable_data.pounds_per_foot
+    cross_sectional_area = cable_data.cross_sectional_area
+
+    # Calculate the scaled radius based on the cable's diameter
+    cable_radius = diameter * scaling_factor / 2
+
+    # Calculate the coordinates for the center of the cable
+    center_x = x
+    center_y = y
+
+    # Draw the cable as a filled circle
+    cable_color = "#B2ABB3"  # Darker shade of gray
+    cable_bbox = (
+        center_x - cable_radius,
+        center_y - cable_radius,
+        center_x + cable_radius,
+        center_y + cable_radius,
+    )
+    draw.ellipse(cable_bbox, fill=cable_color)
+
+    # Create a text label with the cable information
+    text_x = center_x - cable_radius + offset_x  # Add x-direction offset
+    text_y = center_y - cable_radius - text_margin + offset_y  # Add y-direction offset
+
+    text_lines = [
+        f"S: {size}",
+        f"D: {diameter}",
+        f"CW: {pounds_per_foot}",
+        f"A: {cross_sectional_area}",
+    ]
+    for line in text_lines:
+        draw.text((text_x, text_y), line, fill=text_color, font=font)
+        text_y += font_size + 10  # Adjust the vertical spacing
+
+
 def generate_cable_image(cables):
     # Define the image size and other parameters
     image_size = (1000, 1000)  # Higher resolution image size
-    text_margin = 10  # Decreased margin
-    font_size = 12  # Larger font size
-    offset_x = 40  # Offset in the x-direction
-    offset_y = 40  # Offset in the y-direction
     dpi = (1000, 1000)  # Higher DPI (dots per inch)
-
-    # Calculate the quadrant size based on the image size
-    quadrant_size = (image_size[0] // 2, image_size[1] // 2)
 
     # Create a new image with a white background
     image = Image.new("RGB", image_size, "white")
     draw = ImageDraw.Draw(image)
 
-    for i, cable in enumerate(cables):
-        # Calculate the scaled radius based on the cable's diameter
-        diameter = cable.diameter
-        scaling_factor = 50  # Increase the scaling factor
-        cable_radius = diameter * scaling_factor / 2  # Adjust the scaling factor here
-
-        # Calculate the coordinates for the center of the image
-        center_x = image_size[0] // 2
-        center_y = image_size[1] // 2
-        center = (center_x, center_y)
-
-        # Draw the cable as a filled circle
-        cable_color = "#B2ABB3"  # Darker shade of gray
-        cable_bbox = (
-            center[0] - cable_radius,
-            center[1] - cable_radius,
-            center[0] + cable_radius,
-            center[1] + cable_radius,
-        )
-        draw.ellipse(cable_bbox, fill=cable_color)
-
-        # Create a text label with the cable information
-        text_x = center_x - cable_radius + offset_x  # Add x-direction offset
-        text_y = center_y - cable_radius - text_margin + offset_y  # Add y-direction offset
-        text_color = "black"
-        font = ImageFont.truetype("arial.ttf", font_size)  # Set the font size
-        text_lines = [
-            f"S: {cable.size}",
-            f"D: {cable.diameter}",
-            f"CW: {cable.pounds_per_foot}",
-            f"A: {cable.cross_sectional_area}",
-        ]
-        for line in text_lines:
-            draw.text((text_x, text_y), line, fill=text_color, font=font)
-            text_y += font_size + 10  # Adjust the vertical spacing
+    for i, cable_data in enumerate(cables):
+        # Call the draw_cable function to draw the cable and create the text label
+        draw_cable(draw, 300, 400, cable_data)  # Example coordinates (300, 400)
 
     # Overlay polar coordinate graph
     polar_graph_radius = min(image_size) // 2
@@ -248,19 +255,10 @@ def generate_cable_image(cables):
         )
         draw.line([line_start, line_end], fill="black", width=1)
 
-    # Draw scale in the bottom left corner
-    scale_spacing = radius_spacing  # Spacing between two grid lines
-    scale_length = scale_spacing  # Length equal to the spacing between two grid lines
-    scale_offset = 20
-    scale_start = (scale_offset, image_size[1] - scale_offset)
-    scale_end = (scale_offset + scale_length, image_size[1] - scale_offset)
-    draw.line([scale_start, scale_end], fill="black", width=2)
-    draw.text((scale_start[0], scale_start[1] - 10), "1 inch", fill="black", font=font)
-
     # Save the image to a file or display it
     image.save("cable_image.png", dpi=dpi)  # Higher resolution
     image.show()
 
 
 get_cable_sizes()
-generate_cable_image(cable_sizes[11:12])  # Extract cables from indices 7 to 10 (inclusive)
+generate_cable_image(cable_sizes[0:1])  # Extract cables from indices 7 to 10 (inclusive)
