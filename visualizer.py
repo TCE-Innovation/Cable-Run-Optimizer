@@ -1,6 +1,6 @@
-from file_handler import *
 from PIL import Image, ImageDraw, ImageFont
 import math
+from file_handler import *
 from cable_classes import *
 
 
@@ -51,7 +51,7 @@ def draw_cable(draw, x, y, cable, cable_info):
         text_y += font_size + 10  # Adjust the vertical spacing
 
 
-def generate_cable_image(cable_list):
+def generate_cable_image(cable, x, y):
     # Define the image size and other parameters
     image_size = (1000, 1000)  # Higher resolution image size
     dpi = (1000, 1000)  # Higher DPI (dots per inch)
@@ -60,17 +60,16 @@ def generate_cable_image(cable_list):
     image = Image.new("RGB", image_size, "white")
     draw = ImageDraw.Draw(image)
 
-    for i, cable in enumerate(cable_list):
-        # Find the cable information from cable_sizes using cable's size as the key
-        cable_info = None
-        for info in cable_sizes:
-            if info.size == cable.cable_size:
-                cable_info = info
-                break
+    # Find the cable information from cable_sizes using cable's size as the key
+    cable_info = None
+    for info in cable_sizes:
+        if info.size == cable.cable_size:
+            cable_info = info
+            break
 
-        if cable_info is not None:
-            # Call the draw_cable function to draw the cable and create the text label
-            draw_cable(draw, 300, 400, cable, cable_info)  # Example coordinates (300, 400)
+    if cable_info is not None:
+        # Call the draw_cable function to draw the cable and create the text label
+        draw_cable(draw, x, y, cable, cable_info)
 
     # Overlay polar coordinate graph
     polar_graph_radius = min(image_size) // 2
@@ -137,6 +136,8 @@ def generate_cable_image(cable_list):
     image.show()
 
 
-cable_list.append(Cable('1.160', '500+00', '600+00', 'SCALE CABLE', 'E'))
+cable_list.append(Cable('1.160', '500+00', '600+00', '7C#14', 'E'))
+cable_list.append(Cable('1.161', '500+00', '600+00', '19C#14', 'E'))
 get_cable_sizes()
-generate_cable_image(cable_list)
+generate_cable_image(cable_list[0], 400, 300)
+generate_cable_image(cable_list[1], 100, 400)
