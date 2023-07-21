@@ -9,6 +9,7 @@ from PyQt5 import QtCore
 from cable_classes import *
 from file_handler import *
 
+
 class CableSizingWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -220,6 +221,9 @@ class UI(QWidget):
 
         # Show a message box with the "Optimized Results Generated" message
         QMessageBox.information(self, "Optimized Results", "Optimized results generated successfully.")
+
+        # Close the user interface after the popup window is clicked away
+        self.close()
 
     def show_cable_sizing_window(self):
         self.cable_sizing_window.update_cable_sizes()

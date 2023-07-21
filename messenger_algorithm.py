@@ -1,5 +1,5 @@
 from cable_classes import *
-
+from visualizer import *
 
 # Take the stationing from the pull sheet and
 # organize it into a numerically ordered list,
