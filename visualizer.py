@@ -1,16 +1,23 @@
 from PIL import Image, ImageDraw, ImageFont
 from file_handler import *
 from cable_classes import *
+import math
 
+# Define image size and other parameters
+image_size = (1000, 1000)  # Higher resolution image size
+dpi = (1000, 1000)  # Higher DPI (dots per inch)
 
-def draw_cable(draw, x, y, cable, cable_info):
+def draw_cable(draw, radius, angle_deg, cable, cable_info, polar_center):
     scaling_factor = 50  # Increase the scaling factor
-    offset_x = 20  # Offset in the x-direction
-    offset_y = 20  # Offset in the y-direction
+    offset_radius = 20  # Offset in the radial direction
+    offset_angle_deg = 0  # No angle offset
     text_margin = 10  # Decreased margin
     font_size = 12  # Larger font size
     text_color = "black"
     font = ImageFont.truetype("arial.ttf", font_size)  # Set the font size
+
+    # Convert the angle from degrees to radians
+    angle_rad = math.radians(360 - angle_deg)
 
     # Extract cable data attributes
     size = cable_info.size
@@ -21,9 +28,9 @@ def draw_cable(draw, x, y, cable, cable_info):
     # Calculate the scaled radius based on the cable's diameter
     cable_radius = diameter * scaling_factor / 2
 
-    # Calculate the coordinates for the center of the cable
-    center_x = x
-    center_y = y
+    # Calculate the polar coordinates for the center of the circle
+    center_x = polar_center[0] + radius * math.cos(angle_rad)
+    center_y = polar_center[1] + radius * math.sin(angle_rad)
 
     # Draw the cable as a filled circle
     cable_color = "#B2ABB3"  # Darker shade of gray
@@ -36,8 +43,8 @@ def draw_cable(draw, x, y, cable, cable_info):
     draw.ellipse(cable_bbox, fill=cable_color)
 
     # Create a text label with the cable information
-    text_x = center_x - cable_radius + offset_x  # Add x-direction offset
-    text_y = center_y - cable_radius - text_margin + offset_y  # Add y-direction offset
+    text_x = center_x - cable_radius  # No x-direction offset
+    text_y = center_y - cable_radius - text_margin  # Add y-direction offset
 
     text_lines = [
         f"S: {size}",
@@ -49,28 +56,10 @@ def draw_cable(draw, x, y, cable, cable_info):
         draw.text((text_x, text_y), line, fill=text_color, font=font)
         text_y += font_size + 10  # Adjust the vertical spacing
 
-
-def generate_cable_image(cable_list):
-    # Define the image size and other parameters
-    image_size = (1000, 1000)  # Higher resolution image size
-    dpi = (1000, 1000)  # Higher DPI (dots per inch)
-
+def generate_cable_image(draw_queue):
     # Create a new image with a white background
     image = Image.new("RGB", image_size, "white")
     draw = ImageDraw.Draw(image)
-
-    # Loop through the cable_list and draw each cable
-    for x, y, cable, cable_info in cable_list:
-        # Find the cable information from cable_sizes using cable's size as the key
-        cable_info = None
-        for info in cable_sizes:
-            if info.size == cable.cable_size:
-                cable_info = info
-                break
-
-        if cable_info is not None:
-            # Call the draw_cable function to draw the cable and create the text label
-            draw_cable(draw, x, y, cable, cable_info)
 
     # Overlay polar coordinate graph
     polar_graph_radius = min(image_size) // 2
@@ -132,16 +121,19 @@ def generate_cable_image(cable_list):
         )
         draw.line([line_start, line_end], fill="black", width=1)
 
+    # Loop through the draw_queue and draw each cable
+    for radius, angle_deg, cable, cable_info in draw_queue:
+        draw_cable(draw, radius, angle_deg, cable, cable_info, polar_graph_center)
+
     # Save the image to a file or display it
     image.save("cable_image.png", dpi=dpi)  # Higher resolution
     image.show()
-
 
 # Get the cable sizes
 get_cable_sizes()
 
 # Define cable objects
-cable_list = [
+cable_objects = [
     Cable('1.160', '500+00', '600+00', '7C#14', 'E'),
     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
@@ -151,10 +143,9 @@ cable_list = [
 
 draw_queue = []
 
-
-def draw(cable, x, y):
+def draw(cable, radius, angle_deg):
     global draw_queue
-    for cable_obj in cable_list:
+    for cable_obj in cable_objects:
         if cable_obj == cable:
             cable_info = None
             for info in cable_sizes:
@@ -162,16 +153,15 @@ def draw(cable, x, y):
                     cable_info = info
                     break
             if cable_info is not None:
-                draw_queue.append((x, y, cable_obj, cable_info))
+                draw_queue.append((radius, angle_deg, cable_obj, cable_info))
             break
 
-
-# Draw each cable with specified coordinates
-draw(cable_list[0], 400, 300)
-draw(cable_list[1], 100, 400)
-draw(cable_list[2], 900, 400)
-draw(cable_list[3], 100, 900)
-draw(cable_list[4], 500, 500)
+# Draw each cable with specified coordinates, radius, angle
+draw(cable_objects[0], 0, 30)
+draw(cable_objects[1], 160, 180)
+draw(cable_objects[2], 300, 45)
+draw(cable_objects[3], 300, 90)
+draw(cable_objects[4], 300, 0)
 
 # Generate the final image
 generate_cable_image(draw_queue)
