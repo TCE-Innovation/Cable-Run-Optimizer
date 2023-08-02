@@ -1,11 +1,10 @@
 import os
 import openpyxl
-from tabulate import tabulate
-from cable_classes import Cable
-from cable_classes import cable_list
+import math
+from cable_classes import *
 
 
-def obtain_cable_data():
+def get_cable_pull_sheet():
     # Provide the path to the folder containing the Cable Pull Sheet
     folder_path = r'C:\Users\roneill\Documents\CRO'
 
@@ -13,6 +12,11 @@ def obtain_cable_data():
     for file_name in os.listdir(folder_path):
         # Check if the file is an Excel file
         if file_name.endswith('.xlsx') or file_name.endswith('.xls'):
+            # Check if the file name is "Messenger Cable Sizes"
+            if file_name == 'Cable Sizes.xlsx':
+                get_cable_sizes()
+                continue  # Skip this file and move to the next file
+
             # Construct the full file path
             file_path = os.path.join(folder_path, file_name)
 
@@ -88,35 +92,60 @@ def obtain_cable_data():
         print()
 
 
-def process_excel_files():
-    # Provide the path to the folder containing the Excel files
-    folder_path = r'C:\Users\roneill\Documents\CRO'
+def get_cable_sizes():
+    # Provide the path to the folder containing the Cable Pull Sheet
+    file_path = r'C:\Users\roneill\Documents\CRO\Cable Sizes.xlsx'
 
-    # Iterate over files in the folder
-    for file_name in os.listdir(folder_path):
-        # Check if the file is an Excel file
-        if file_name.endswith('.xlsx') or file_name.endswith('.xls'):
-            # Construct the full file path
-            file_path = os.path.join(folder_path, file_name)
+    # Load the Excel file
+    workbook = openpyxl.load_workbook(file_path)
+    sheet = workbook.active
 
-            # Load the Excel file
-            workbook = openpyxl.load_workbook(file_path)
+    # Iterate over the rows starting from the second row
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        # Extract the cable parameters from each row
+        size = row[0]
+        diameter = row[1]
+        pounds_per_foot = row[2]
+        cross_sectional_area = round(math.pi * (diameter/2) ** 2, 2)
 
-            # Print the sheet names
-            print(f"File: {file_name}")
-            print("Sheet Names:")
-            for sheet_name in workbook.sheetnames:
-                print(sheet_name)
+        # Create a CableParameters object and append it to the list
+        cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
+        cable_sizes.append(cable)
 
-            # Iterate over sheets and print cell values
-            for sheet in workbook:
-                print(f"\nSheet: {sheet.title}")
-                data = []
-                for row in sheet.iter_rows(values_only=True):
-                    filtered_row = [cell_value if cell_value is not None else "" for cell_value in row]
-                    data.append(filtered_row)
+    # Close the workbook
+    workbook.close()
 
-                print(tabulate(data, tablefmt="grid"))
+    # Access the parameters of a cable
+    for cable in cable_sizes:
+        print("Size:", cable.size)
+        print("Diameter:", cable.diameter)
+        print("Cable Weight:", cable.pounds_per_foot)
+        print("Cross Sectional Area:", cable.cross_sectional_area)
+        print()
 
-            # Close the workbook
-            workbook.close()
+
+def generate_output_file():
+    print("Output file going to be generated")
+    global stationing_values
+
+    # Create a new workbook and select the active sheet
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    print("appended")
+
+    # Write the stationing sections and cables into the Excel file
+    for section, cables in stationing_values.items():
+        # Write the section header
+        sheet.append([f"Between {section[0]} and {section[1]}:"])
+
+        # Write the cable pull numbers
+        for cable in cables:
+            sheet.append([cable])
+
+        # Add an empty row between sections
+        sheet.append([])
+
+    # Save the workbook to a file
+    workbook.save("stationing_sections.xlsx")
+
+    print("Output file generated")
