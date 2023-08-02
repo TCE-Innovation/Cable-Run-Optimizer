@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 from file_handler import *
 from cable_classes import *
 
+
 def draw_cable(draw, x, y, cable, cable_info):
     scaling_factor = 50  # Increase the scaling factor
     offset_x = 20  # Offset in the x-direction
@@ -59,7 +60,7 @@ def generate_cable_image(cable_list):
     draw = ImageDraw.Draw(image)
 
     # Loop through the cable_list and draw each cable
-    for x, y, cable in cable_list:
+    for x, y, cable, cable_info in cable_list:
         # Find the cable information from cable_sizes using cable's size as the key
         cable_info = None
         for info in cable_sizes:
@@ -135,12 +136,11 @@ def generate_cable_image(cable_list):
     image.save("cable_image.png", dpi=dpi)  # Higher resolution
     image.show()
 
-    # Append cables to the cable_list
-
 
 # Get the cable sizes
 get_cable_sizes()
 
+# Define cable objects
 cable_list = [
     Cable('1.160', '500+00', '600+00', '7C#14', 'E'),
     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
@@ -149,4 +149,29 @@ cable_list = [
     Cable('1.161', '500+00', '600+00', '19C#14', 'E')
 ]
 
-generate_cable_image(cable_list[0], 500, 500)
+draw_queue = []
+
+
+def draw(cable, x, y):
+    global draw_queue
+    for cable_obj in cable_list:
+        if cable_obj == cable:
+            cable_info = None
+            for info in cable_sizes:
+                if info.size == cable_obj.cable_size:
+                    cable_info = info
+                    break
+            if cable_info is not None:
+                draw_queue.append((x, y, cable_obj, cable_info))
+            break
+
+
+# Draw each cable with specified coordinates
+draw(cable_list[0], 400, 300)
+draw(cable_list[1], 100, 400)
+draw(cable_list[2], 900, 400)
+draw(cable_list[3], 100, 900)
+draw(cable_list[4], 500, 500)
+
+# Generate the final image
+generate_cable_image(draw_queue)
