@@ -138,14 +138,15 @@ def generate_cable_image(cable_list):
     # Append cables to the cable_list
 
 
-# cable_list.append((400, 300, Cable('1.160', '500+00', '600+00', '7C#14', 'E')))
-# cable_list.append((100, 400, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
-# cable_list.append((900, 400, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
-# cable_list.append((100, 900, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
-# cable_list.append((500, 500, Cable('1.161', '500+00', '600+00', '19C#14', 'E')))
-#
-# # Get the cable sizes
-# get_cable_sizes()
-#
-# # Generate the image with all cables
-# generate_cable_image(cable_list)
+# Get the cable sizes
+get_cable_sizes()
+
+cable_list = [
+    Cable('1.160', '500+00', '600+00', '7C#14', 'E'),
+    Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
+    Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
+    Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
+    Cable('1.161', '500+00', '600+00', '19C#14', 'E')
+]
+
+generate_cable_image(cable_list[0], 500, 500)
