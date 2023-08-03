@@ -59,12 +59,12 @@ def get_cable_pull_sheet():
                 express_col_index = column_index
 
     # Print the identified column indices
-    print("Pull Column Index:", pull_number_col_index)
-    print("Stationing Start Column Index:", stationing_start_col_index)
-    print("Stationing End Column Index:", stationing_end_col_index)
-    print("Cable Size Column Index:", cable_size_col_index)
-    print("Express Column Index:", express_col_index)
-    print()
+    # print("Pull Column Index:", pull_number_col_index)
+    # print("Stationing Start Column Index:", stationing_start_col_index)
+    # print("Stationing End Column Index:", stationing_end_col_index)
+    # print("Cable Size Column Index:", cable_size_col_index)
+    # print("Express Column Index:", express_col_index)
+    # print()
 
     # Iterate over the rows to extract information from relevant columns
     # Iterate over the rows to extract information from relevant columns
@@ -83,13 +83,13 @@ def get_cable_pull_sheet():
         cable = Cable(pull_number, stationing_start, stationing_end, express, cable_size)
         cable_list.append(cable)
 
-    for cable in cable_list:
-        print("Pull Number:", cable.pull_number)
-        print("Stationing Start:", cable.stationing_start)
-        print("Stationing End:", cable.stationing_end)
-        print("Cable Size:", cable.express)
-        print("Express:", cable.cable_size)
-        print()
+    # for cable in cable_list:
+    #     print("Pull Number:", cable.pull_number)
+    #     print("Stationing Start:", cable.stationing_start)
+    #     print("Stationing End:", cable.stationing_end)
+    #     print("Cable Size:", cable.express)
+    #     print("Express:", cable.cable_size)
+    #     print()
 
 
 def get_cable_sizes():
@@ -116,12 +116,12 @@ def get_cable_sizes():
     workbook.close()
 
     # Access the parameters of a cable
-    for cable in cable_sizes:
-        print("Size:", cable.size)
-        print("Diameter:", cable.diameter)
-        print("Cable Weight:", cable.pounds_per_foot)
-        print("Cross Sectional Area:", cable.cross_sectional_area)
-        print()
+    # for cable in cable_sizes:
+    #     print("Size:", cable.size)
+    #     print("Diameter:", cable.diameter)
+    #     print("Cable Weight:", cable.pounds_per_foot)
+    #     print("Cross Sectional Area:", cable.cross_sectional_area)
+    #     print()
 
 
 def generate_output_file():

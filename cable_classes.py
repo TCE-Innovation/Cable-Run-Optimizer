@@ -23,3 +23,6 @@ cable_sizes = []
 
 # Initialize an empty set to store unique stationing values
 stationing_values = set()
+
+# List to hold cables to be drawn with their polar coordinates (radius and angle)
+draw_queue = []

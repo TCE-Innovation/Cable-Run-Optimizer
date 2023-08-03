@@ -1,6 +1,7 @@
 from cable_classes import *
 from visualizer import *
 
+
 # Take the stationing from the pull sheet and
 # organize it into a numerically ordered list,
 # where duplicate values are removed
@@ -20,9 +21,9 @@ def sort_stationing():
     stationing_values = sorted(stationing_values)
 
     # Print the stationing values with two decimal places
-    print("Stationing Values:")
-    for value in stationing_values:
-        print(f"{value:.2f}")
+    # print("Stationing Values:")
+    # for value in stationing_values:
+    #     print(f"{value:.2f}")
 
 
 # With the sorted stationing, sort which cables
