@@ -1,4 +1,4 @@
-from cable_classes import *
+from cable_classes import stationing_values
 from visualizer import *
 
 
@@ -21,9 +21,9 @@ def sort_stationing():
     stationing_values = sorted(stationing_values)
 
     # Print the stationing values with two decimal places
-    # print("Stationing Values:")
-    # for value in stationing_values:
-    #     print(f"{value:.2f}")
+    print("Stationing Values:")
+    for value in stationing_values:
+        print(f"{value:.2f}")
 
 
 # With the sorted stationing, sort which cables

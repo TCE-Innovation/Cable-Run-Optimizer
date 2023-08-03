@@ -14,7 +14,6 @@ def get_cable_pull_sheet():
         if file_name.endswith('.xlsx') or file_name.endswith('.xls'):
             # Check if the file name is "Messenger Cable Sizes"
             if file_name == 'Cable Sizes.xlsx':
-                get_cable_sizes()
                 continue  # Skip this file and move to the next file
 
             # Construct the full file path
@@ -29,6 +28,7 @@ def get_cable_pull_sheet():
             print("Sheet Names:")
             for sheet_name in workbook.sheetnames:
                 print(sheet_name)
+            print()
 
     # Initialize variables to store relevant column indices
     # This is done because the formatting of pull sheets can vary
@@ -80,16 +80,14 @@ def get_cable_pull_sheet():
         express = sheet.cell(row=row[0].row,
                              column=express_col_index).value if express_col_index != -1 else None
 
-        cable = Cable(pull_number, stationing_start, stationing_end, express, cable_size)
+        cable = Cable(pull_number, stationing_start, stationing_end, cable_size, express)
         cable_list.append(cable)
 
-    # for cable in cable_list:
-    #     print("Pull Number:", cable.pull_number)
-    #     print("Stationing Start:", cable.stationing_start)
-    #     print("Stationing End:", cable.stationing_end)
-    #     print("Cable Size:", cable.express)
-    #     print("Express:", cable.cable_size)
-    #     print()
+    print("Cable Pull Sheet:")
+    for cable in cable_list:
+        print(
+            f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10}")
+    print()
 
 
 def get_cable_sizes():
@@ -116,12 +114,11 @@ def get_cable_sizes():
     workbook.close()
 
     # Access the parameters of a cable
-    # for cable in cable_sizes:
-    #     print("Size:", cable.size)
-    #     print("Diameter:", cable.diameter)
-    #     print("Cable Weight:", cable.pounds_per_foot)
-    #     print("Cross Sectional Area:", cable.cross_sectional_area)
-    #     print()
+    print("Cable Sizes Excel Info:")
+    for cable in cable_sizes:
+        print(
+            f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
+    print()
 
 
 def generate_output_file():
