@@ -35,7 +35,7 @@ def stationing_sections():
     for i in range(len(stationing_values) - 1):
         start = stationing_values[i]
         end = stationing_values[i + 1]
-        print(f"Between {start:.2f} and {end:.2f}:")
+        print(f"Cables between {start:.2f} and {end:.2f}:")
         for cable in cable_list:
             if (
                     (start <= float(cable.stationing_start.replace('+', '.')) < end)

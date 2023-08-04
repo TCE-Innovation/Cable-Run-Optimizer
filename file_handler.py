@@ -80,7 +80,7 @@ def get_cable_pull_sheet():
         express = sheet.cell(row=row[0].row,
                              column=express_col_index).value if express_col_index != -1 else None
 
-        cable = Cable(pull_number, stationing_start, stationing_end, cable_size, express)
+        cable = Cable(str(pull_number), stationing_start, stationing_end, cable_size, express)
         cable_list.append(cable)
 
     print("Cable Pull Sheet:")
