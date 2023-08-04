@@ -26,3 +26,6 @@ stationing_values = set()
 
 # List to hold cables to be drawn with their polar coordinates (radius and angle)
 draw_queue = []
+
+# Value to hold current bundle weight, max bundle weight to be set by user (typically ~20 lb/foot)
+global bundle_weight

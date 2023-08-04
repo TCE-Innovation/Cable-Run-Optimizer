@@ -11,7 +11,7 @@ dpi = (1000, 1000)  # Higher DPI (dots per inch)
 
 def draw_cable(draw, radius, angle_deg, cable, cable_info, polar_center):
     radius = radius * 50
-    scaling_factor = 50  # Increase the scaling factor
+    scaling_factor = 166.6667  # Increase the scaling factor
     offset_radius = 20  # Offset in the radial direction
     offset_angle_deg = 0  # No angle offset
     text_margin = 10  # Decreased margin
@@ -98,7 +98,7 @@ def generate_cable_image(draw_queue):
         draw.line([line_start, line_end], fill="black", width=1)
 
     # Draw grid lines
-    num_grid_lines = 10  # Adjust the number of grid lines
+    num_grid_lines = 6  # Adjust the number of grid lines
     radius_spacing = polar_graph_radius / num_grid_lines  # Calculate the spacing between grid lines
     for i in range(num_grid_lines):
         radius = (i + 1) * radius_spacing
@@ -130,7 +130,7 @@ def generate_cable_image(draw_queue):
         draw_cable(draw, radius, angle_deg, cable, cable_info, polar_graph_center)
 
     # Write "Scale: " text at the bottom left of the image
-    scale_text = "Scale: 1 inch/segment"
+    scale_text = "Scale: 0.5 inches/radius increment"
     text_color = "black"
     font_size = 20
     font = ImageFont.truetype("arial.ttf", font_size)
@@ -141,20 +141,6 @@ def generate_cable_image(draw_queue):
     # Save the image to a file or display it
     image.save("cable_image.png", dpi=dpi)  # Higher resolution
     image.show()
-
-
-# Get the cable sizes
-# get_cable_sizes()
-
-# cable_list = [
-#     Cable('1.160', '500+00', '600+00', '7C#14', 'E'),
-#     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
-#     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
-#     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
-#     Cable('1.161', '500+00', '600+00', '19C#14', 'E'),
-#     Cable('1.162', '500+00', '600+00', 'SCALE CABLE', 'E'),
-#     Cable('1.163', '500+00', '600+00', 'SCALE CABLE 2', 'E')
-# ]
 
 
 def add_to_draw_queue(cable, radius, angle_deg):

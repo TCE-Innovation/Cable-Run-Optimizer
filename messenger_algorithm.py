@@ -43,3 +43,16 @@ def stationing_sections():
             ):
                 print("-" + cable.pull_number)
         print()
+
+
+def check_bundle_weight(cable):
+    pass
+
+# Check if next cable placement will overlap with currently placed cables
+def check_for_overlap(cable, radius, angle):
+    overlap = False
+
+    if not overlap:
+        add_to_draw_queue(cable, radius, angle)
+    else:
+        return 1
