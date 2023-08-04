@@ -5,17 +5,44 @@ from cable_classes import *
 from visualizer import get_cable_pull_sheet
 import random
 
-get_cable_pull_sheet() # Excel with cables
 get_cable_sizes()      # Repository of all cables and their parameters
+get_cable_pull_sheet() # Excel with cables
 sort_stationing()      # List each stationing value in the pull sheet
 stationing_sections()  # List cables between each section of stationing
 
-cable_list.append(Cable('1.162', '500+00', '600+00', 'CABLE 2', 'E'))
-cable_list.append(Cable('1.162', '500+00', '600+00', 'CABLE 1', 'E'))
-print(cable_list[23].cable_size)
-# add_to_draw_queue(cable_list[23], 4, 0)
-add_to_draw_queue(cable_list[24], 0, 0)
-generate_cable_image(draw_queue)
+
+# Take the first five cables from cable_list
+selected_cables = cable_list[:5]
+
+print(cable_list[0].weight)
+
+# # Sort the selected cables based on the diameter of their cable sizes
+# sorted_cables = sorted(selected_cables, key=lambda cable: cable.cable_size.diameter, reverse=True)
+#
+# # Print the sorted cables
+# for cable in sorted_cables:
+#     print(f"Pull Number: {cable.pull_number}, Diameter: {cable.cable_size.diameter}")
+
+
+# for i in range(6):
+    # sort_cables_in_stationing_section
+
+
+
+
+
+
+
+
+
+
+
+# cable_list.append(Cable('1.162', '500+00', '600+00', 'CABLE 2', 'E'))
+# cable_list.append(Cable('1.162', '500+00', '600+00', 'CABLE 1', 'E'))
+# print(cable_list[23].cable_size)
+# # add_to_draw_queue(cable_list[23], 4, 0)
+# add_to_draw_queue(cable_list[24], 0, 0)
+# generate_cable_image(draw_queue)
 #
 # print("Distance between the two cables is:")
 # print(abs(draw_queue[0] - draw_queue[1]))

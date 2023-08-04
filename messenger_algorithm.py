@@ -2,7 +2,7 @@ from cable_classes import stationing_values
 from visualizer import *
 
 
-# Take the stationing from the pull sheet and
+# Take the stationing from pull sheet and
 # organize it into a numerically ordered list,
 # where duplicate values are removed
 def sort_stationing():
@@ -25,6 +25,17 @@ def sort_stationing():
     for value in stationing_values:
         print(f"{value:.2f}")
 
+# Take cables from pull sheet and
+# organize them from biggest to smallest
+# def sort_cables():
+#
+#     print("Cable Pull Sheet Organized:")
+#     for cable in cable_list:
+#         print(
+#             f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10}")
+#     print()
+#
+#     pass
 
 # With the sorted stationing, sort which cables
 # are between each section between stationings
@@ -45,8 +56,9 @@ def stationing_sections():
         print()
 
 
-def check_bundle_weight(cable):
-    pass
+# def check_bundle_weight(cable):
+#     if bundle_weight + cable.
+#     pass
 
 # Check if next cable placement will overlap with currently placed cables
 def check_for_overlap(cable, radius, angle):

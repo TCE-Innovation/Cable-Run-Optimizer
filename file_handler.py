@@ -24,11 +24,11 @@ def get_cable_pull_sheet():
             sheet = workbook.active
 
             # Print the sheet names
-            print(f"File: {file_name}")
-            print("Sheet Names:")
-            for sheet_name in workbook.sheetnames:
-                print(sheet_name)
-            print()
+            # print(f"File: {file_name}")
+            # print("Sheet Names:")
+            # for sheet_name in workbook.sheetnames:
+            #     print(sheet_name)
+            # print()
 
     # Initialize variables to store relevant column indices
     # This is done because the formatting of pull sheets can vary
@@ -80,14 +80,36 @@ def get_cable_pull_sheet():
         express = sheet.cell(row=row[0].row,
                              column=express_col_index).value if express_col_index != -1 else None
 
-        cable = Cable(str(pull_number), stationing_start, stationing_end, cable_size, express)
+    #     cable = Cable(str(pull_number), stationing_start, stationing_end, cable_size, express)
+    #     cable_list.append(cable)
+
+        # Find the corresponding CableParameters object based on the cable size
+        cable_info = None
+        for info in cable_sizes:
+            print(info.size)
+            print(cable_size)
+            if info.size == cable_size:
+                cable_info = info
+                break
+
+        # Create the Cable object with associated cable_info
+        cable = Cable(
+            str(pull_number),
+            stationing_start,
+            stationing_end,
+            cable_size,
+            express,
+            cable_info.diameter,
+            cable_info.pounds_per_foot
+        )
         cable_list.append(cable)
 
-    print("Cable Pull Sheet:")
-    for cable in cable_list:
-        print(
-            f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10}")
-    print()
+    # print("Cable Pull Sheet:")
+    # for cable in cable_list:
+    #     print(
+    #         f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10}")
+    # print()
+    print("CABLE PULL SHEET OBTAINED")
 
 
 def get_cable_sizes():
@@ -114,11 +136,12 @@ def get_cable_sizes():
     workbook.close()
 
     # Access the parameters of a cable
-    print("Cable Sizes Excel Info:")
-    for cable in cable_sizes:
-        print(
-            f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
-    print()
+    # print("Cable Sizes Excel Info:")
+    # for cable in cable_sizes:
+    #     print(
+    #         f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
+    # print()
+    print("CABLE SIZES OBTAINED")
 
 
 def generate_output_file():
