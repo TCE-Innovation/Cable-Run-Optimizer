@@ -7,8 +7,10 @@ import random
 
 get_cable_sizes()      # Repository of all cables and their parameters
 get_cable_pull_sheet() # Excel with cables
-sort_stationing()      # List each stationing value in the pull sheet
+#sort_stationing()      # List each stationing value in the pull sheet
 stationing_sections()  # List cables between each section of stationing
+
+print(cable_list[0].stationing_end)
 
 add_to_draw_queue(cable_list[0], 5, 90)
 generate_cable_image(draw_queue)

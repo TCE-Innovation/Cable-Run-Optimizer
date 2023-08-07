@@ -115,6 +115,12 @@ def get_cable_pull_sheet():
     #     cable = Cable(str(pull_number), stationing_start, stationing_end, cable_size, express)
     #     cable_list.append(cable)
 
+        # Modify stationing values
+        if stationing_start is not None:
+            stationing_start = int(stationing_start.replace('+', ''))
+        if stationing_end is not None:
+            stationing_end = int(stationing_end.replace('+', ''))
+
         # Find the corresponding CableParameters object based on the cable size
         cable_info = None
         for info in cable_sizes:
