@@ -9,7 +9,7 @@ image_size = (1000, 1000)  # Higher resolution image size
 dpi = (1000, 1000)  # Higher DPI (dots per inch)
 
 
-def draw_cable(draw, radius, angle_deg, cable, cable_info, polar_center):
+def draw_cable(draw, radius, angle_deg, cable, polar_center):
     radius = radius * 50
     scaling_factor = 166.6667  # Increase the scaling factor
     offset_radius = 20  # Offset in the radial direction
@@ -23,10 +23,10 @@ def draw_cable(draw, radius, angle_deg, cable, cable_info, polar_center):
     angle_rad = math.radians(360 - angle_deg)
 
     # Extract cable data attributes
-    size = cable_info.size
-    diameter = cable_info.diameter
-    pounds_per_foot = cable_info.pounds_per_foot
-    cross_sectional_area = cable_info.cross_sectional_area
+    size = cable.cable_size
+    diameter = cable.diameter
+    pounds_per_foot = cable.weight
+    cross_sectional_area = cable.cross_sectional_area
 
     # Calculate the scaled radius based on the cable's diameter
     cable_radius = diameter * scaling_factor / 2
@@ -125,10 +125,13 @@ def generate_cable_image(draw_queue):
         )
         draw.line([line_start, line_end], fill="black", width=1)
 
-    # Loop through the draw_queue and draw each cable
-    for radius, angle_deg, cable, cable_info in draw_queue:
-        draw_cable(draw, radius, angle_deg, cable, cable_info, polar_graph_center)
+    # # Loop through the draw_queue and draw each cable
+    # for radius, angle_deg, cable, cable_info in draw_queue:
+    #     draw_cable(draw, radius, angle_deg, cable, cable_info, polar_graph_center)
 
+    # Loop through the draw_queue and draw each cable
+    for radius, angle_deg, cable in draw_queue:
+        draw_cable(draw, radius, angle_deg, cable, polar_graph_center)
     # Write "Scale: " text at the bottom left of the image
     scale_text = "Scale: 0.5 inches/radius increment"
     text_color = "black"
@@ -143,28 +146,39 @@ def generate_cable_image(draw_queue):
     image.show()
 
 
+# def add_to_draw_queue(cable, radius, angle_deg):
+#     # Iterate through the list of cable objects
+#     for cable_obj in cable_list:
+#         # Check if the current cable object matches the provided cable
+#         if cable_obj == cable:
+#             # Initialize a variable to store cable information
+#             cable_info = None
+#             # Iterate through the list of cable size information
+#             for info in cable_sizes:
+#                 # Check if the cable size matches the size of the current cable object
+#                 if info.size == cable_obj.cable_size:
+#                     # If a match is found, store the cable size information
+#                     cable_info = info
+#                     # Exit the loop since we found the relevant cable size
+#                     break
+#             # Check if cable information was found
+#             if cable_info is not None:
+#                 # Add cable information to the draw queue
+#                 # This includes the radius, angle, cable object, and cable size details
+#                 draw_queue.append((radius, angle_deg, cable_obj, cable_info))
+#             # Exit the loop since we found the relevant cable object
+#             break
+
+# def add_to_draw_queue(cable, radius, angle_deg):
+#     # Extract cable information directly from the cable object
+#     cable_info = cable.diameter, cable.weight, cable.cross_sectional_area
+#
+#     # Add cable information to the draw queue
+#     # This includes the radius, angle, cable object with cable size details
+#     draw_queue.append((radius, angle_deg, cable, *cable_info))
+
 def add_to_draw_queue(cable, radius, angle_deg):
-    # Iterate through the list of cable objects
-    for cable_obj in cable_list:
-        # Check if the current cable object matches the provided cable
-        if cable_obj == cable:
-            # Initialize a variable to store cable information
-            cable_info = None
-            # Iterate through the list of cable size information
-            for info in cable_sizes:
-                # Check if the cable size matches the size of the current cable object
-                if info.size == cable_obj.cable_size:
-                    # If a match is found, store the cable size information
-                    cable_info = info
-                    # Exit the loop since we found the relevant cable size
-                    break
-            # Check if cable information was found
-            if cable_info is not None:
-                # Add cable information to the draw queue
-                # This includes the radius, angle, cable object, and cable size details
-                draw_queue.append((radius, angle_deg, cable_obj, cable_info))
-            # Exit the loop since we found the relevant cable object
-            break
+    draw_queue.append((radius, angle_deg, cable))
 
 
 # Draw each cable with specified coordinates, radius, angle

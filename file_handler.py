@@ -4,6 +4,38 @@ import math
 from cable_classes import *
 
 
+def get_cable_sizes():
+    # Provide the path to the folder containing the Cable Pull Sheet
+    file_path = r'C:\Users\roneill\Documents\CRO\Cable Sizes.xlsx'
+
+    # Load the Excel file
+    workbook = openpyxl.load_workbook(file_path)
+    sheet = workbook.active
+
+    # Iterate over the rows starting from the second row
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        # Extract the cable parameters from each row
+        size = row[0]
+        diameter = row[1]
+        pounds_per_foot = row[2]
+        cross_sectional_area = round(math.pi * (diameter/2) ** 2, 2)
+
+        # Create a CableParameters object and append it to the list
+        cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
+        cable_sizes.append(cable)
+
+    # Close the workbook
+    workbook.close()
+
+    # Access the parameters of a cable
+    # print("Cable Sizes Excel Info:")
+    # for cable in cable_sizes:
+    #     print(
+    #         f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
+    # print()
+    print("CABLE SIZES OBTAINED")
+
+
 def get_cable_pull_sheet():
     # Provide the path to the folder containing the Cable Pull Sheet
     folder_path = r'C:\Users\roneill\Documents\CRO'
@@ -100,48 +132,17 @@ def get_cable_pull_sheet():
             cable_size,
             express,
             cable_info.diameter,
-            cable_info.pounds_per_foot
+            cable_info.pounds_per_foot,
+            cable_info.cross_sectional_area
         )
         cable_list.append(cable)
 
-    # print("Cable Pull Sheet:")
-    # for cable in cable_list:
-    #     print(
-    #         f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10}")
-    # print()
+    print("Cable Pull Sheet:")
+    for cable in cable_list:
+        print(
+            f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10} Diameter: {cable.diameter:<10} Weight: {cable.weight:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
+    print()
     print("CABLE PULL SHEET OBTAINED")
-
-
-def get_cable_sizes():
-    # Provide the path to the folder containing the Cable Pull Sheet
-    file_path = r'C:\Users\roneill\Documents\CRO\Cable Sizes.xlsx'
-
-    # Load the Excel file
-    workbook = openpyxl.load_workbook(file_path)
-    sheet = workbook.active
-
-    # Iterate over the rows starting from the second row
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        # Extract the cable parameters from each row
-        size = row[0]
-        diameter = row[1]
-        pounds_per_foot = row[2]
-        cross_sectional_area = round(math.pi * (diameter/2) ** 2, 2)
-
-        # Create a CableParameters object and append it to the list
-        cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
-        cable_sizes.append(cable)
-
-    # Close the workbook
-    workbook.close()
-
-    # Access the parameters of a cable
-    # print("Cable Sizes Excel Info:")
-    # for cable in cable_sizes:
-    #     print(
-    #         f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
-    # print()
-    print("CABLE SIZES OBTAINED")
 
 
 def generate_output_file():

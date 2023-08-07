@@ -10,11 +10,13 @@ get_cable_pull_sheet() # Excel with cables
 sort_stationing()      # List each stationing value in the pull sheet
 stationing_sections()  # List cables between each section of stationing
 
+add_to_draw_queue(cable_list[0], 5, 90)
+generate_cable_image(draw_queue)
 
 # Take the first five cables from cable_list
-selected_cables = cable_list[:5]
-
-print(cable_list[0].weight)
+# selected_cables = cable_list[:5]
+#
+# print(cable_list[0].weight)
 
 # # Sort the selected cables based on the diameter of their cable sizes
 # sorted_cables = sorted(selected_cables, key=lambda cable: cable.cable_size.diameter, reverse=True)
@@ -26,15 +28,6 @@ print(cable_list[0].weight)
 
 # for i in range(6):
     # sort_cables_in_stationing_section
-
-
-
-
-
-
-
-
-
 
 
 # cable_list.append(Cable('1.162', '500+00', '600+00', 'CABLE 2', 'E'))
@@ -84,18 +77,3 @@ print(cable_list[0].weight)
 #     print(cable_list[i].cable_size)
 #     add_to_draw_queue(cable_list[i], random.randint(0, 9), random.randint(0, 360))
 # generate_cable_image(draw_queue)
-
-
-# For the Cable class:
-#
-# pull_number: The pull number of the cable.
-# stationing_start: The starting stationing of the cable.
-# stationing_end: The ending stationing of the cable.
-# cable_size: The size of the cable.
-# express: The express value of the cable.
-# For the CableParameters class:
-#
-# size: The size of the cable.
-# diameter: The diameter of the cable.
-# pounds_per_foot: The weight of the cable per foot.
-# cross_sectional_area: The cross-sectional area of the cable.

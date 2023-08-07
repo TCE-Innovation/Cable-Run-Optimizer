@@ -1,6 +1,6 @@
 class Cable:
     def __init__(self, pull_number, stationing_start, stationing_end,
-                 cable_size, express, diameter, weight):
+                 cable_size, express, diameter, weight, cross_sectional_area):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -8,6 +8,7 @@ class Cable:
         self.express = express
         self.diameter = diameter
         self.weight = weight
+        self.cross_sectional_area = cross_sectional_area
 
 
 class CableParameters:
