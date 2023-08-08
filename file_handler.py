@@ -33,7 +33,7 @@ def get_cable_sizes():
     #     print(
     #         f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
     # print()
-    print("CABLE SIZES OBTAINED")
+    # print("CABLE SIZES OBTAINED")
 
 
 def get_cable_pull_sheet():
@@ -80,25 +80,23 @@ def get_cable_pull_sheet():
             # Check if the header contains the keywords
             if 'pull' in header:
                 pull_number_col_index = column_index
-            elif 'stationing' in header:
-                if 'start' in header:
-                    stationing_start_col_index = column_index
-                elif 'end' in header:
-                    stationing_end_col_index = column_index
+            elif 'start' in header or 'from' in header:
+                stationing_start_col_index = column_index
+            elif 'end' in header or 'to' in header:
+                stationing_end_col_index = column_index
             elif 'size' in header:
                 cable_size_col_index = column_index
             elif 'express' in header:
                 express_col_index = column_index
 
-    # Print the identified column indices
-    # print("Pull Column Index:", pull_number_col_index)
+    # # Print the identified column indices
+    # print("Pull # Column Index:", pull_number_col_index)
     # print("Stationing Start Column Index:", stationing_start_col_index)
     # print("Stationing End Column Index:", stationing_end_col_index)
     # print("Cable Size Column Index:", cable_size_col_index)
     # print("Express Column Index:", express_col_index)
     # print()
 
-    # Iterate over the rows to extract information from relevant columns
     # Iterate over the rows to extract information from relevant columns
     for row in sheet.iter_rows(min_row=2):
         pull_number = sheet.cell(row=row[0].row,
@@ -122,26 +120,39 @@ def get_cable_pull_sheet():
             stationing_end = int(stationing_end.replace('+', ''))
 
         # Find the corresponding CableParameters object based on the cable size
+        # Initialize a variable to store cable information
         cable_info = None
+        # Iterate through the list of cable size information
         for info in cable_sizes:
-            print(info.size)
-            print(cable_size)
+            # Check if the cable size matches the size of the current cable object
             if info.size == cable_size:
+                # If a match is found, store the cable size information
                 cable_info = info
+                # Exit the loop since we found the relevant cable size
                 break
-
+        # print(pull_number)
+        # print(stationing_start)
+        # print(stationing_end)
+        # print(cable_size)
+        # print(express)
+        # print(cable_info.diameter)
+        # print(cable_info.pounds_per_foot)
+        # print(cable_info.cross_sectional_area)
         # Create the Cable object with associated cable_info
-        cable = Cable(
-            str(pull_number),
-            stationing_start,
-            stationing_end,
-            cable_size,
-            express,
-            cable_info.diameter,
-            cable_info.pounds_per_foot,
-            cable_info.cross_sectional_area
-        )
-        cable_list.append(cable)
+        if cable_info is not None:
+            # print(pull_number)
+            cable = Cable(
+                str(pull_number),
+                int(stationing_start),
+                int(stationing_end),
+                cable_size,
+                express,
+                cable_info.diameter,
+                cable_info.pounds_per_foot,
+                cable_info.cross_sectional_area
+            )
+            cable_list.append(cable)
+
 
     print("Cable Pull Sheet:")
     for cable in cable_list:
@@ -149,6 +160,83 @@ def get_cable_pull_sheet():
             f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10} Diameter: {cable.diameter:<10} Weight: {cable.weight:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
     print()
     print("CABLE PULL SHEET OBTAINED")
+
+
+# Take the stationing from pull sheet and
+# organize it into a numerically ordered list,
+# where duplicate values are removed
+def sort_stationing():
+    global stationing_values
+
+    for cable in cable_list:
+        if cable.stationing_start:
+            stationing_values.add(cable.stationing_start)
+
+        if cable.stationing_end:
+            stationing_values.add(cable.stationing_end)
+
+    # Sort the values numerically
+    stationing_values = sorted(stationing_values)
+
+    # # Print the stationing values with two decimal places
+    # print("Stationing Values:")
+    # for value in stationing_values:
+    #     print(f"{value}")
+    # Print the stationing values with two decimal places
+    print("Stationing Values:")
+    for value in stationing_values:
+        print(f"{str(value)[:-2]}+{str(value)[-2:]}")
+
+
+# With the sorted stationing, print which cables
+# are between each section between stationings
+# def stationing_sections():
+#     print()
+#     print("STATIONING SECTIONS")
+#
+#     # Iterate through the stationing values to define sections
+#     for i in range(len(stationing_values) - 1):
+#         start = stationing_values[i]
+#         end = stationing_values[i + 1]
+#
+#         # Convert start and end to strings and then format them
+#         formatted_start = f"{str(start)[:-2]}+{str(start)[-2:]}"
+#         formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
+#
+#         # Print the range of stationing values for the current section
+#         print(f"Cables between {formatted_start} and {formatted_end}:")
+#
+#         # Iterate through the cable list to find cables within the current section
+#         for cable in cable_list:
+#             print("-" + cable.pull_number)  # Print the pull number of the cable
+#
+#         print()  # Print an empty line between sections
+def stationing_sections():
+    print()
+    print("STATIONING SECTIONS")
+
+    # Iterate through the stationing values to define sections
+    for i in range(len(stationing_values) - 1):
+        start = stationing_values[i]
+        end = stationing_values[i + 1]
+
+        # Convert start and end to strings and then format them
+        formatted_start = f"{str(start)[:-2]}+{str(start)[-2:]}"
+        formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
+
+        # Print the range of stationing values for the current section
+        print(f"Cables between {formatted_start} and {formatted_end}:")
+
+        # Iterate through the cable list to find cables within the current section
+        cables_between = []
+        for cable in cable_list:
+            if cable.stationing_start <= start and cable.stationing_end >= end:
+                cables_between.append("-" + cable.pull_number)  # Add the pull number to the list
+
+        # Print the list of cables between the current section
+        print("\n".join(cables_between))
+
+        print()  # Print an empty line between sections
 
 
 def generate_output_file():

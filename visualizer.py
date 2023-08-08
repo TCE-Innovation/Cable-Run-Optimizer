@@ -146,44 +146,5 @@ def generate_cable_image(draw_queue):
     image.show()
 
 
-# def add_to_draw_queue(cable, radius, angle_deg):
-#     # Iterate through the list of cable objects
-#     for cable_obj in cable_list:
-#         # Check if the current cable object matches the provided cable
-#         if cable_obj == cable:
-#             # Initialize a variable to store cable information
-#             cable_info = None
-#             # Iterate through the list of cable size information
-#             for info in cable_sizes:
-#                 # Check if the cable size matches the size of the current cable object
-#                 if info.size == cable_obj.cable_size:
-#                     # If a match is found, store the cable size information
-#                     cable_info = info
-#                     # Exit the loop since we found the relevant cable size
-#                     break
-#             # Check if cable information was found
-#             if cable_info is not None:
-#                 # Add cable information to the draw queue
-#                 # This includes the radius, angle, cable object, and cable size details
-#                 draw_queue.append((radius, angle_deg, cable_obj, cable_info))
-#             # Exit the loop since we found the relevant cable object
-#             break
-
-# def add_to_draw_queue(cable, radius, angle_deg):
-#     # Extract cable information directly from the cable object
-#     cable_info = cable.diameter, cable.weight, cable.cross_sectional_area
-#
-#     # Add cable information to the draw queue
-#     # This includes the radius, angle, cable object with cable size details
-#     draw_queue.append((radius, angle_deg, cable, *cable_info))
-
 def add_to_draw_queue(cable, radius, angle_deg):
     draw_queue.append((radius, angle_deg, cable))
-
-
-# Draw each cable with specified coordinates, radius, angle
-# add_to_draw_queue(cable_list[5], 5, 30)
-# add_to_draw_queue(cable_list[6], 0, 0)
-
-# Generate the final image
-# generate_cable_image(draw_queue)
