@@ -21,13 +21,23 @@ create_stationing_sections()  # List cables between each section of stationing
 
 # print(cables_between_stationing[54300][0])
 
-print("Test: ")
-print(cable_list[0].diameter)
-print("Test 2:")
-print(cables_between_stationing[54300, 55300][1].diameter)
+# print("Test: ")
+# print(cable_list[0].diameter)
+# print("Test 2:")
+# # print(cables_between_stationing[54300, 55300][1].cable_size)
+#
+# for cable in cables_between_stationing[(54300, 55300)]:
+#     print(cable.cable_size)
 
+# Iterate through the stationing ranges in the dictionary
+for start, end in cables_between_stationing.keys():
+    print(f"Stationing range: {start} to {end}")
 
+    # Iterate through each cable in the stationing range
+    for cable in cables_between_stationing[(start, end)]:
+        print(f"Cable Size: {cable.cable_size}")
 
+    print()  # Print an empty line between stationing ranges
 
 # print(cable_list[0].stationing_end)
 #
