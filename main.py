@@ -8,7 +8,23 @@ import random
 get_cable_sizes()      # Excel of all cables and their parameters
 get_cable_pull_sheet() # Pull Sheet excel
 sort_stationing()      # List each stationing value in the pull sheet
-stationing_sections()  # List cables between each section of stationing
+create_stationing_sections()  # List cables between each section of stationing
+
+# Access the dictionary and print its contents
+# for section, cables in cables_between_stationing.items():
+#     # Print stationing range with plus sign before the last two digits
+#     print(f"Cables between {str(section[0])[:-2]}+{str(section[0])[-2:]} and {str(section[1])[:-2]}+{str(section[1])[-2:]}:")
+#     for cable in cables:
+#         print(cable)
+#     print()  # Print an empty line between sections
+#
+# print("Test: ")
+# print(cables_between_stationing[54300][0])
+
+print(cables_between_stationing[54300, 55300][0])
+
+
+
 
 # print(cable_list[0].stationing_end)
 #
