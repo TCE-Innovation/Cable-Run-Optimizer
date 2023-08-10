@@ -11,6 +11,10 @@ class Cable:
         self.cross_sectional_area = cross_sectional_area
 
 
+# List of Cable objects
+cable_list = []
+
+
 class CableParameters:
     def __init__(self, size, diameter, pounds_per_foot, cross_sectional_area):
         self.size = size
@@ -19,11 +23,35 @@ class CableParameters:
         self.cross_sectional_area = cross_sectional_area
 
 
-# List of Cable objects
-cable_list = []
-
 # List to store cable parameter objects
 cable_sizes = []
+
+
+class Bundle:
+    def __init__(self):
+        self.cables = []  # List to hold cable objects
+        self.radii = []   # List to hold radii
+        self.angles = []  # List to hold angles
+
+
+# Create an empty dictionary to represent bundles
+bundles = {}
+
+
+class Conduit:
+    def __init__(self):
+        self.cables = []  # List to hold cable objects
+        self.radii = []   # List to hold radii
+        self.angles = []  # List to hold angles
+
+    def add_cable(self, cable, radius, angle):
+        self.cables.append(cable)
+        self.radii.append(radius)
+        self.angles.append(angle)
+
+
+# Create an empty dictionary to represent conduits
+conduits = {}
 
 # Initialize an empty set to store unique stationing values
 stationing_values = set()
@@ -31,5 +59,5 @@ stationing_values = set()
 # List to hold cables to be drawn with their polar coordinates (radius and angle)
 draw_queue = []
 
-# Value to hold current bundle weight, max bundle weight to be set by user (typically ~20 lb/foot)
-global bundle_weight
+free_air_space_requirement = 0.6
+

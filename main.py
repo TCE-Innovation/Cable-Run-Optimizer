@@ -1,14 +1,27 @@
 from file_handler import *
 from user_interface import *
 from messenger_algorithm import *
+from conduit_algorithm import *
 from cable_classes import *
 from visualizer import get_cable_pull_sheet
 import random
 
-get_cable_sizes()      # Excel of all cables and their parameters
-get_cable_pull_sheet() # Pull Sheet excel
-sort_stationing()      # List each stationing value in the pull sheet
+get_cable_sizes()             # Excel of all cables and their parameters
+get_cable_pull_sheet()        # Pull Sheet excel
+sort_stationing()             # List each stationing value in the pull sheet
 create_stationing_sections()  # List cables between each section of stationing
+optimize_for_conduit()
+# generate_cable_image(draw_queue)
+
+# first_stationing_range = list(cables_between_stationing.keys())[0]
+# first_cables = cables_between_stationing[first_stationing_range]
+# first_cable = first_cables[0]
+#
+# print("First cable from the first stationing range:")
+# print(f"Stationing range: {str(first_stationing_range[0])[:-2]}+{str(first_stationing_range[0])[-2:]} to {str(first_stationing_range[1])[:-2]}+{str(first_stationing_range[1])[-2:]}")
+# print("Cable pull number:", first_cable.cable_size)
+
+
 
 # Access the dictionary and print its contents
 # for section, cables in cables_between_stationing.items():
@@ -30,14 +43,14 @@ create_stationing_sections()  # List cables between each section of stationing
 #     print(cable.cable_size)
 
 # Iterate through the stationing ranges in the dictionary
-for start, end in cables_between_stationing.keys():
-    print(f"Stationing range: {start} to {end}")
-
-    # Iterate through each cable in the stationing range
-    for cable in cables_between_stationing[(start, end)]:
-        print(f"Cable Size: {cable.cable_size}")
-
-    print()  # Print an empty line between stationing ranges
+# for start, end in cables_between_stationing.keys():
+#     print(f"Stationing range: {str(start)[:-2]}+{str(start)[-2:]} to {str(end)[:-2]}+{str(end)[-2:]}")
+#
+#     # Iterate through each cable in the stationing range
+#     for cable in cables_between_stationing[(start, end)]:
+#         print(f"Cable Size: {cable.cable_size}")
+#
+#     print()  # Print an empty line between stationing ranges
 
 # print(cable_list[0].stationing_end)
 #
