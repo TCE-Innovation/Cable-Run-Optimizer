@@ -11,7 +11,7 @@ get_cable_pull_sheet()        # Pull Sheet excel
 sort_stationing()             # List each stationing value in the pull sheet
 create_stationing_sections()  # List cables between each section of stationing
 optimize_for_conduit()
-# generate_cable_image(draw_queue)
+generate_cable_image(draw_queue)
 
 # first_stationing_range = list(cables_between_stationing.keys())[0]
 # first_cables = cables_between_stationing[first_stationing_range]

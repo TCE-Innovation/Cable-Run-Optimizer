@@ -207,7 +207,7 @@ def create_stationing_sections():
         formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
 
         # Print the range of stationing values for the current section
-        print(f"Cables between {formatted_start} and {formatted_end}:")
+        # print(f"Cables between {formatted_start} and {formatted_end}:")
 
         # Create a list to store cable objects between the stationing values
         cables_between = []

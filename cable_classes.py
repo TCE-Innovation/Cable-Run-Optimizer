@@ -41,13 +41,11 @@ bundles = {}
 class Conduit:
     def __init__(self):
         self.cables = []  # List to hold cable objects
-        self.radii = []   # List to hold radii
-        self.angles = []  # List to hold angles
+        self.cable_data = []  # List to hold cable data as (radius, angle) tuples
 
     def add_cable(self, cable, radius, angle):
         self.cables.append(cable)
-        self.radii.append(radius)
-        self.angles.append(angle)
+        self.cable_data.append((radius, angle))
 
 
 # Create an empty dictionary to represent conduits

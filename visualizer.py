@@ -10,9 +10,8 @@ dpi = (1000, 1000)  # Higher DPI (dots per inch)
 
 
 def draw_cable(draw, radius, angle_deg, cable, polar_center):
-    radius = radius * 50
-    scaling_factor = 166.6667  # Increase the scaling factor
-    offset_radius = 20  # Offset in the radial direction
+    # radius = radius * 83.5
+    scaling_factor = 82  # Increase the scaling factor
     offset_angle_deg = 0  # No angle offset
     text_margin = 10  # Decreased margin
     font_size = 12  # Larger font size
@@ -29,7 +28,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     cross_sectional_area = cable.cross_sectional_area
 
     # Calculate the scaled radius based on the cable's diameter
-    cable_radius = diameter * scaling_factor / 2
+    cable_radius = diameter * scaling_factor
 
     # Calculate the polar coordinates for the center of the circle
     center_x = polar_center[0] + radius * math.cos(angle_rad)
@@ -131,7 +130,7 @@ def generate_cable_image(draw_queue):
 
     # Loop through the draw_queue and draw each cable
     for radius, angle_deg, cable in draw_queue:
-        draw_cable(draw, radius, angle_deg, cable, polar_graph_center)
+        draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
     # Write "Scale: " text at the bottom left of the image
     scale_text = "Scale: 0.5 inches/radius increment"
     text_color = "black"
