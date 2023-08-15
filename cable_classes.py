@@ -53,7 +53,7 @@ conduits = {}
 
 conduit_size = 6 # inches
 conduit_number = 1
-conduit_free_air_space = 0
+conduit_free_air_space = 100
 
 # Initialize an empty set to store unique stationing values
 stationing_values = set()
