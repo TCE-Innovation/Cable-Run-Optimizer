@@ -13,7 +13,8 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     # radius = radius * 83.5
     scaling_factor = 82  # Increase the scaling factor
     offset_angle_deg = 0  # No angle offset
-    text_margin = 10  # Decreased margin
+    text_margin_x = -40  # Cable info text x
+    text_margin_y = -40  # Cable info text y
     font_size = 12  # Larger font size
     text_color = "black"
     font = ImageFont.truetype("arial.ttf", font_size)  # Set the font size
@@ -22,6 +23,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     angle_rad = math.radians(360 - angle_deg)
 
     # Extract cable data attributes
+    pull_number = cable.pull_number
     size = cable.cable_size
     diameter = cable.diameter
     pounds_per_foot = cable.weight
@@ -45,10 +47,11 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     draw.ellipse(cable_bbox, fill=cable_color)
 
     # Create a text label with the cable information
-    text_x = center_x - cable_radius  # No x-direction offset
-    text_y = center_y - cable_radius - text_margin  # Add y-direction offset
+    text_x = center_x - cable_radius - text_margin_x   # Add x-direction offset
+    text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
 
     text_lines = [
+        f"P: {pull_number}",
         f"S: {size}",
         f"D: {diameter}",
         f"CW: {pounds_per_foot}",
@@ -56,7 +59,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     ]
     for line in text_lines:
         draw.text((text_x, text_y), line, fill=text_color, font=font)
-        text_y += font_size + 10  # Adjust the vertical spacing
+        text_y += font_size + 5  # Adjust the vertical spacing
 
 
 def generate_cable_image(draw_queue):
@@ -131,14 +134,37 @@ def generate_cable_image(draw_queue):
     # Loop through the draw_queue and draw each cable
     for radius, angle_deg, cable in draw_queue:
         draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
+
+    global conduit_number
     # Write "Scale: " text at the bottom left of the image
     scale_text = "Scale: 0.5 inches/radius increment"
+    conduit_size_text = f"Conduit Size: {conduit_size} inches"
+    conduit_number_text = f"Conduit: {conduit_number}"
+    from conduit_algorithm import stationing_start_text
+    from conduit_algorithm import stationing_end_text
+    stationing_start_text = f"Start: {stationing_start_text}"
+    stationing_end_text = f"End: {stationing_end_text}"
+    from conduit_algorithm import conduit_free_air_space
+    conduit_free_air_space_text = f"Free Air Space: {conduit_free_air_space}%"
+    conduit_number += 1
     text_color = "black"
-    font_size = 20
+    font_size = 15
     font = ImageFont.truetype("arial.ttf", font_size)
-    text_x = 10
-    text_y = image_size[1] - font_size - 10
+    text_x = 5
+    # text_y = image_size[1] - font_size - 10
+    text_y = 5
     draw.text((text_x, text_y), scale_text, fill=text_color, font=font)
+    # Add another line of text for "Conduit Size"
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), conduit_size_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), conduit_number_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), conduit_free_air_space_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), stationing_start_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
 
     # Save the image to a file or display it
     image.save("cable_image.png", dpi=dpi)  # Higher resolution

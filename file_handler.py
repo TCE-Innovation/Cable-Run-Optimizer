@@ -38,7 +38,7 @@ def get_cable_sizes():
 
 def get_cable_pull_sheet():
     # Provide the path to the folder containing the Cable Pull Sheet
-    folder_path = r'C:\Users\roneill\Documents\CRO'
+    folder_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer'
 
     # Iterate over files in the file explorer
     for file_name in os.listdir(folder_path):
@@ -168,63 +168,58 @@ def get_cable_pull_sheet():
 def sort_stationing():
     global stationing_values
 
+    # Create a set to store unique stationing values
+    unique_stationing_values = set()
+
     for cable in cable_list:
         if cable.stationing_start:
-            stationing_values.add(cable.stationing_start)
+            unique_stationing_values.add(cable.stationing_start)
 
         if cable.stationing_end:
-            stationing_values.add(cable.stationing_end)
+            unique_stationing_values.add(cable.stationing_end)
 
-    # Sort the values numerically
-    stationing_values = sorted(stationing_values)
+    # Convert the set to a list and sort it numerically
+    stationing_values = sorted(list(unique_stationing_values))
 
-    # # Print the stationing values with two decimal places
-    # print("Stationing Values:")
-    # for value in stationing_values:
-    #     print(f"{value}")
-    # Print the stationing values with two decimal places
-    print("Stationing Values:")
+    print("Stationing Values: ")
     for value in stationing_values:
         print(f"{str(value)[:-2]}+{str(value)[-2:]}")
 
 
-# Define a global dictionary to store cables between stationing ranges
-cables_between_stationing = {}
 
-
-def create_stationing_sections():
-    global cables_between_stationing
-    print()
-    print("STATIONING SECTIONS")
-
-    # Iterate through the stationing values to define sections
-    for i in range(len(stationing_values) - 1):
-        start = stationing_values[i]
-        end = stationing_values[i + 1]
-
-        # Convert start and end to strings and then format them
-        formatted_start = f"{str(start)[:-2]}+{str(start)[-2:]}"
-        formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
-
-        # Print the range of stationing values for the current section
-        # print(f"Cables between {formatted_start} and {formatted_end}:")
-
-        # Create a list to store cable objects between the stationing values
-        cables_between = []
-
-        # Iterate through the cable list to find cables within the current section
-        for cable in cable_list:
-            if cable.stationing_start <= start and cable.stationing_end >= end:
-                cables_between.append(cable)  # Add the entire cable object to the list
-
-        # Store the cables between stationing values in the dictionary
-        cables_between_stationing[(start, end)] = cables_between
-
-        # Print the list of cables between the current section
-        # for cable in cables_between:
-        #     print(f"- Cable Pull Number: {cable.pull_number}, Diameter: {cable.diameter}, Weight: {cable.weight}")
-        #
-        # print()  # Print an empty line between sections
+# def create_stationing_sections():
+#     global cables_between_stationing
+#     print()
+#     print("STATIONING SECTIONS")
+#
+#     # Iterate through the stationing values to define sections
+#     for i in range(len(stationing_values) - 1):
+#         start = stationing_values[i]
+#         end = stationing_values[i + 1]
+#
+#         # Convert start and end to strings and then format them
+#         formatted_start = f"{str(start)[:-2]}+{str(start)[-2:]}"
+#         formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
+#
+#         # Print the range of stationing values for the current section
+#         # print(f"Cables between {formatted_start} and {formatted_end}:")
+#
+#         # Create a list to store cable objects between the stationing values
+#         cables_between = []
+#
+#         # Iterate through the cable list to find cables within the current section
+#         for cable in cable_list:
+#             if cable.stationing_start <= start and cable.stationing_end >= end:
+#                 cables_between.append(cable)  # Add the entire cable object to the list
+#
+#         # Store the cables between stationing values in the dictionary
+#         cables_between_stationing[(start, end)] = cables_between
+#
+#         # Print the list of cables between the current section
+#         # for cable in cables_between:
+#         #     print(f"- Cable Pull Number: {cable.pull_number}, Diameter: {cable.diameter}, Weight: {cable.weight}")
+#         #
+#         # print()  # Print an empty line between sections
 
 
 def generate_output_file():
