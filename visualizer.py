@@ -23,6 +23,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     angle_rad = math.radians(360 - angle_deg)
 
     # Extract cable data attributes
+    pull_number = cable.pull_number
     size = cable.cable_size
     diameter = cable.diameter
     pounds_per_foot = cable.weight
@@ -50,6 +51,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
 
     text_lines = [
+        f"P: {pull_number}",
         f"S: {size}",
         f"D: {diameter}",
         f"CW: {pounds_per_foot}",

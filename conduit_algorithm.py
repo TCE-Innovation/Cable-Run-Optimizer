@@ -28,6 +28,13 @@ def optimize_for_conduit():
             if cable.stationing_start <= start_stationing and cable.stationing_end >= end_stationing:
                 cables_within_range.append(cable)
                 print(cable.pull_number)
+        # Sort cables within the range based on cross-sectional area (largest cable first)
+        cables_within_range.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
+        # Print cables within the range after sorting
+        print("Cables within the stationing range after sorting:")
+        for cable in cables_within_range:
+            print(f"Pull Number: {cable.pull_number}, Cross-sectional Area: {cable.cross_sectional_area}")
+
 
         # Create initial conduit for stationing range
         conduit_name = "conduit" + str(conduit_number)
