@@ -5,19 +5,91 @@ import math
 
 
 def optimize_for_conduit():
+    from file_handler import stationing_values
     global conduit_number
     global conduit_free_air_space
-    # Place first cable down into center
-    # current_stationing = list(cables_between_stationing.keys())[0]
-    # first_cable = cables_between_stationing[current_stationing][0]
-    # add_to_draw_queue(first_cable, 0, 0)
+    global stationing_start_text
+    global stationing_end_text
 
-    conduit_name = "conduit" + str(conduit_number)
-    conduit = Conduit()
-    conduit.add_cable(cable_list[0], 0, 0)
-    add_to_draw_queue(cable_list[0], 0, 0)
-    print("First cable placed. Pull number: ", cable_list[0].pull_number)
-    conduits[conduit_name] = conduit
+    # Loop through the stationing values and group cables within each stationing range
+    print(len(stationing_values))
+    for i in range(len(stationing_values) - 1):
+        # define the two stationing values that cables will be optimized between
+        start_stationing = stationing_values[i]
+        print(f"Start stationing value: {start_stationing}")
+        end_stationing = stationing_values[i + 1]
+        print(f"End Stationing value: {end_stationing}")
+        stationing_start_text = f"{str(start_stationing)[:-2]}+{str(start_stationing)[-2:]}"
+        stationing_end_text = f"{str(end_stationing)[:-2]}+{str(end_stationing)[-2:]}"
+
+        # Create a list to store cables within the current stationing range
+        cables_within_range = []
+        for cable in cable_list:
+            if cable.stationing_start <= start_stationing and cable.stationing_end >= end_stationing:
+                cables_within_range.append(cable)
+                print(cable.pull_number)
+
+        # Create initial conduit for stationing range
+        conduit_name = "conduit" + str(conduit_number)
+        conduit = Conduit()
+        conduits[conduit_name] = conduit
+
+        # Go through all cables in the stationing range
+        for cable in cables_within_range:
+            # Check if cable added to current conduit wouldn't violate free air space requirement
+            if check_free_air_space(conduit, cable) == 0:
+                find_open_space(conduit, cable)
+            # else if cable can't fit, then create image for the current conduit and move onto next conduits
+            else:
+                print("Creating new conduit")
+
+                # Draw image, reset draw queue, increment conduit number printed onto next image
+                generate_cable_image(draw_queue)    # Create full conduit image
+                draw_queue.clear()                  # Empty draw queue for next image
+                conduit_number += 1                 # Identifier for image
+                conduit_name = "conduit" + str(conduit_number)
+
+                conduit = Conduit()
+                conduits[conduit_name] = conduit
+
+                conduit_free_air_space = 100 # Reset airspace in conduit
+
+                # With the cable that failed to be placed into the previous conduit, place into next one
+                check_free_air_space(conduit, cable)    # This function should always pass
+                find_open_space(conduit, cable)         # Place next conduit at 0,0
+
+        generate_cable_image(draw_queue)  # Create full conduit image
+        draw_queue.clear()  # Empty draw queue for next image
+        conduit_number += 1  # Identifier for image
+        conduit_name = "conduit" + str(conduit_number)
+
+    # # At this point, all cables within the stationing range have been assigned into a conduit.
+    # # Create new conduit image
+    # print("Pre clear")
+    # for radius, angle_deg, cable in draw_queue:
+    #     print("Radius:", radius)
+    #     print("Angle (degrees):", angle_deg)
+    #     print("Cable Information:", cable.pull_number, cable.stationing_start, cable.stationing_end)
+    #     print("-------------------------------")
+    # print ()
+    # generate_cable_image(draw_queue)  # Create full conduit image
+    # draw_queue.clear()  # Empty draw queue for next image
+    # print("Post clear")
+    # for radius, angle_deg, cable in draw_queue:
+    #     print("Radius:", radius)
+    #     print("Angle (degrees):", angle_deg)
+    #     print("Cable Information:", cable.pull_number, cable.stationing_start, cable.stationing_end)
+    #     print("-------------------------------")
+
+
+
+
+    # conduit_name = "conduit" + str(conduit_number)
+    # conduit = Conduit()
+    # conduit.add_cable(cable_list[0], 0, 0)
+    # add_to_draw_queue(cable_list[0], 0, 0)
+    # print("First cable placed. Pull number: ", cable_list[0].pull_number)
+    # conduits[conduit_name] = conduit
 
     # if not enough space, create new conduit and load next biggest cable to center
     # if enough space, trigger placement function
@@ -26,21 +98,21 @@ def optimize_for_conduit():
     # check_free_air_space(conduit, cable_list[2])
     # find_open_space(conduit, cable_list[2])
 
-    for cable in cable_list[1:]:
-        if check_free_air_space(conduit, cable) == 0:
-            find_open_space(conduit, cable)
-        else:
-            print("Creating new conduit")
-            generate_cable_image(draw_queue) # Create full conduit imagae
-            conduit_number += 1              # Identifier for image
-            draw_queue.clear()               # Empty draw queue for next image
-            conduit_name = "conduit" + str(conduit_number)
-            conduit = Conduit()
-            conduit_free_air_space = 100
-            check_free_air_space(conduit, cable)
-            find_open_space(conduit, cable)
-            conduits[conduit_name] = conduit
-            generate_cable_image(draw_queue)
+    # for cable in cable_list[1:]:
+    #     if check_free_air_space(conduit, cable) == 0:
+    #         find_open_space(conduit, cable)
+    #     else:
+    #         print("Creating new conduit")
+    #         generate_cable_image(draw_queue) # Create full conduit imagae
+    #         conduit_number += 1              # Identifier for image
+    #         draw_queue.clear()               # Empty draw queue for next image
+    #         conduit_name = "conduit" + str(conduit_number)
+    #         conduit = Conduit()
+    #         conduit_free_air_space = 100
+    #         check_free_air_space(conduit, cable)
+    #         find_open_space(conduit, cable)
+    #         conduits[conduit_name] = conduit
+    #         generate_cable_image(draw_queue)
 
 
 def check_free_air_space(conduit, cable):
@@ -53,11 +125,11 @@ def check_free_air_space(conduit, cable):
     total_area += cable.cross_sectional_area
 
     if total_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
-        print("Conduit can fit next cable")
+        # print("Conduit can fit next cable")
         # print("Updated total current area taken up in the conduit: ", round(total_area, 2))
         # print(f"Percent of air space taken up by cable: {round((total_area/113.1)*100, 2)}%")
         conduit_free_air_space = round((1 - (total_area / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
-        print(f"Free Air Space: {conduit_free_air_space}%")
+        # print(f"Free Air Space: {conduit_free_air_space}%")
 
         return 0
     else:

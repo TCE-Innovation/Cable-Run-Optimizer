@@ -46,7 +46,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     draw.ellipse(cable_bbox, fill=cable_color)
 
     # Create a text label with the cable information
-    text_x = center_x - cable_radius  - text_margin_x   # Add x-direction offset
+    text_x = center_x - cable_radius - text_margin_x   # Add x-direction offset
     text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
 
     text_lines = [
@@ -138,6 +138,10 @@ def generate_cable_image(draw_queue):
     scale_text = "Scale: 0.5 inches/radius increment"
     conduit_size_text = f"Conduit Size: {conduit_size} inches"
     conduit_number_text = f"Conduit: {conduit_number}"
+    from conduit_algorithm import stationing_start_text
+    from conduit_algorithm import stationing_end_text
+    stationing_start_text = f"Start: {stationing_start_text}"
+    stationing_end_text = f"End: {stationing_end_text}"
     from conduit_algorithm import conduit_free_air_space
     conduit_free_air_space_text = f"Free Air Space: {conduit_free_air_space}%"
     conduit_number += 1
@@ -155,6 +159,10 @@ def generate_cable_image(draw_queue):
     draw.text((text_x, text_y), conduit_number_text, fill=text_color, font=font)
     text_y += font_size + 5  # Adjust vertical spacing
     draw.text((text_x, text_y), conduit_free_air_space_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), stationing_start_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
 
     # Save the image to a file or display it
     image.save("cable_image.png", dpi=dpi)  # Higher resolution

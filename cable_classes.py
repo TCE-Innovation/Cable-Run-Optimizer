@@ -54,9 +54,11 @@ conduits = {}
 conduit_size = 6 # inches
 conduit_number = 1
 conduit_free_air_space = 100
+stationing_start_text = None
+stationing_end_text = None
 
-# Initialize an empty set to store unique stationing values
-stationing_values = set()
+# Initialize an empty list to store unique stationing values
+stationing_values = list()
 
 # List to hold cables to be drawn with their polar coordinates (radius and angle)
 draw_queue = []
