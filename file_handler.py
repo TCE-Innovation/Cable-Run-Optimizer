@@ -6,7 +6,7 @@ from cable_classes import *
 
 def get_cable_sizes():
     # Provide the path to the folder containing the Cable Pull Sheet
-    file_path = r'C:\Users\roneill\Documents\CRO\Cable Sizes.xlsx'
+    file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
 
     # Load the Excel file
     workbook = openpyxl.load_workbook(file_path)
@@ -26,14 +26,6 @@ def get_cable_sizes():
 
     # Close the workbook
     workbook.close()
-
-    # Access the parameters of a cable
-    # print("Cable Sizes Excel Info:")
-    # for cable in cable_sizes:
-    #     print(
-    #         f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
-    # print()
-    # print("CABLE SIZES OBTAINED")
 
 
 def get_cable_pull_sheet():
@@ -186,64 +178,30 @@ def sort_stationing():
         print(f"{str(value)[:-2]}+{str(value)[-2:]}")
 
 
-
-# def create_stationing_sections():
-#     global cables_between_stationing
-#     print()
-#     print("STATIONING SECTIONS")
-#
-#     # Iterate through the stationing values to define sections
-#     for i in range(len(stationing_values) - 1):
-#         start = stationing_values[i]
-#         end = stationing_values[i + 1]
-#
-#         # Convert start and end to strings and then format them
-#         formatted_start = f"{str(start)[:-2]}+{str(start)[-2:]}"
-#         formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
-#
-#         # Print the range of stationing values for the current section
-#         # print(f"Cables between {formatted_start} and {formatted_end}:")
-#
-#         # Create a list to store cable objects between the stationing values
-#         cables_between = []
-#
-#         # Iterate through the cable list to find cables within the current section
-#         for cable in cable_list:
-#             if cable.stationing_start <= start and cable.stationing_end >= end:
-#                 cables_between.append(cable)  # Add the entire cable object to the list
-#
-#         # Store the cables between stationing values in the dictionary
-#         cables_between_stationing[(start, end)] = cables_between
-#
-#         # Print the list of cables between the current section
-#         # for cable in cables_between:
-#         #     print(f"- Cable Pull Number: {cable.pull_number}, Diameter: {cable.diameter}, Weight: {cable.weight}")
-#         #
-#         # print()  # Print an empty line between sections
-
-
 def generate_output_file():
     print("Output file going to be generated")
-    global stationing_values
+    # global stationing_values
 
     # Create a new workbook and select the active sheet
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    print("appended")
+    # print("appended")
 
-    # Write the stationing sections and cables into the Excel file
-    for section, cables in stationing_values.items():
-        # Write the section header
-        sheet.append([f"Between {section[0]} and {section[1]}:"])
+    # Set column headers
+    sheet["A1"] = "Conduit Name"
+    sheet["B1"] = "Cable Pull Numbers"
 
-        # Write the cable pull numbers
-        for cable in cables:
-            sheet.append([cable])
-
-        # Add an empty row between sections
-        sheet.append([])
+    # Write conduit data to the Excel file
+    row_num = 2  # Start from the second row
+    for conduit_name, conduit in conduits.items():
+        cable_pull_numbers = ", ".join(str(cable.pull_number) for cable in conduit.cables)
+        sheet[f"A{row_num}"] = conduit_name
+        sheet[f"B{row_num}"] = cable_pull_numbers
+        row_num += 1
 
     # Save the workbook to a file
-    workbook.save("stationing_sections.xlsx")
+    output_filename = "Output File.xlsx"
+    workbook.save(output_filename)
+    print(f"Conduit data has been saved to {output_filename}")
 
     print("Output file generated")

@@ -127,10 +127,6 @@ def generate_cable_image(draw_queue):
         )
         draw.line([line_start, line_end], fill="black", width=1)
 
-    # # Loop through the draw_queue and draw each cable
-    # for radius, angle_deg, cable, cable_info in draw_queue:
-    #     draw_cable(draw, radius, angle_deg, cable, cable_info, polar_graph_center)
-
     # Loop through the draw_queue and draw each cable
     for radius, angle_deg, cable in draw_queue:
         draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
@@ -150,6 +146,8 @@ def generate_cable_image(draw_queue):
     text_color = "black"
     font_size = 15
     font = ImageFont.truetype("arial.ttf", font_size)
+
+    # Text printed at the top left part of the image
     text_x = 5
     # text_y = image_size[1] - font_size - 10
     text_y = 5
