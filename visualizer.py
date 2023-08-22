@@ -3,6 +3,7 @@ from cable_classes import *
 from file_handler import *
 from cable_classes import *
 import math
+import subprocess
 
 # Define image size and dpi
 image_size = (1000, 1000)  # Higher resolution image size
@@ -165,8 +166,17 @@ def generate_cable_image(draw_queue):
     draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
 
     # Save the image to a file or display it
-    image.save("cable_image.png", dpi=dpi)  # Higher resolution
-    image.show()
+    # image.save("Conduit " + str(conduit_number) + ".png", dpi=dpi)  # Higher resolution
+    # image.show()
+
+    # Save the image to the specified file path
+    file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
+    file_name = "Conduit " + str(conduit_number - 1) + ".png"
+    full_file_path = os.path.join(file_path, file_name)
+    image.save(full_file_path, dpi=dpi)  # Higher resolution
+
+    # Open the saved image with the default image viewer on Windows
+    subprocess.run(["start", "", full_file_path], shell=True, check=True)
 
 
 def add_to_draw_queue(cable, radius, angle_deg):

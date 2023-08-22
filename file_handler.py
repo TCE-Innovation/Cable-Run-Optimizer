@@ -1,5 +1,6 @@
 import os
 import openpyxl
+from openpyxl.utils import get_column_letter
 import math
 from cable_classes import *
 
@@ -252,6 +253,33 @@ def sort_stationing():
 #
 #     print("Output file generated")
 
+# def merge_cells_by_value(sheet, col_letter):
+#     current_value = None
+#     start_merge_row = 2
+#     min_col = openpyxl.utils.column_index_from_string(col_letter)
+#     max_col = min_col  # Since you're merging cells in a single column
+#     for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=min_col, max_col=max_col):
+#         cell = row[0]
+#         if cell.value != current_value:
+#             if current_value is not None:
+#                 end_merge_row = cell.row - 1
+#                 merge_range = f"{col_letter}{start_merge_row}:{col_letter}{end_merge_row}"
+#                 sheet.merge_cells(merge_range)
+#                 for row_num in range(start_merge_row, end_merge_row + 1):
+#                     cell = sheet[f"{col_letter}{row_num}"]
+#                     cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+#             current_value = cell.value
+#             start_merge_row = cell.row
+#
+#     # Merge the last set of cells and align them to the middle
+#     end_merge_row = sheet.max_row
+#     merge_range = f"{col_letter}{start_merge_row}:{col_letter}{end_merge_row}"
+#     sheet.merge_cells(merge_range)
+#     for row_num in range(start_merge_row, end_merge_row + 1):
+#         cell = sheet[f"{col_letter}{row_num}"]
+#         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+
+
 def generate_output_file():
     print("Generating output file...")
 
@@ -300,20 +328,20 @@ def generate_output_file():
         if conduit_cell.value != current_conduit:
             if current_conduit is not None:
                 end_merge_row = conduit_cell.row - 1
-                merged_range = f"A{start_merge_row}:A{end_merge_row}"
-                sheet.merge_cells(merged_range)
+                stationing_start_range = f"B{start_merge_row}:B{end_merge_row}"
+                sheet.merge_cells(stationing_start_range)
                 for row_num in range(start_merge_row, end_merge_row + 1):
-                    cell = sheet[f"A{row_num}"]
+                    cell = sheet[f"B{row_num}"]
                     cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
             current_conduit = conduit_cell.value
             start_merge_row = conduit_cell.row
 
     # Merge the last set of cells and align them to the middle
     end_merge_row = sheet.max_row
-    merged_range = f"A{start_merge_row}:A{end_merge_row}"
-    sheet.merge_cells(merged_range)
+    stationing_start_range = f"B{start_merge_row}:B{end_merge_row}"
+    sheet.merge_cells(stationing_start_range)
     for row_num in range(start_merge_row, end_merge_row + 1):
-        cell = sheet[f"A{row_num}"]
+        cell = sheet[f"B{row_num}"]
         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
 
     # Set column width to fit the text in each header
@@ -328,3 +356,4 @@ def generate_output_file():
     print(f"Conduit data has been saved to {output_filename}")
 
     print("Output file generated")
+
