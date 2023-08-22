@@ -36,7 +36,7 @@ def optimize_for_conduit():
 
         # Create initial conduit for stationing range
         conduit_name = "conduit" + str(conduit_number)
-        conduit = Conduit()
+        conduit = Conduit(start_stationing, end_stationing)
         conduits[conduit_name] = conduit
 
         # Go through all cables in the stationing range
@@ -54,7 +54,7 @@ def optimize_for_conduit():
                 conduit_number += 1                 # Identifier for image
                 conduit_name = "conduit" + str(conduit_number)
 
-                conduit = Conduit()
+                conduit = Conduit(start_stationing, end_stationing)
                 conduits[conduit_name] = conduit
 
                 conduit_free_air_space = 100 # Reset airspace in conduit
@@ -89,7 +89,7 @@ def check_free_air_space(conduit, cable):
 
 
 def find_open_space(conduit, new_cable):
-    radius_increment = 0.25  # Define the radius increment
+    radius_increment = 0.1  # Define the radius increment
     angle_increment = 1  # Define the angle increment
     max_radius = 6  # Maximum radius for placement
 

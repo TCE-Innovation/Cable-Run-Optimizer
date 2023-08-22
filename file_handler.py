@@ -178,26 +178,149 @@ def sort_stationing():
         print(f"{str(value)[:-2]}+{str(value)[-2:]}")
 
 
+# def generate_output_file():
+#     print("Generating output file...")
+#
+#     # Create a new workbook and select the active sheet
+#     workbook = openpyxl.Workbook()
+#     sheet = workbook.active
+#
+#     # Set column headers
+#     headers = [
+#         "Conduit Name",
+#         "Cable Pull Numbers",
+#         "Stationing Start",
+#         "Stationing End",
+#         "Cable Size",
+#         "Express",
+#         "Diameter",
+#         "Weight",
+#         "Cross Sectional Area"
+#     ]
+#     sheet.append(headers)
+#
+#     # Write conduit data and cable attributes to the Excel file
+#     for conduit_name, conduit in conduits.items():
+#         for cable in conduit.cables:
+#             row_data = [
+#                 conduit_name,
+#                 cable.pull_number,
+#                 f"{str(cable.stationing_start)[:-2]}+{str(cable.stationing_start)[-2:]}",
+#                 f"{str(cable.stationing_end)[:-2]}+{str(cable.stationing_end)[-2:]}",
+#                 cable.cable_size,
+#                 cable.express,
+#                 cable.diameter,
+#                 cable.weight,
+#                 cable.cross_sectional_area
+#             ]
+#             sheet.append(row_data)
+#
+#     # Merge cells for conduit names and align them to the middle
+#     current_conduit = None
+#     start_merge_row = 2
+#     for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1):
+#         conduit_cell = row[0]
+#         if conduit_cell.value != current_conduit:
+#             if current_conduit is not None:
+#                 end_merge_row = conduit_cell.row - 1
+#                 merged_range = f"A{start_merge_row}:A{end_merge_row}"
+#                 sheet.merge_cells(merged_range)
+#                 for row_num in range(start_merge_row, end_merge_row + 1):
+#                     cell = sheet[f"A{row_num}"]
+#                     cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+#             current_conduit = conduit_cell.value
+#             start_merge_row = conduit_cell.row
+#
+#     # Merge the last set of cells and align them to the middle
+#     end_merge_row = sheet.max_row
+#     merged_range = f"A{start_merge_row}:A{end_merge_row}"
+#     sheet.merge_cells(merged_range)
+#     for row_num in range(start_merge_row, end_merge_row + 1):
+#         cell = sheet[f"A{row_num}"]
+#         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+#
+#     # Set column width to fit the text in each header
+#     for col_num, header in enumerate(headers, start=1):
+#         col_letter = openpyxl.utils.get_column_letter(col_num)
+#         column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
+#         sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
+#
+#     # Save the workbook to a file
+#     output_filename = "Output File.xlsx"
+#     workbook.save(output_filename)
+#     print(f"Conduit data has been saved to {output_filename}")
+#
+#     print("Output file generated")
+
 def generate_output_file():
-    print("Output file going to be generated")
-    # global stationing_values
+    print("Generating output file...")
 
     # Create a new workbook and select the active sheet
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    # print("appended")
 
     # Set column headers
-    sheet["A1"] = "Conduit Name"
-    sheet["B1"] = "Cable Pull Numbers"
+    headers = [
+        "Conduit Name",
+        "Stationing Start",
+        "Stationing End",
+        "Cable Pull Numbers",
+        "Cable Size",
+        "Express",
+        "Diameter",
+        "Weight",
+        "Cross Sectional Area"
+    ]
+    sheet.append(headers)
 
-    # Write conduit data to the Excel file
-    row_num = 2  # Start from the second row
+    # Write conduit data and cable attributes to the Excel file
     for conduit_name, conduit in conduits.items():
-        cable_pull_numbers = ", ".join(str(cable.pull_number) for cable in conduit.cables)
-        sheet[f"A{row_num}"] = conduit_name
-        sheet[f"B{row_num}"] = cable_pull_numbers
-        row_num += 1
+        stationing_start = conduit.stationing_start
+        stationing_end = conduit.stationing_end
+
+        for cable in conduit.cables:
+            row_data = [
+                conduit_name,
+                f"{str(stationing_start)[:-2]}+{str(stationing_start)[-2:]}",
+                f"{str(stationing_end)[:-2]}+{str(stationing_end)[-2:]}",
+                cable.pull_number,
+                cable.cable_size,
+                cable.express,
+                cable.diameter,
+                cable.weight,
+                cable.cross_sectional_area
+            ]
+            sheet.append(row_data)
+
+    # Merge cells for conduit names and align them to the middle
+    current_conduit = None
+    start_merge_row = 2
+    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1):
+        conduit_cell = row[0]
+        if conduit_cell.value != current_conduit:
+            if current_conduit is not None:
+                end_merge_row = conduit_cell.row - 1
+                merged_range = f"A{start_merge_row}:A{end_merge_row}"
+                sheet.merge_cells(merged_range)
+                for row_num in range(start_merge_row, end_merge_row + 1):
+                    cell = sheet[f"A{row_num}"]
+                    cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+            current_conduit = conduit_cell.value
+            start_merge_row = conduit_cell.row
+
+    # Merge the last set of cells and align them to the middle
+    end_merge_row = sheet.max_row
+    merged_range = f"A{start_merge_row}:A{end_merge_row}"
+    sheet.merge_cells(merged_range)
+    for row_num in range(start_merge_row, end_merge_row + 1):
+        cell = sheet[f"A{row_num}"]
+        cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+
+    # Set column width to fit the text in each header
+    for col_num, header in enumerate(headers, start=1):
+        col_letter = openpyxl.utils.get_column_letter(col_num)
+        column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
+        sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
 
     # Save the workbook to a file
     output_filename = "Output File.xlsx"
