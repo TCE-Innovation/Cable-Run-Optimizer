@@ -1,12 +1,13 @@
 import os
 import openpyxl
+from openpyxl.utils import get_column_letter
 import math
 from cable_classes import *
 
 
 def get_cable_sizes():
     # Provide the path to the folder containing the Cable Pull Sheet
-    file_path = r'C:\Users\roneill\Documents\CRO\Cable Sizes.xlsx'
+    file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
 
     # Load the Excel file
     workbook = openpyxl.load_workbook(file_path)
@@ -26,14 +27,6 @@ def get_cable_sizes():
 
     # Close the workbook
     workbook.close()
-
-    # Access the parameters of a cable
-    # print("Cable Sizes Excel Info:")
-    # for cable in cable_sizes:
-    #     print(
-    #         f"Size: {cable.size:<10} Diameter: {cable.diameter:<10} Cable Weight: {cable.pounds_per_foot:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
-    # print()
-    # print("CABLE SIZES OBTAINED")
 
 
 def get_cable_pull_sheet():
@@ -186,64 +179,204 @@ def sort_stationing():
         print(f"{str(value)[:-2]}+{str(value)[-2:]}")
 
 
+# def generate_output_file():
+#     print("Generating output file...")
+#
+#     # Create a new workbook and select the active sheet
+#     workbook = openpyxl.Workbook()
+#     sheet = workbook.active
+#
+#     # Set column headers
+#     headers = [
+#         "Conduit Name",
+#         "Cable Pull Numbers",
+#         "Stationing Start",
+#         "Stationing End",
+#         "Cable Size",
+#         "Express",
+#         "Diameter",
+#         "Weight",
+#         "Cross Sectional Area"
+#     ]
+#     sheet.append(headers)
+#
+#     # Write conduit data and cable attributes to the Excel file
+#     for conduit_name, conduit in conduits.items():
+#         for cable in conduit.cables:
+#             row_data = [
+#                 conduit_name,
+#                 cable.pull_number,
+#                 f"{str(cable.stationing_start)[:-2]}+{str(cable.stationing_start)[-2:]}",
+#                 f"{str(cable.stationing_end)[:-2]}+{str(cable.stationing_end)[-2:]}",
+#                 cable.cable_size,
+#                 cable.express,
+#                 cable.diameter,
+#                 cable.weight,
+#                 cable.cross_sectional_area
+#             ]
+#             sheet.append(row_data)
+#
+#     # Merge cells for conduit names and align them to the middle
+#     current_conduit = None
+#     start_merge_row = 2
+#     for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1):
+#         conduit_cell = row[0]
+#         if conduit_cell.value != current_conduit:
+#             if current_conduit is not None:
+#                 end_merge_row = conduit_cell.row - 1
+#                 merged_range = f"A{start_merge_row}:A{end_merge_row}"
+#                 sheet.merge_cells(merged_range)
+#                 for row_num in range(start_merge_row, end_merge_row + 1):
+#                     cell = sheet[f"A{row_num}"]
+#                     cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+#             current_conduit = conduit_cell.value
+#             start_merge_row = conduit_cell.row
+#
+#     # Merge the last set of cells and align them to the middle
+#     end_merge_row = sheet.max_row
+#     merged_range = f"A{start_merge_row}:A{end_merge_row}"
+#     sheet.merge_cells(merged_range)
+#     for row_num in range(start_merge_row, end_merge_row + 1):
+#         cell = sheet[f"A{row_num}"]
+#         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+#
+#     # Set column width to fit the text in each header
+#     for col_num, header in enumerate(headers, start=1):
+#         col_letter = openpyxl.utils.get_column_letter(col_num)
+#         column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
+#         sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
+#
+#     # Save the workbook to a file
+#     output_filename = "Output File.xlsx"
+#     workbook.save(output_filename)
+#     print(f"Conduit data has been saved to {output_filename}")
+#
+#     print("Output file generated")
 
-# def create_stationing_sections():
-#     global cables_between_stationing
-#     print()
-#     print("STATIONING SECTIONS")
+# def merge_cells_by_value(sheet, col_letter):
+#     current_value = None
+#     start_merge_row = 2
+#     min_col = openpyxl.utils.column_index_from_string(col_letter)
+#     max_col = min_col  # Since you're merging cells in a single column
+#     for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=min_col, max_col=max_col):
+#         cell = row[0]
+#         if cell.value != current_value:
+#             if current_value is not None:
+#                 end_merge_row = cell.row - 1
+#                 merge_range = f"{col_letter}{start_merge_row}:{col_letter}{end_merge_row}"
+#                 sheet.merge_cells(merge_range)
+#                 for row_num in range(start_merge_row, end_merge_row + 1):
+#                     cell = sheet[f"{col_letter}{row_num}"]
+#                     cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
+#             current_value = cell.value
+#             start_merge_row = cell.row
 #
-#     # Iterate through the stationing values to define sections
-#     for i in range(len(stationing_values) - 1):
-#         start = stationing_values[i]
-#         end = stationing_values[i + 1]
-#
-#         # Convert start and end to strings and then format them
-#         formatted_start = f"{str(start)[:-2]}+{str(start)[-2:]}"
-#         formatted_end = f"{str(end)[:-2]}+{str(end)[-2:]}"
-#
-#         # Print the range of stationing values for the current section
-#         # print(f"Cables between {formatted_start} and {formatted_end}:")
-#
-#         # Create a list to store cable objects between the stationing values
-#         cables_between = []
-#
-#         # Iterate through the cable list to find cables within the current section
-#         for cable in cable_list:
-#             if cable.stationing_start <= start and cable.stationing_end >= end:
-#                 cables_between.append(cable)  # Add the entire cable object to the list
-#
-#         # Store the cables between stationing values in the dictionary
-#         cables_between_stationing[(start, end)] = cables_between
-#
-#         # Print the list of cables between the current section
-#         # for cable in cables_between:
-#         #     print(f"- Cable Pull Number: {cable.pull_number}, Diameter: {cable.diameter}, Weight: {cable.weight}")
-#         #
-#         # print()  # Print an empty line between sections
+#     # Merge the last set of cells and align them to the middle
+#     end_merge_row = sheet.max_row
+#     merge_range = f"{col_letter}{start_merge_row}:{col_letter}{end_merge_row}"
+#     sheet.merge_cells(merge_range)
+#     for row_num in range(start_merge_row, end_merge_row + 1):
+#         cell = sheet[f"{col_letter}{row_num}"]
+#         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
 
+
+import openpyxl
 
 def generate_output_file():
-    print("Output file going to be generated")
-    global stationing_values
+    print("Generating output file...")
 
     # Create a new workbook and select the active sheet
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    print("appended")
 
-    # Write the stationing sections and cables into the Excel file
-    for section, cables in stationing_values.items():
-        # Write the section header
-        sheet.append([f"Between {section[0]} and {section[1]}:"])
+    # Set column headers
+    headers = [
+        "Conduit Name",
+        "Stationing Start",
+        "Stationing End",
+        "Cable Pull Numbers",
+        "Cable Size",
+        "Express",
+        "Diameter",
+        "Weight",
+        "Cross Sectional Area"
+    ]
+    sheet.append(headers)
 
-        # Write the cable pull numbers
-        for cable in cables:
-            sheet.append([cable])
+    # Write conduit data and cable attributes to the Excel file
+    for conduit_name, conduit in conduits.items():
+        stationing_start = conduit.stationing_start
+        stationing_end = conduit.stationing_end
 
-        # Add an empty row between sections
-        sheet.append([])
+        for cable in conduit.cables:
+            row_data = [
+                conduit_name,
+                f"{str(stationing_start)[:-2]}+{str(stationing_start)[-2:]}",
+                f"{str(stationing_end)[:-2]}+{str(stationing_end)[-2:]}",
+                cable.pull_number,
+                cable.cable_size,
+                cable.express,
+                cable.diameter,
+                cable.weight,
+                cable.cross_sectional_area
+            ]
+            sheet.append(row_data)
+
+    # Set column width to fit the text in each header
+    for col_num, header in enumerate(headers, start=1):
+        col_letter = openpyxl.utils.get_column_letter(col_num)
+        column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
+        sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
+
+    # CHAT GPT ADD CODE AFTER THIS COMMENT
+    from openpyxl.styles import Alignment
+
+    # Dictionary to store counts for each conduit name
+    conduit_counts = {}
+
+    # Count the occurrences of each conduit name
+    for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1)):
+        conduit_name = row[0].value
+        if conduit_name not in conduit_counts:
+            conduit_counts[conduit_name] = 1
+        else:
+            conduit_counts[conduit_name] += 1
+
+    # Merge cells for each conduit name and adjust Stationing Start and Stationing End columns
+    for conduit_name, count in conduit_counts.items():
+        start_row = None
+        for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1), start=2):
+            if row[0].value == conduit_name:
+                if start_row is None:
+                    start_row = row_num
+                if count == 1:
+                    continue
+
+                if row_num - start_row + 1 == count:
+                    # Merge Conduit Name cells
+                    conduit_name_range = f'A{start_row}:A{row_num}'
+                    sheet.merge_cells(conduit_name_range)
+                    sheet[f'A{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    # Merge Stationing Start cells
+                    stationing_start_range = f'B{start_row}:B{row_num}'
+                    sheet.merge_cells(stationing_start_range)
+                    sheet[f'B{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    # Merge Stationing End cells
+                    stationing_end_range = f'C{start_row}:C{row_num}'
+                    sheet.merge_cells(stationing_end_range)
+                    sheet[f'C{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    start_row = None
+
+    # CHAT GPT ADD CODE BEFORE THIS COMMENT
+
 
     # Save the workbook to a file
-    workbook.save("stationing_sections.xlsx")
+    output_filename = "Output File.xlsx"
+    workbook.save(output_filename)
+    print(f"Conduit data has been saved to {output_filename}")
 
     print("Output file generated")
+
