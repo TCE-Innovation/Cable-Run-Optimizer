@@ -375,15 +375,10 @@ def generate_output_file():
 
                     start_row = None
 
-
-
-    # CHAT GPT ADD CODE AFTER THIS COMMENT
     # Center align cells in column D (Cable Pull Numbers) vertically and horizontally
     for row in sheet.iter_rows(min_row=2, min_col=4, max_col=4):
         for cell in row:
             cell.alignment = Alignment(vertical='center', horizontal='center')
-
-    # CHAT GPT ADD CODE BEFORE THIS COMMENT
 
 
     # Save the workbook to a file
