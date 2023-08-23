@@ -280,6 +280,8 @@ def sort_stationing():
 #         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
 
 
+import openpyxl
+
 def generate_output_file():
     print("Generating output file...")
 
@@ -320,35 +322,51 @@ def generate_output_file():
             ]
             sheet.append(row_data)
 
-    # Merge cells for conduit names and align them to the middle
-    current_conduit = None
-    start_merge_row = 2
-    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1):
-        conduit_cell = row[0]
-        if conduit_cell.value != current_conduit:
-            if current_conduit is not None:
-                end_merge_row = conduit_cell.row - 1
-                stationing_start_range = f"B{start_merge_row}:B{end_merge_row}"
-                sheet.merge_cells(stationing_start_range)
-                for row_num in range(start_merge_row, end_merge_row + 1):
-                    cell = sheet[f"B{row_num}"]
-                    cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
-            current_conduit = conduit_cell.value
-            start_merge_row = conduit_cell.row
-
-    # Merge the last set of cells and align them to the middle
-    end_merge_row = sheet.max_row
-    stationing_start_range = f"B{start_merge_row}:B{end_merge_row}"
-    sheet.merge_cells(stationing_start_range)
-    for row_num in range(start_merge_row, end_merge_row + 1):
-        cell = sheet[f"B{row_num}"]
-        cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
-
     # Set column width to fit the text in each header
     for col_num, header in enumerate(headers, start=1):
         col_letter = openpyxl.utils.get_column_letter(col_num)
         column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
         sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
+
+    # CHAT GPT ADD CODE AFTER THIS COMMENT
+    # Dictionary to store counts for each conduit name
+    conduit_counts = {}
+
+    # Count the occurrences of each conduit name
+    for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1)):
+        conduit_name = row[0].value
+        if conduit_name not in conduit_counts:
+            conduit_counts[conduit_name] = 1
+        else:
+            conduit_counts[conduit_name] += 1
+
+    # Merge cells for each conduit name and adjust Stationing Start and Stationing End columns
+    for conduit_name, count in conduit_counts.items():
+        start_row = None
+        for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1), start=2):
+            if row[0].value == conduit_name:
+                if start_row is None:
+                    start_row = row_num
+                if count == 1:
+                    continue
+
+                if row_num - start_row + 1 == count:
+                    # Merge Conduit Name cells
+                    conduit_name_range = f'A{start_row}:A{row_num}'
+                    sheet.merge_cells(conduit_name_range)
+
+                    # Merge Stationing Start cells
+                    stationing_start_range = f'B{start_row}:B{row_num}'
+                    sheet.merge_cells(stationing_start_range)
+
+                    # Merge Stationing End cells
+                    stationing_end_range = f'C{start_row}:C{row_num}'
+                    sheet.merge_cells(stationing_end_range)
+
+                    start_row = None
+
+    # CHAT GPT ADD CODE BEFORE THIS COMMENT
+
 
     # Save the workbook to a file
     output_filename = "Output File.xlsx"
