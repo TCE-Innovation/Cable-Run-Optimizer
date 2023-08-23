@@ -1,6 +1,7 @@
 import os
 import openpyxl
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, Font
 import math
 from cable_classes import *
 
@@ -280,8 +281,6 @@ def sort_stationing():
 #         cell.alignment = openpyxl.styles.Alignment(horizontal="center", vertical="center")
 
 
-import openpyxl
-
 def generate_output_file():
     print("Generating output file...")
 
@@ -291,15 +290,16 @@ def generate_output_file():
 
     # Set column headers
     headers = [
-        "Conduit Name",
+        "Conduit",
         "Stationing Start",
         "Stationing End",
-        "Cable Pull Numbers",
+        "Pull #",
         "Cable Size",
         "Express",
-        "Diameter",
-        "Weight",
-        "Cross Sectional Area"
+        "Free Air Space"
+        # "Diameter",
+        # "Weight",
+        # "Cross Sectional Area"
     ]
     sheet.append(headers)
 
@@ -307,18 +307,17 @@ def generate_output_file():
     for conduit_name, conduit in conduits.items():
         stationing_start = conduit.stationing_start
         stationing_end = conduit.stationing_end
+        conduit_free_air_space = conduit.conduit_free_air_space
 
         for cable in conduit.cables:
             row_data = [
-                conduit_name,
+                f"{conduit_name[:-1]} {conduit_name[-1:]}",
                 f"{str(stationing_start)[:-2]}+{str(stationing_start)[-2:]}",
                 f"{str(stationing_end)[:-2]}+{str(stationing_end)[-2:]}",
-                cable.pull_number,
+                int(cable.pull_number),
                 cable.cable_size,
                 cable.express,
-                cable.diameter,
-                cable.weight,
-                cable.cross_sectional_area
+                f"{conduit_free_air_space}%"
             ]
             sheet.append(row_data)
 
@@ -328,8 +327,9 @@ def generate_output_file():
         column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
         sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
 
-    # CHAT GPT ADD CODE AFTER THIS COMMENT
-    from openpyxl.styles import Alignment
+    # Apply bold font to the header row
+    for cell in sheet[1]:
+        cell.font = Font(bold=True)
 
     # Dictionary to store counts for each conduit name
     conduit_counts = {}
@@ -368,9 +368,17 @@ def generate_output_file():
                     sheet.merge_cells(stationing_end_range)
                     sheet[f'C{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
+                    # Merge Free Air Space cells
+                    free_air_space_range = f'G{start_row}:G{row_num}'
+                    sheet.merge_cells(free_air_space_range)
+                    sheet[f'G{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
                     start_row = None
 
-    # CHAT GPT ADD CODE BEFORE THIS COMMENT
+    # Center align cells in column D (Cable Pull Numbers) vertically and horizontally
+    for row in sheet.iter_rows(min_row=2, min_col=4, max_col=4):
+        for cell in row:
+            cell.alignment = Alignment(vertical='center', horizontal='center')
 
 
     # Save the workbook to a file
