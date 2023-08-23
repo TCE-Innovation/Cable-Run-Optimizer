@@ -329,6 +329,8 @@ def generate_output_file():
         sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
 
     # CHAT GPT ADD CODE AFTER THIS COMMENT
+    from openpyxl.styles import Alignment
+
     # Dictionary to store counts for each conduit name
     conduit_counts = {}
 
@@ -354,14 +356,17 @@ def generate_output_file():
                     # Merge Conduit Name cells
                     conduit_name_range = f'A{start_row}:A{row_num}'
                     sheet.merge_cells(conduit_name_range)
+                    sheet[f'A{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
                     # Merge Stationing Start cells
                     stationing_start_range = f'B{start_row}:B{row_num}'
                     sheet.merge_cells(stationing_start_range)
+                    sheet[f'B{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
                     # Merge Stationing End cells
                     stationing_end_range = f'C{start_row}:C{row_num}'
                     sheet.merge_cells(stationing_end_range)
+                    sheet[f'C{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
                     start_row = None
 
