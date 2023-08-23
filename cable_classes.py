@@ -39,11 +39,12 @@ bundles = {}
 
 
 class Conduit:
-    def __init__(self, stationing_start, stationing_end):
+    def __init__(self, stationing_start, stationing_end, conduit_free_air_space):
         self.cables = []  # List to hold cable objects
         self.cable_data = []  # List to hold cable data as (radius, angle) tuples
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
+        self.conduit_free_air_space = conduit_free_air_space
 
     def add_cable(self, cable, radius, angle):
         self.cables.append(cable)
@@ -56,6 +57,8 @@ conduits = {}
 conduit_size = 6 # inches
 conduit_number = 1
 conduit_free_air_space = 100
+
+# Text for image generation
 stationing_start_text = None
 stationing_end_text = None
 

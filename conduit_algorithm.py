@@ -5,15 +5,14 @@ import math
 
 
 def optimize_for_conduit():
+    global conduit_free_air_space
     from file_handler import stationing_values
     from file_handler import generate_output_file
     global conduit_number
-    global conduit_free_air_space
     global stationing_start_text
     global stationing_end_text
 
     # Loop through the stationing values and group cables within each stationing range
-    print(len(stationing_values))
     for i in range(len(stationing_values) - 1):
         # define the two stationing values that cables will be optimized between
         start_stationing = stationing_values[i]
@@ -35,8 +34,8 @@ def optimize_for_conduit():
         cables_within_range.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
 
         # Create initial conduit for stationing range
-        conduit_name = "conduit" + str(conduit_number)
-        conduit = Conduit(start_stationing, end_stationing)
+        conduit_name = "Conduit" + str(conduit_number)
+        conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
         conduits[conduit_name] = conduit
 
         # Go through all cables in the stationing range
@@ -52,9 +51,9 @@ def optimize_for_conduit():
                 generate_cable_image(draw_queue)    # Create full conduit image
                 draw_queue.clear()                  # Empty draw queue for next image
                 conduit_number += 1                 # Identifier for image
-                conduit_name = "conduit" + str(conduit_number)
+                conduit_name = "Conduit" + str(conduit_number)
 
-                conduit = Conduit(start_stationing, end_stationing)
+                conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
                 conduits[conduit_name] = conduit
 
                 conduit_free_air_space = 100 # Reset airspace in conduit
@@ -66,7 +65,7 @@ def optimize_for_conduit():
         generate_cable_image(draw_queue)  # Create full conduit image
         draw_queue.clear()  # Empty draw queue for next image
         conduit_number += 1  # Identifier for image
-        conduit_name = "conduit" + str(conduit_number)
+        conduit_name = "Conduit" + str(conduit_number)
 
 
 def check_free_air_space(conduit, cable):
@@ -82,6 +81,7 @@ def check_free_air_space(conduit, cable):
     if total_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
         # Update free airspace value
         conduit_free_air_space = round((1 - (total_area / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
+        conduit.conduit_free_air_space = conduit_free_air_space # update conduit value
         return 0
     else:
         # Logic in outer function to create next conduit
