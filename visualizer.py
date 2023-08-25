@@ -177,7 +177,7 @@ def generate_cable_image(draw_queue):
 
     # Save the image to the specified file path
     file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
-    file_name = "Conduit " + str(conduit_number - 1) + ".png"
+    file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
     full_file_path = os.path.join(file_path, file_name)
     image.save(full_file_path, dpi=dpi)  # Higher resolution
 

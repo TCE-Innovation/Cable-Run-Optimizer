@@ -19,9 +19,9 @@ import math
 # user_interface()
 get_cable_sizes()               # Excel of all cables and their parameters
 get_cable_pull_sheet()          # Pull sheet excel
-# sort_stationing()             # List each stationing value in the pull sheet, ordered
-# optimize_for_conduit()        # Run conduit algorithm, generate conduit images
-# generate_output_file()        # Create output excel file with generated conduits
+sort_stationing()             # List each stationing value in the pull sheet, ordered
+optimize_for_conduit()        # Run conduit algorithm, generate conduit images
+generate_output_file()        # Create output excel file with generated conduits
 
 
 def draw_graph_common(c, center_x, center_y):
@@ -98,4 +98,4 @@ def draw_graph():
     subprocess.Popen(["start", pdf_file_path], shell=True)
 
 
-draw_graph()
+# draw_graph()
