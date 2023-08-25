@@ -4,6 +4,7 @@ from file_handler import *
 from cable_classes import *
 import math
 import subprocess
+from fpdf import FPDF  # Import the FPDF library
 
 # Define image size and dpi
 image_size = (1000, 1000)  # Higher resolution image size
