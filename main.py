@@ -14,46 +14,42 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import math
 from PyPDF2 import PdfReader, PdfWriter, PdfFileReader
+import glob
+import subprocess
 
 
 def merge_pdfs():
-    existing_pdf_path = "Conduit 1.pdf"
-    output_pdf_path = "modified_file.pdf"
+    pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
 
-    with open(existing_pdf_path, "rb") as existing_pdf:
-        # Create a PDF reader object
-        pdf_reader = PdfReader(existing_pdf)
+    output_pdf_path = "Conduit Optimization Results.pdf"
 
-        # Create a PDF writer object
-        pdf_writer = PdfWriter()
+    # Create a PDF writer object
+    pdf_writer = PdfWriter()
 
-        # Add all the existing pages to the writer
-        for page in pdf_reader.pages:
-            pdf_writer.add_page(page)
+    for pdf_file in pdf_files:
+        with open(pdf_file, "rb") as pdf:
+            # Create a PDF reader object
+            pdf_reader = PdfReader(pdf)
 
-        # Open the PDF file to be inserted
-        insert_pdf_path = "Conduit 2.pdf"
-        with open(insert_pdf_path, "rb") as insert_pdf:
-            # Create a PDF reader for the insert PDF
-            insert_pdf_reader = PdfReader(insert_pdf)
+            # Add all the pages from the current PDF to the writer
+            for page in pdf_reader.pages:
+                pdf_writer.add_page(page)
 
-            # Get the first page from the insert PDF
-            insert_page = insert_pdf_reader.pages[0]
+    # Save the merged PDF
+    with open(output_pdf_path, "wb") as output_pdf:
+        pdf_writer.write(output_pdf)
 
-            # Add the page from the insert PDF to the writer
-            pdf_writer.add_page(insert_page)
+    # Open the merged PDF using the default PDF viewer
+    subprocess.Popen(["start", "", output_pdf_path], shell=True)
 
-        # Save the modified PDF
-        with open(output_pdf_path, "wb") as output_pdf:
-            pdf_writer.write(output_pdf)
 
 # Call the function
-merge_pdfs()
+# merge_pdfs()
 
 # user_interface()
-# get_cable_sizes()             # Excel of all cables and their parameters
-# get_cable_pull_sheet()        # Pull sheet excel
-# sort_stationing()             # List each stationing value in the pull sheet, ordered
-# optimize_for_conduit()        # Run conduit algorithm, generate conduit images
-# generate_output_file()        # Create output excel file with generated conduits
-
+get_cable_sizes()             # Excel of all cables and their parameters
+get_cable_pull_sheet()        # Pull sheet excel
+sort_stationing()             # List each stationing value in the pull sheet, ordered
+optimize_for_conduit()        # Run conduit algorithm, generate conduit images
+generate_output_file()        # Create output excel file with generated conduits
+merge_pdfs()

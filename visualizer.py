@@ -8,7 +8,7 @@ from fpdf import FPDF  # Import the FPDF library
 
 # Define image size and dpi
 image_size = (1000, 1000)  # Higher resolution image size
-dpi = (1000, 1000)  # Higher DPI (dots per inch)
+dpi = (121, 121)  # Higher DPI (dots per inch)
 
 
 def draw_cable(draw, radius, angle_deg, cable, polar_center):
