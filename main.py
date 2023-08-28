@@ -4,11 +4,21 @@ from messenger_algorithm import *
 from conduit_algorithm import *
 from cable_classes import *
 from visualizer import get_cable_pull_sheet
+from reportlab.platypus import SimpleDocTemplate, PageBreak
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, PageBreak
+import subprocess
+import random
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import math
 
 
 # user_interface()
 get_cable_sizes()             # Excel of all cables and their parameters
 get_cable_pull_sheet()        # Pull sheet excel
 sort_stationing()             # List each stationing value in the pull sheet, ordered
-optimize_for_conduit()
-generate_output_file()
+optimize_for_conduit()        # Run conduit algorithm, generate conduit images
+generate_output_file()        # Create output excel file with generated conduits
+merge_pdfs()                  # Merge together conduit images into one pdf file

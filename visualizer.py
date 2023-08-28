@@ -4,10 +4,11 @@ from file_handler import *
 from cable_classes import *
 import math
 import subprocess
+from fpdf import FPDF  # Import the FPDF library
 
 # Define image size and dpi
 image_size = (1000, 1000)  # Higher resolution image size
-dpi = (1000, 1000)  # Higher DPI (dots per inch)
+dpi = (121, 121)  # Higher DPI (dots per inch)
 
 
 def draw_cable(draw, radius, angle_deg, cable, polar_center):
@@ -29,6 +30,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     diameter = cable.diameter
     pounds_per_foot = cable.weight
     cross_sectional_area = cable.cross_sectional_area
+    express = cable.express
 
     # Calculate the scaled radius based on the cable's diameter
     cable_radius = diameter * scaling_factor
@@ -53,6 +55,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
 
     text_lines = [
         f"P: {pull_number}",
+        f"E: {express}",
         f"S: {size}",
         f"D: {diameter}",
         f"CW: {pounds_per_foot}",
@@ -142,7 +145,9 @@ def generate_cable_image(draw_queue):
     stationing_start_text = f"Start: {stationing_start_text}"
     stationing_end_text = f"End: {stationing_end_text}"
     from conduit_algorithm import conduit_free_air_space
-    conduit_free_air_space_text = f"Free Air Space: {conduit_free_air_space}%"
+    conduit_free_air_space_text = f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%"
+
+    from conduit_algorithm import express_text
     conduit_number += 1
     text_color = "black"
     font_size = 15
@@ -164,6 +169,8 @@ def generate_cable_image(draw_queue):
     draw.text((text_x, text_y), stationing_start_text, fill=text_color, font=font)
     text_y += font_size + 5  # Adjust vertical spacing
     draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
+    text_y += font_size + 5  # Adjust vertical spacing
+    draw.text((text_x, text_y), express_text, fill=text_color, font=font)
 
     # Save the image to a file or display it
     # image.save("Conduit " + str(conduit_number) + ".png", dpi=dpi)  # Higher resolution
@@ -171,12 +178,14 @@ def generate_cable_image(draw_queue):
 
     # Save the image to the specified file path
     file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
-    file_name = "Conduit " + str(conduit_number - 1) + ".png"
+    file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
     full_file_path = os.path.join(file_path, file_name)
     image.save(full_file_path, dpi=dpi)  # Higher resolution
 
     # Open the saved image with the default image viewer on Windows
     subprocess.run(["start", "", full_file_path], shell=True, check=True)
+
+
 
 
 def add_to_draw_queue(cable, radius, angle_deg):
