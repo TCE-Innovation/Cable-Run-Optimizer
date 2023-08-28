@@ -186,5 +186,7 @@ def generate_cable_image(draw_queue):
     subprocess.run(["start", "", full_file_path], shell=True, check=True)
 
 
+
+
 def add_to_draw_queue(cable, radius, angle_deg):
     draw_queue.append((radius, angle_deg, cable))

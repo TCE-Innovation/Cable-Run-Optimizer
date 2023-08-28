@@ -4,6 +4,9 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font
 import math
 from cable_classes import *
+from PyPDF2 import PdfReader, PdfWriter, PdfFileReader
+import glob
+import subprocess
 
 
 def get_cable_sizes():
@@ -286,6 +289,34 @@ def generate_output_file():
 
     print("Output file generated")
 
-def merge_files():
-    pass
+
+def merge_pdfs():
+    pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
+
+    output_pdf_path = "Conduit Optimization Results.pdf"
+
+    # Delete prior instance of the output PDF if it exists
+    if os.path.exists(output_pdf_path):
+        os.remove(output_pdf_path)
+        pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
+        output_pdf_path = "Conduit Optimization Results.pdf"
+
+    # Create a PDF writer object
+    pdf_writer = PdfWriter()
+
+    for pdf_file in pdf_files:
+        with open(pdf_file, "rb") as pdf:
+            # Create a PDF reader object
+            pdf_reader = PdfReader(pdf)
+
+            # Add all the pages from the current PDF to the writer
+            for page in pdf_reader.pages:
+                pdf_writer.add_page(page)
+
+    # Save the merged PDF
+    with open(output_pdf_path, "wb") as output_pdf:
+        pdf_writer.write(output_pdf)
+
+    # Open the merged PDF using the default PDF viewer
+    subprocess.Popen(["start", "", output_pdf_path], shell=True)
 
