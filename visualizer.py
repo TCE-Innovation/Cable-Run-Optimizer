@@ -145,7 +145,8 @@ def generate_cable_image(draw_queue):
     stationing_start_text = f"Start: {stationing_start_text}"
     stationing_end_text = f"End: {stationing_end_text}"
     from conduit_algorithm import conduit_free_air_space
-    conduit_free_air_space_text = f"Free Air Space: {conduit_free_air_space}%"
+    conduit_free_air_space_text = f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%"
+
     from conduit_algorithm import express_text
     conduit_number += 1
     text_color = "black"

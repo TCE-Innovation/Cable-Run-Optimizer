@@ -279,11 +279,13 @@ def generate_output_file():
         for cell in row:
             cell.alignment = Alignment(vertical='center', horizontal='center')
 
-
     # Save the workbook to a file
     output_filename = "Output File.xlsx"
     workbook.save(output_filename)
     print(f"Conduit data has been saved to {output_filename}")
 
     print("Output file generated")
+
+def merge_files():
+    pass
 
