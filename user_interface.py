@@ -1,12 +1,9 @@
-import os
-import openpyxl
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
     QFileDialog, QTabWidget, QRadioButton, QGroupBox, QLabel, QTextEdit, QMessageBox, QHBoxLayout, QDoubleSpinBox, \
     QSplitter
 from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore
-from cable_classes import *
 from file_handler import *
 
 

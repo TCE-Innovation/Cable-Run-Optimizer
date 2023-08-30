@@ -1,18 +1,6 @@
-from file_handler import *
-from user_interface import *
-from messenger_algorithm import *
 from conduit_algorithm import *
-from cable_classes import *
 from visualizer import get_cable_pull_sheet
-from reportlab.platypus import SimpleDocTemplate, PageBreak
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.platypus import SimpleDocTemplate, PageBreak
-import subprocess
-import random
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-import math
+from user_interface import *
 
 
 # user_interface()

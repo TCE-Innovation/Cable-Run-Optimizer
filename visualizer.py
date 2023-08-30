@@ -1,28 +1,25 @@
 from PIL import Image, ImageDraw, ImageFont
-from cable_classes import *
 from file_handler import *
 from cable_classes import *
 import math
-import subprocess
-from fpdf import FPDF  # Import the FPDF library
-from PyPDF2 import PdfReader, PdfWriter, PdfFileReader
-import glob
-import subprocess
+from PyPDF2 import PdfReader, PdfWriter
+
 
 # Define image size and dpi
 image_size = (1000, 1000)  # Higher resolution image size
-dpi = (121, 121)  # Higher DPI (dots per inch)
+dpi = (121, 121)  # DPI to scale size of file, with the aim to not need to zoom in/out
 
 
+# This function draws individual cables, and is called by generate_cable_image
 def draw_cable(draw, radius, angle_deg, cable, polar_center):
-    # radius = radius * 83.5
-    scaling_factor = 82  # Increase the scaling factor
-    offset_angle_deg = 0  # No angle offset
-    text_margin_x = -40  # Cable info text x
-    text_margin_y = -40  # Cable info text y
-    font_size = 12  # Larger font size
+    scaling_factor = 82     # Increase the scaling factor
+    text_margin_x = -40     # Cable info text x
+    text_margin_y = -40     # Cable info text y
     text_color = "black"
-    font = ImageFont.truetype("arial.ttf", font_size)  # Set the font size
+
+    # Set the font size
+    font_size = 12
+    font = ImageFont.truetype("arial.ttf", font_size)
 
     # Convert the angle from degrees to radians
     angle_rad = math.radians(360 - angle_deg)
@@ -53,7 +50,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     draw.ellipse(cable_bbox, fill=cable_color)
 
     # Create a text label with the cable information
-    text_x = center_x - cable_radius - text_margin_x   # Add x-direction offset
+    text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
     text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
 
     text_lines = [
@@ -69,6 +66,9 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
         text_y += font_size + 5  # Adjust the vertical spacing
 
 
+# This function draws everything but the individual cables,
+# including the graph and text at the top left
+# This function calls draw_cable()
 def generate_cable_image(draw_queue):
     global first_file_flag
     # Create a new image with a white background
@@ -144,15 +144,18 @@ def generate_cable_image(draw_queue):
     scale_text = "Scale: 0.5 inches/radius increment"
     conduit_size_text = f"Conduit Size: {conduit_size} inches"
     conduit_number_text = f"Conduit: {conduit_number}"
+
     from conduit_algorithm import stationing_start_text
     from conduit_algorithm import stationing_end_text
     stationing_start_text = f"Start: {stationing_start_text}"
     stationing_end_text = f"End: {stationing_end_text}"
-    from conduit_algorithm import conduit_free_air_space
-    conduit_free_air_space_text = f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%"
+
+    # from conduit_algorithm import conduit_free_air_space
+    # conduit_free_air_space_text = f"{conduit_free_air_space}"
 
     from conduit_algorithm import express_text
-    conduit_number += 1
+    from conduit_algorithm import conduit_free_air_space
+    #
     text_color = "black"
     font_size = 15
     font = ImageFont.truetype("arial.ttf", font_size)
@@ -161,38 +164,44 @@ def generate_cable_image(draw_queue):
     text_x = 5
     # text_y = image_size[1] - font_size - 10
     text_y = 5
-    draw.text((text_x, text_y), scale_text, fill=text_color, font=font)
-    # Add another line of text for "Conduit Size"
-    text_y += font_size + 5  # Adjust vertical spacing
-    draw.text((text_x, text_y), conduit_size_text, fill=text_color, font=font)
-    text_y += font_size + 5  # Adjust vertical spacing
-    draw.text((text_x, text_y), conduit_number_text, fill=text_color, font=font)
-    text_y += font_size + 5  # Adjust vertical spacing
-    draw.text((text_x, text_y), conduit_free_air_space_text, fill=text_color, font=font)
-    text_y += font_size + 5  # Adjust vertical spacing
-    draw.text((text_x, text_y), stationing_start_text, fill=text_color, font=font)
-    text_y += font_size + 5  # Adjust vertical spacing
-    draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
-    text_y += font_size + 5  # Adjust vertical spacing
-    draw.text((text_x, text_y), express_text, fill=text_color, font=font)
 
-    # Save the image to a file or display it
-    # image.save("Conduit " + str(conduit_number) + ".png", dpi=dpi)  # Higher resolution
-    # image.show()
+    text_lines = [
+        "Scale: 0.5 inches/radius increment",
+        f"Conduit Size: {conduit_size} inches",
+        f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
+        f"Start: {stationing_start_text}",
+        f"End: {stationing_end_text}",
+        f"Conduit: {conduit_number}",
+        express_text
+    ]
+    for line in text_lines:
+        draw.text((text_x, text_y), line, fill=text_color, font=font)
+        text_y += font_size + 5  # Adjust the vertical spacing
 
-    # Save the image to the specified file path
-    file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
-    # file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
-    # file_name = "Optimization_Results.pdf"
-    # full_file_path = os.path.join(file_path, file_name)
-    # image.save(full_file_path, dpi=dpi)  # Higher resolution
+    conduit_number += 1
+
+    # print(f"Conduit free air space: {conduit_free_air_space_text}")
+
+
+    # draw.text((text_x, text_y), scale_text, fill=text_color, font=font)
+    # # Add another line of text for "Conduit Size"
+    # text_y += font_size + 5  # Adjust vertical spacing
+    # draw.text((text_x, text_y), conduit_size_text, fill=text_color, font=font)
+    # text_y += font_size + 5  # Adjust vertical spacing
+    # draw.text((text_x, text_y), conduit_number_text, fill=text_color, font=font)
+    # text_y += font_size + 5  # Adjust vertical spacing
+    # draw.text((text_x, text_y), conduit_free_air_space_text, fill=text_color, font=font)
+    # text_y += font_size + 5  # Adjust vertical spacing
+    # draw.text((text_x, text_y), stationing_start_text, fill=text_color, font=font)
+    # text_y += font_size + 5  # Adjust vertical spacing
+    # draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
+    # text_y += font_size + 5  # Adjust vertical spacing
+    # draw.text((text_x, text_y), express_text, fill=text_color, font=font)
 
     temp_pdf_file = "Conduit temp file.pdf"
     image.save(temp_pdf_file, dpi=dpi)  # Higher resolution
 
     if first_file_flag:
-        print("First file flag is already true")
-
         output_pdf_file = "Optimization Results.pdf"
         # input_pdf_file = "Conduit.pdf"
 
@@ -215,19 +224,13 @@ def generate_cable_image(draw_queue):
         with open(output_pdf_file, "wb") as output_pdf:
             pdf_writer.write(output_pdf)
 
-        # Open the merged PDF using the default PDF viewer
-        # subprocess.Popen(["start", "", output_pdf_file], shell=True)
     else:
         first_file_flag = True
-        file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
-        print("Setting the first file flag to true")
-        # file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
+        file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC" \
+                    r"\Documents 1\Code\Git Files\Cable-Run-Optimizer"
         file_name = "Optimization Results.pdf"
         full_file_path = os.path.join(file_path, file_name)
         image.save(full_file_path, dpi=dpi)  # Higher resolution
-
-    # Open the saved image with the default image viewer on Windows
-    # subprocess.run(["start", "", full_file_path], shell=True, check=True)
 
 
 def add_to_draw_queue(cable, radius, angle_deg):

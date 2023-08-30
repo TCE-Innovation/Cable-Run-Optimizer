@@ -4,20 +4,19 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font
 import math
 from cable_classes import *
-from PyPDF2 import PdfReader, PdfWriter, PdfFileReader
-import glob
-import subprocess
 
 
+# Extract the diameter and weight of all cables from Cable Sizes.xlsx
 def get_cable_sizes():
-    # Provide the path to the folder containing the Cable Pull Sheet
-    file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
+    # Path to the folder containing the Cable Pull Sheet
+    file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
+                r'\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
 
     # Load the Excel file
     workbook = openpyxl.load_workbook(file_path)
     sheet = workbook.active
 
-    # Iterate over the rows starting from the second row
+    # Iterate over the rows starting from the second row (second because first row has the headers)
     for row in sheet.iter_rows(min_row=2, values_only=True):
         # Extract the cable parameters from each row
         size = row[0]
@@ -33,8 +32,9 @@ def get_cable_sizes():
     workbook.close()
 
 
+# Open cable pull sheet and extract all the cables and their info from it
 def get_cable_pull_sheet():
-    # Provide the path to the folder containing the Cable Pull Sheet
+    # Path to the folder containing the Cable Pull Sheet
     folder_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer'
 
     # Iterate over files in the file explorer
@@ -51,13 +51,6 @@ def get_cable_pull_sheet():
             # Load the Excel file
             workbook = openpyxl.load_workbook(file_path)
             sheet = workbook.active
-
-            # Print the sheet names
-            # print(f"File: {file_name}")
-            # print("Sheet Names:")
-            # for sheet_name in workbook.sheetnames:
-            #     print(sheet_name)
-            # print()
 
     # Initialize variables to store relevant column indices
     # This is done because the formatting of pull sheets can vary
@@ -86,14 +79,6 @@ def get_cable_pull_sheet():
             elif 'express' in header:
                 express_col_index = column_index
 
-    # # Print the identified column indices
-    # print("Pull # Column Index:", pull_number_col_index)
-    # print("Stationing Start Column Index:", stationing_start_col_index)
-    # print("Stationing End Column Index:", stationing_end_col_index)
-    # print("Cable Size Column Index:", cable_size_col_index)
-    # print("Express Column Index:", express_col_index)
-    # print()
-
     # Iterate over the rows to extract information from relevant columns
     for row in sheet.iter_rows(min_row=2):
         pull_number = sheet.cell(row=row[0].row,
@@ -106,9 +91,6 @@ def get_cable_pull_sheet():
                                 column=cable_size_col_index).value if cable_size_col_index != -1 else None
         express = sheet.cell(row=row[0].row,
                              column=express_col_index).value if express_col_index != -1 else None
-
-    #     cable = Cable(str(pull_number), stationing_start, stationing_end, cable_size, express)
-    #     cable_list.append(cable)
 
         # Modify stationing values
         if stationing_start is not None:
@@ -127,17 +109,8 @@ def get_cable_pull_sheet():
                 cable_info = info
                 # Exit the loop since we found the relevant cable size
                 break
-        # print(pull_number)
-        # print(stationing_start)
-        # print(stationing_end)
-        # print(cable_size)
-        # print(express)
-        # print(cable_info.diameter)
-        # print(cable_info.pounds_per_foot)
-        # print(cable_info.cross_sectional_area)
-        # Create the Cable object with associated cable_info
+
         if cable_info is not None:
-            # print(pull_number)
             cable = Cable(
                 str(pull_number),
                 int(stationing_start),
@@ -150,13 +123,11 @@ def get_cable_pull_sheet():
             )
             cable_list.append(cable)
 
-
-    print("Cable Pull Sheet:")
-    for cable in cable_list:
-        print(
-            f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10} Diameter: {cable.diameter:<10} Weight: {cable.weight:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
-    print()
-    print("CABLE PULL SHEET OBTAINED")
+    # print("Cable Pull Sheet:")
+    # for cable in cable_list:
+    #     print(
+    #         f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10} Diameter: {cable.diameter:<10} Weight: {cable.weight:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
+    # print()
 
 
 # Take the stationing from pull sheet and
@@ -178,9 +149,9 @@ def sort_stationing():
     # Convert the set to a list and sort it numerically
     stationing_values = sorted(list(unique_stationing_values))
 
-    print("Stationing Values: ")
-    for value in stationing_values:
-        print(f"{str(value)[:-2]}+{str(value)[-2:]}")
+    # print("Stationing Values: ")
+    # for value in stationing_values:
+    #     print(f"{str(value)[:-2]}+{str(value)[-2:]}")
 
 
 def generate_output_file():
@@ -199,9 +170,6 @@ def generate_output_file():
         "Cable Size",
         "Express",
         "Conduit Fill"
-        # "Diameter",
-        # "Weight",
-        # "Cross Sectional Area"
     ]
     sheet.append(headers)
 
@@ -292,38 +260,4 @@ def generate_output_file():
     workbook.save(output_filename)
     print(f"Conduit data has been saved to {output_filename}")
 
-    print("Output file generated")
-
-    # merge_pdfs()  # Merge together conduit images into one pdf file
-
-
-# def merge_pdfs():
-#     pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
-#
-#     output_pdf_path = "Conduit Optimization Results.pdf"
-#
-#     # Delete prior instance of the output PDF if it exists
-#     if os.path.exists(output_pdf_path):
-#         os.remove(output_pdf_path)
-#         pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
-#         output_pdf_path = "Conduit Optimization Results.pdf"
-#
-#     # Create a PDF writer object
-#     pdf_writer = PdfWriter()
-#
-#     for pdf_file in pdf_files:
-#         with open(pdf_file, "rb") as pdf:
-#             # Create a PDF reader object
-#             pdf_reader = PdfReader(pdf)
-#
-#             # Add all the pages from the current PDF to the writer
-#             for page in pdf_reader.pages:
-#                 pdf_writer.add_page(page)
-#
-#     # Save the merged PDF
-#     with open(output_pdf_path, "wb") as output_pdf:
-#         pdf_writer.write(output_pdf)
-#
-#     # Open the merged PDF using the default PDF viewer
-#     subprocess.Popen(["start", "", output_pdf_path], shell=True)
 
