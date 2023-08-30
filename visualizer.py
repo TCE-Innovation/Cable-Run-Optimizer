@@ -5,6 +5,9 @@ from cable_classes import *
 import math
 import subprocess
 from fpdf import FPDF  # Import the FPDF library
+from PyPDF2 import PdfReader, PdfWriter, PdfFileReader
+import glob
+import subprocess
 
 # Define image size and dpi
 image_size = (1000, 1000)  # Higher resolution image size
@@ -67,6 +70,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
 
 
 def generate_cable_image(draw_queue):
+    global first_file_flag
     # Create a new image with a white background
     image = Image.new("RGB", image_size, "white")
     draw = ImageDraw.Draw(image)
@@ -178,14 +182,52 @@ def generate_cable_image(draw_queue):
 
     # Save the image to the specified file path
     file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
-    file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
-    full_file_path = os.path.join(file_path, file_name)
-    image.save(full_file_path, dpi=dpi)  # Higher resolution
+    # file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
+    # file_name = "Optimization_Results.pdf"
+    # full_file_path = os.path.join(file_path, file_name)
+    # image.save(full_file_path, dpi=dpi)  # Higher resolution
+
+    temp_pdf_file = "Conduit temp file.pdf"
+    image.save(temp_pdf_file, dpi=dpi)  # Higher resolution
+
+    if first_file_flag:
+        print("First file flag is already true")
+
+        output_pdf_file = "Optimization Results.pdf"
+        # input_pdf_file = "Conduit.pdf"
+
+        # Create a PDF writer object
+        pdf_writer = PdfWriter()
+
+        # Open the existing PDF file and add its pages to the writer object
+        with open(output_pdf_file, "rb") as existing_pdf:
+            pdf_reader = PdfReader(existing_pdf)
+            for page in pdf_reader.pages:
+                pdf_writer.add_page(page)  # Add the existing page
+
+        # Open the temporary PDF and add its pages to the writer object
+        with open(temp_pdf_file, "rb") as temp_pdf:
+            pdf_reader = PdfReader(temp_pdf)
+            for page in pdf_reader.pages:
+                pdf_writer.add_page(page)
+
+        # Save the merged PDF
+        with open(output_pdf_file, "wb") as output_pdf:
+            pdf_writer.write(output_pdf)
+
+        # Open the merged PDF using the default PDF viewer
+        # subprocess.Popen(["start", "", output_pdf_file], shell=True)
+    else:
+        first_file_flag = True
+        file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer"
+        print("Setting the first file flag to true")
+        # file_name = "Conduit " + str(conduit_number - 1) + ".pdf"
+        file_name = "Optimization Results.pdf"
+        full_file_path = os.path.join(file_path, file_name)
+        image.save(full_file_path, dpi=dpi)  # Higher resolution
 
     # Open the saved image with the default image viewer on Windows
-    subprocess.run(["start", "", full_file_path], shell=True, check=True)
-
-
+    # subprocess.run(["start", "", full_file_path], shell=True, check=True)
 
 
 def add_to_draw_queue(cable, radius, angle_deg):

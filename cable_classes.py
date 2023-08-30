@@ -71,3 +71,5 @@ draw_queue = []
 
 free_air_space_requirement = 0.6
 
+first_file_flag = False
+
