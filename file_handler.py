@@ -198,7 +198,7 @@ def generate_output_file():
         "Pull #",
         "Cable Size",
         "Express",
-        "Free Air Space"
+        "Conduit Fill"
         # "Diameter",
         # "Weight",
         # "Cross Sectional Area"
@@ -219,7 +219,7 @@ def generate_output_file():
                 int(cable.pull_number),
                 cable.cable_size,
                 cable.express,
-                f"{conduit_free_air_space}%"
+                f"{round((100 - conduit_free_air_space),2)}%"
             ]
             sheet.append(row_data)
 
@@ -270,6 +270,11 @@ def generate_output_file():
                     sheet.merge_cells(stationing_end_range)
                     sheet[f'C{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
+                    # Merge Express cells
+                    express_range = f'F{start_row}:F{row_num}'
+                    sheet.merge_cells(express_range)
+                    sheet[f'F{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
                     # Merge Free Air Space cells
                     free_air_space_range = f'G{start_row}:G{row_num}'
                     sheet.merge_cells(free_air_space_range)
@@ -289,34 +294,36 @@ def generate_output_file():
 
     print("Output file generated")
 
+    # merge_pdfs()  # Merge together conduit images into one pdf file
 
-def merge_pdfs():
-    pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
 
-    output_pdf_path = "Conduit Optimization Results.pdf"
-
-    # Delete prior instance of the output PDF if it exists
-    if os.path.exists(output_pdf_path):
-        os.remove(output_pdf_path)
-        pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
-        output_pdf_path = "Conduit Optimization Results.pdf"
-
-    # Create a PDF writer object
-    pdf_writer = PdfWriter()
-
-    for pdf_file in pdf_files:
-        with open(pdf_file, "rb") as pdf:
-            # Create a PDF reader object
-            pdf_reader = PdfReader(pdf)
-
-            # Add all the pages from the current PDF to the writer
-            for page in pdf_reader.pages:
-                pdf_writer.add_page(page)
-
-    # Save the merged PDF
-    with open(output_pdf_path, "wb") as output_pdf:
-        pdf_writer.write(output_pdf)
-
-    # Open the merged PDF using the default PDF viewer
-    subprocess.Popen(["start", "", output_pdf_path], shell=True)
+# def merge_pdfs():
+#     pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
+#
+#     output_pdf_path = "Conduit Optimization Results.pdf"
+#
+#     # Delete prior instance of the output PDF if it exists
+#     if os.path.exists(output_pdf_path):
+#         os.remove(output_pdf_path)
+#         pdf_files = glob.glob("Conduit *.pdf")  # Find all PDF files matching the pattern
+#         output_pdf_path = "Conduit Optimization Results.pdf"
+#
+#     # Create a PDF writer object
+#     pdf_writer = PdfWriter()
+#
+#     for pdf_file in pdf_files:
+#         with open(pdf_file, "rb") as pdf:
+#             # Create a PDF reader object
+#             pdf_reader = PdfReader(pdf)
+#
+#             # Add all the pages from the current PDF to the writer
+#             for page in pdf_reader.pages:
+#                 pdf_writer.add_page(page)
+#
+#     # Save the merged PDF
+#     with open(output_pdf_path, "wb") as output_pdf:
+#         pdf_writer.write(output_pdf)
+#
+#     # Open the merged PDF using the default PDF viewer
+#     subprocess.Popen(["start", "", output_pdf_path], shell=True)
 
