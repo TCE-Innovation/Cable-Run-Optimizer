@@ -8,7 +8,6 @@ def optimize_for_conduit():
     from file_handler import stationing_values
 
     # Loop through the stationing values and group cables within each stationing range
-    print(len(stationing_values))
     for i in range(len(stationing_values) - 1):
         # define the two stationing values that cables will be optimized between
         start_stationing = stationing_values[i]
@@ -22,39 +21,19 @@ def optimize_for_conduit():
             if cable.stationing_start <= start_stationing and cable.stationing_end >= end_stationing:
                 cables_within_range.append(cable)
 
-        # Sort cables within the range based on cross-sectional area (largest cable first)
-        # cables_within_range.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
-
         # Separate express and local cables
+        # Conduits are
         express_cables = []
         local_cables = []
         for cable in cables_within_range:
 
             if cable.express.lower() == "express":
-                # print("EXPRESS CABLE")
-                # print(f"Cable Info: Pull Number={cable.pull_number}, Size={cable.cable_size}, "
-                #       f"Diameter={cable.diameter}, Weight={cable.weight}, "
-                #       f"Cross Sectional Area={cable.cross_sectional_area}, "
-                #       f"Express={cable.express}")
-
                 express_cables.append(cable)
             elif cable.express.lower() == "local":
-                # print("LOCAL CABLE")
-                # print(f"Cable Info: Pull Number={cable.pull_number}, Size={cable.cable_size}, "
-                #       f"Diameter={cable.diameter}, Weight={cable.weight}, "
-                #       f"Cross Sectional Area={cable.cross_sectional_area}, "
-                #       f"Express={cable.express}")
-
                 local_cables.append(cable)
 
         # Sort express and local cables separately based on cross-sectional area
         express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
-
-        for cable in express_cables:
-            print(f"Cable Info: Pull Number={cable.pull_number}, Size={cable.cable_size}, "
-                  f"Diameter={cable.diameter}, Weight={cable.weight}, "
-                  f"Cross Sectional Area={cable.cross_sectional_area}, "
-                  f"Express={cable.express}")
         local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
 
         # Create conduits, express cables first, then local cables
@@ -68,7 +47,6 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
     global conduit_number
     global stationing_start_text
     global stationing_end_text
-    from file_handler import stationing_values
 
     # Text for generated image
     stationing_start_text = f"{str(start_stationing)[:-2]}+{str(start_stationing)[-2:]}"
@@ -84,11 +62,13 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
     conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
     conduits[conduit_name] = conduit
 
+    print(conduit_number)
     # Go through all cables in the stationing range
     for cable in cables_within_range:
         # Check if cable added to current conduit wouldn't violate free air space requirement
-        if check_free_air_space(conduit, cable) == 0:
+        if check_free_air_space(conduit, cable):
             find_open_space(conduit, cable)
+            print(f"Conduit free air space 2: {conduit.conduit_free_air_space}")
         # else if cable can't fit, then create image for the current conduit and move onto next conduits
         else:
             # Draw image, reset draw queue, increment conduit number printed onto next image
@@ -123,13 +103,13 @@ def check_free_air_space(conduit, cable):
 
     # If area taken up by all cables in conduit is less than the maximum area that can be taken up by cable
     if total_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
-        # Update free airspace value
+        # Update free airspace value for conduit
         conduit_free_air_space = round((1 - (total_area / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
-        conduit.conduit_free_air_space = conduit_free_air_space # update conduit value
-        return 0
+        conduit.conduit_free_air_space = conduit_free_air_space
+        return 1
     else:
         # Logic in outer function to create next conduit
-        return 1
+        return 0
 
 
 def find_open_space(conduit, new_cable):
@@ -186,5 +166,3 @@ def find_open_space(conduit, new_cable):
         if radius > max_radius:
             print("Failed: Conduit is full.")
             break
-
-
