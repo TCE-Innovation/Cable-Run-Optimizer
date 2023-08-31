@@ -81,4 +81,5 @@ draw_queue = []
 # Used in visualizer.py
 # When the first conduit is created, the flag is set to be true
 # to know that following conduit pdf files will be merged
+
 first_file_flag = False
