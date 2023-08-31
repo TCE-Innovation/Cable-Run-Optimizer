@@ -180,24 +180,6 @@ def generate_cable_image(draw_queue):
 
     conduit_number += 1
 
-    # print(f"Conduit free air space: {conduit_free_air_space_text}")
-
-
-    # draw.text((text_x, text_y), scale_text, fill=text_color, font=font)
-    # # Add another line of text for "Conduit Size"
-    # text_y += font_size + 5  # Adjust vertical spacing
-    # draw.text((text_x, text_y), conduit_size_text, fill=text_color, font=font)
-    # text_y += font_size + 5  # Adjust vertical spacing
-    # draw.text((text_x, text_y), conduit_number_text, fill=text_color, font=font)
-    # text_y += font_size + 5  # Adjust vertical spacing
-    # draw.text((text_x, text_y), conduit_free_air_space_text, fill=text_color, font=font)
-    # text_y += font_size + 5  # Adjust vertical spacing
-    # draw.text((text_x, text_y), stationing_start_text, fill=text_color, font=font)
-    # text_y += font_size + 5  # Adjust vertical spacing
-    # draw.text((text_x, text_y), stationing_end_text, fill=text_color, font=font)
-    # text_y += font_size + 5  # Adjust vertical spacing
-    # draw.text((text_x, text_y), express_text, fill=text_color, font=font)
-
     temp_pdf_file = "Conduit temp file.pdf"
     image.save(temp_pdf_file, dpi=dpi)  # Higher resolution
 
