@@ -59,7 +59,7 @@ conduits = {}
 bundles = {}
 
 
-conduit_size = 6                    # Conduit diameter in inches, to be made editable
+conduit_size = 3                    # Conduit diameter in inches, to be made editable
 conduit_number = 1                  # Increments whenever another conduit is made
 conduit_free_air_space = 100        # Value used in calculations to check that conduit fill is in spec
 free_air_space_requirement = 0.6    # Value used in calculations to check that conduit fill is in spec

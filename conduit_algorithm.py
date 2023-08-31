@@ -1,5 +1,3 @@
-from cable_classes import *
-from file_handler import generate_output_file
 from visualizer import *
 import math
 
@@ -37,8 +35,10 @@ def optimize_for_conduit():
         local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
 
         # Create conduits, express cables first, then local cables
-        create_conduits(express_cables, start_stationing, end_stationing, 1)
-        create_conduits(local_cables, start_stationing, end_stationing, 0)
+        if len(express_cables):
+            create_conduits(express_cables, start_stationing, end_stationing, 1)
+        if len(local_cables):
+            create_conduits(local_cables, start_stationing, end_stationing, 0)
 
 
 def create_conduits(cables_within_range, start_stationing, end_stationing, express):
@@ -68,7 +68,6 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
         # Check if cable added to current conduit wouldn't violate free air space requirement
         if check_free_air_space(conduit, cable):
             find_open_space(conduit, cable)
-            print(f"Conduit free air space 2: {conduit.conduit_free_air_space}")
         # else if cable can't fit, then create image for the current conduit and move onto next conduits
         else:
             # Draw image, reset draw queue, increment conduit number printed onto next image
@@ -112,12 +111,13 @@ def check_free_air_space(conduit, cable):
         return 0
 
 
+# Spiraling out from center
 def find_open_space(conduit, new_cable):
-    radius_increment = 0.1  # Define the radius increment
-    angle_increment = 1  # Define the angle increment
-    max_radius = 6  # Maximum radius for placement
+    radius_increment = 0.1          # Define the radius increment
+    angle_increment = 1             # Define the angle increment
+    max_radius = conduit_size/2     # Maximum radius for placement
 
-    # Initial placement at (radius=0, angle=0)
+    # Initial placement at (radius=0, angle=0    )
     radius = 0
     angle = 0
 

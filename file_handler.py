@@ -36,7 +36,8 @@ def get_cable_sizes():
 # Open cable pull sheet and extract all the cables and their info from it
 def get_cable_pull_sheet():
     # Path to the folder containing the Cable Pull Sheet
-    folder_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1\Code\Git Files\Cable-Run-Optimizer'
+    folder_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
+                  r'\Code\Git Files\Cable-Run-Optimizer'
 
     # Iterate over files in the file explorer
     for file_name in os.listdir(folder_path):
@@ -155,6 +156,7 @@ def sort_stationing():
     #     print(f"{str(value)[:-2]}+{str(value)[-2:]}")
 
 
+# Create excel output file with list of conduits and which cables are in them
 def generate_output_file():
     print("Generating output file...")
 
