@@ -4,6 +4,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font
 import math
 from cable_classes import *
+import subprocess
 
 
 # Extract the diameter and weight of all cables from Cable Sizes.xlsx
@@ -22,7 +23,7 @@ def get_cable_sizes():
         size = row[0]
         diameter = row[1]
         pounds_per_foot = row[2]
-        cross_sectional_area = round(math.pi * (diameter/2) ** 2, 2)
+        cross_sectional_area = round(math.pi * (diameter / 2) ** 2, 2)
 
         # Create a CableParameters object and append it to the list
         cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
@@ -187,7 +188,7 @@ def generate_output_file():
                 int(cable.pull_number),
                 cable.cable_size,
                 cable.express,
-                f"{round((100 - conduit_free_air_space),2)}%"
+                f"{round((100 - conduit_free_air_space), 2)}%"
             ]
             sheet.append(row_data)
 
@@ -259,5 +260,9 @@ def generate_output_file():
     output_filename = "Output File.xlsx"
     workbook.save(output_filename)
 
-    print(f"Conduit data has been saved to {output_filename}")
+    pdf_file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC' \
+                    r'\Documents 1\Code\Git Files\Cable-Run-Optimizer\Optimization Results.pdf'
+    subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
+
+    print(f"Conduit data has been saved to {output_filename}")

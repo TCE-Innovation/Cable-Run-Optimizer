@@ -3,6 +3,7 @@ from file_handler import *
 from cable_classes import *
 import math
 from PyPDF2 import PdfReader, PdfWriter
+import os
 
 
 # Define image size and dpi
@@ -213,6 +214,7 @@ def generate_cable_image(draw_queue):
         file_name = "Optimization Results.pdf"
         full_file_path = os.path.join(file_path, file_name)
         image.save(full_file_path, dpi=dpi)  # Higher resolution
+
 
 
 def add_to_draw_queue(cable, radius, angle_deg):
