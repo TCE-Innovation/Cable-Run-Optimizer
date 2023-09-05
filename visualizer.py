@@ -173,6 +173,8 @@ def generate_cable_image(draw_queue):
         )
         draw.line([line_start, line_end], fill="black", width=1)
     # END DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
+
+
     global conduit_number
     # Write "Scale: " text at the bottom left of the image
     scale_text = "Scale: 0.5 inches/radius increment"
@@ -200,9 +202,10 @@ def generate_cable_image(draw_queue):
     text_y = 5
 
     text_lines = [
-        "Scale: 0.5 inches/radius increment",
+        f"Scale: {conduit_size/12} inches/radius increment",
         f"Conduit Size: {conduit_size} inches",
-        f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
+        # f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
+        f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
         f"Start: {stationing_start_text}",
         f"End: {stationing_end_text}",
         f"Conduit: {conduit_number}",

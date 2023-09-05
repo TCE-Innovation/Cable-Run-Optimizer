@@ -36,9 +36,9 @@ def optimize_for_conduit():
 
         # Create conduits, express cables first, then local cables
         if len(express_cables):
-            create_conduits(express_cables, start_stationing, end_stationing, 1)
+            create_conduits(express_cables, start_stationing, end_stationing, True)
         if len(local_cables):
-            create_conduits(local_cables, start_stationing, end_stationing, 0)
+            create_conduits(local_cables, start_stationing, end_stationing, False)
 
 
 def create_conduits(cables_within_range, start_stationing, end_stationing, express):
@@ -62,13 +62,18 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
     conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
     conduits[conduit_name] = conduit
 
-    print(conduit_number)
+    # Initialize a list to keep track of which cables are being placed in a conduit
+    # to avoid double counting cables across conduits
+    placed_cables =[]
+
     # Go through all cables in the stationing range
     for cable in cables_within_range:
         # Check if cable added to current conduit wouldn't violate free air space requirement
         if check_free_air_space(conduit, cable):
             find_open_space(conduit, cable)
-        # else if cable can't fit, then create image for the current conduit and move onto next conduits
+            placed_cables.append(cable)
+        # else if cable can't fit, then try other cables before creating new conduit image
+
         else:
             # Draw image, reset draw queue, increment conduit number printed onto next image
             generate_cable_image(draw_queue)    # Create full conduit image
@@ -99,15 +104,17 @@ def check_free_air_space(conduit, cable):
 
     # print("Total current area taken up in the conduit:", round(total_area, 2))
     total_area += cable.cross_sectional_area
+    print(f'Area: {total_area}')
 
     # If area taken up by all cables in conduit is less than the maximum area that can be taken up by cable
     if total_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
         # Update free airspace value for conduit
         conduit_free_air_space = round((1 - (total_area / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
         conduit.conduit_free_air_space = conduit_free_air_space
+        print(f'Conduit Fill: {100-conduit_free_air_space}')
         return 1
     else:
-        # Logic in outer function to create next conduit
+        # Return 0 for outside of if statement to check other cables/make next conduit
         return 0
 
 
@@ -115,8 +122,8 @@ def check_free_air_space(conduit, cable):
 def find_open_space(conduit, new_cable):
     radius_increment = 0.1          # Define the radius increment
     angle_increment = 1             # Define the angle increment
-    max_radius = conduit_size/2     # Maximum radius for placement
-
+    # max_radius = conduit_size/2     # Maximum radius for placement
+    max_radius = 6 # for testing purposes
     # Initial placement at (radius=0, angle=0    )
     radius = 0
     angle = 0
@@ -148,7 +155,7 @@ def find_open_space(conduit, new_cable):
         if not overlap:
             # Call a function to add the new cable to the draw queue
             conduit.add_cable(new_cable, radius, angle)
-            add_to_draw_queue(new_cable, radius, angle)
+            add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
             return radius, angle  # Return the valid placement
 
         # Increment angle by angle_increment

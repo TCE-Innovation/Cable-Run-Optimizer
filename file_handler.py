@@ -23,7 +23,7 @@ def get_cable_sizes():
         size = row[0]
         diameter = row[1]
         pounds_per_foot = row[2]
-        cross_sectional_area = round(math.pi * (diameter / 2) ** 2, 2)
+        cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)
 
         # Create a CableParameters object and append it to the list
         cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
