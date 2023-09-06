@@ -1,8 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
-from file_handler import *
 from cable_classes import *
 import math
 from PyPDF2 import PdfReader, PdfWriter
+import os
 
 
 # Define image size and dpi
@@ -12,9 +12,10 @@ dpi = (121, 121)  # DPI to scale size of file, with the aim to not need to zoom 
 
 # This function draws individual cables, and is called by generate_cable_image
 def draw_cable(draw, radius, angle_deg, cable, polar_center):
-    scaling_factor = 82     # Increase the scaling factor
-    text_margin_x = -40     # Cable info text x
-    text_margin_y = -40     # Cable info text y
+    # scaling_factor = 82                   # Increase the scaling factor
+    scaling_factor = 82 * (6/conduit_size) + 3  # Increase the scaling factor
+    text_margin_x = -40                     # Cable info text x
+    text_margin_y = -40                     # Cable info text y
     text_color = "black"
 
     # Set the font size
@@ -40,7 +41,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     center_y = polar_center[1] + radius * math.sin(angle_rad)
 
     # Draw the cable as a filled circle
-    cable_color = "#B2ABB3"  # Darker shade of gray
+    cable_color = "#3dbac2"  # Teal
     cable_bbox = (
         center_x - cable_radius,
         center_y - cable_radius,
@@ -138,6 +139,41 @@ def generate_cable_image(draw_queue):
     # Loop through the draw_queue and draw each cable
     for radius, angle_deg, cable in draw_queue:
         draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
+    # 166 relates to spacing of cables apart from each other
+
+
+    # DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
+    # Draw grid lines
+    num_grid_lines = 6  # Adjust the number of grid lines
+    radius_spacing = polar_graph_radius / num_grid_lines  # Calculate the spacing between grid lines
+    for i in range(num_grid_lines):
+        radius = (i + 1) * radius_spacing
+        draw.ellipse(
+            (
+                polar_graph_center[0] - radius,
+                polar_graph_center[1] - radius,
+                polar_graph_center[0] + radius,
+                polar_graph_center[1] + radius,
+            ),
+            outline="black",
+            width=1,
+        )
+
+    num_lines = 12  # Adjust the number of lines
+    angle_spacing = 2 * math.pi / num_lines  # Calculate the angle spacing between lines
+    for i in range(num_lines):
+        angle = i * angle_spacing
+        line_start = (
+            polar_graph_center[0] + dot_radius * math.cos(angle),
+            polar_graph_center[1] + dot_radius * math.sin(angle),
+        )
+        line_end = (
+            polar_graph_center[0] + polar_graph_radius * math.cos(angle),
+            polar_graph_center[1] + polar_graph_radius * math.sin(angle),
+        )
+        draw.line([line_start, line_end], fill="black", width=1)
+    # END DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
+
 
     global conduit_number
     # Write "Scale: " text at the bottom left of the image
@@ -166,9 +202,10 @@ def generate_cable_image(draw_queue):
     text_y = 5
 
     text_lines = [
-        "Scale: 0.5 inches/radius increment",
+        f"Scale: {conduit_size/12} inches/radius increment",
         f"Conduit Size: {conduit_size} inches",
-        f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
+        # f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
+        f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
         f"Start: {stationing_start_text}",
         f"End: {stationing_end_text}",
         f"Conduit: {conduit_number}",
