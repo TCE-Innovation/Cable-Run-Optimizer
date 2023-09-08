@@ -17,20 +17,54 @@ def get_cable_sizes():
     workbook = openpyxl.load_workbook(file_path)
     sheet = workbook.active
 
+    # Initialize variables to track the special case
+    special_case = False
+    first_row_skipped = False  # Flag to skip the first row when in the special case
+    length = None
+    width = None
+
     # Iterate over the rows starting from the second row (second because first row has the headers)
     for row in sheet.iter_rows(min_row=2, values_only=True):
-        # Extract the cable parameters from each row
-        size = row[0]
-        diameter = row[1]
-        pounds_per_foot = row[2]
-        cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)
+        # Check for the special case
+        if row[0] == "* 2 Conductor Cables Below *":
+            special_case = True
+            continue  # Skip this row
 
-        # Create a CableParameters object and append it to the list
-        cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
-        cable_sizes.append(cable)
+        if special_case:
+            if not first_row_skipped:
+                first_row_skipped = True
+                continue  # Skip the first row
+
+            # This is the special case, so process the data differently
+            size = row[0]
+            length = row[1]
+            width = row[2]
+            weight = row[3]
+
+            print(length)
+            print(width)
+
+            # Calculate the cross-sectional area as the product of length and width
+            cross_sectional_area = length * width
+
+            # Create a CableParameters object with diameter set to "None"
+            cable = CableParameters(size, None, weight, cross_sectional_area)
+            cable_sizes.append(cable)
+
+        else:
+            # Extract the cable parameters as usual
+            size = row[0]
+            diameter = row[1]
+            pounds_per_foot = row[2]
+            cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)
+
+            # Create a CableParameters object and append it to the list
+            cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
+            cable_sizes.append(cable)
 
     # Close the workbook
     workbook.close()
+
 
 
 # Open cable pull sheet and extract all the cables and their info from it
@@ -254,7 +288,7 @@ def generate_output_file():
                     start_row = None
 
     # Center align cells in column D (Cable Pull Numbers) vertically and horizontally
-    for row in sheet.iter_rows(min_row=2, min_col=4, max_col=4):
+    for row in sheet.iter_rows(min_row=2, min_col=4, max_col=len(cable_list)):
         for cell in row:
             cell.alignment = Alignment(vertical='center', horizontal='center')
 
@@ -264,7 +298,7 @@ def generate_output_file():
 
     pdf_file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC' \
                     r'\Documents 1\Code\Git Files\Cable-Run-Optimizer\Optimization Results.pdf'
-    subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
+    # subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
 
     print(f"Conduit data has been saved to {output_filename}")

@@ -14,12 +14,12 @@ dpi = (121, 121)  # DPI to scale size of file, with the aim to not need to zoom 
 def draw_cable(draw, radius, angle_deg, cable, polar_center):
     # scaling_factor = 82                   # Increase the scaling factor
     scaling_factor = 82 * (6/conduit_size) + 3  # Increase the scaling factor
-    text_margin_x = -40                     # Cable info text x
-    text_margin_y = -40                     # Cable info text y
+    text_margin_x = -50                     # Cable info text x
+    text_margin_y = -50                     # Cable info text y
     text_color = "black"
 
     # Set the font size
-    font_size = 12
+    font_size = 14
     font = ImageFont.truetype("arial.ttf", font_size)
 
     # Convert the angle from degrees to radians
@@ -41,7 +41,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     center_y = polar_center[1] + radius * math.sin(angle_rad)
 
     # Draw the cable as a filled circle
-    cable_color = "#3dbac2"  # Teal
+    cable_color = "#20df35"  # Teal
     cable_bbox = (
         center_x - cable_radius,
         center_y - cable_radius,
@@ -58,7 +58,7 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
         f"P: {pull_number}",
         f"E: {express}",
         f"S: {size}",
-        f"D: {diameter}",
+        f"D: {diameter} inches",
         f"CW: {pounds_per_foot}",
         f"A: {cross_sectional_area}",
     ]
@@ -143,6 +143,8 @@ def generate_cable_image(draw_queue):
 
 
     # DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
+
+
     # Draw grid lines
     num_grid_lines = 6  # Adjust the number of grid lines
     radius_spacing = polar_graph_radius / num_grid_lines  # Calculate the spacing between grid lines
@@ -172,6 +174,22 @@ def generate_cable_image(draw_queue):
             polar_graph_center[1] + polar_graph_radius * math.sin(angle),
         )
         draw.line([line_start, line_end], fill="black", width=1)
+
+    # Draw red dot in the center
+    dot_radius = 4
+    draw.ellipse(
+        (
+            polar_graph_center[0] - dot_radius,
+            polar_graph_center[1] - dot_radius,
+            polar_graph_center[0] + dot_radius,
+            polar_graph_center[1] + dot_radius,
+        ),
+        fill="red",
+        outline="red",
+    )
+
+
+
     # END DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
 
 
