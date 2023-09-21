@@ -79,6 +79,8 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
         print()
         print(f"Cable in outermost for loop: {cable.pull_number}")
 
+        # If the cable was already placed in a conduit,
+        # skip iteration of loop to avoid double counting cables
         if cable in placed_cables:
             continue
 
@@ -118,7 +120,7 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
 
 
             # Draw image, reset draw queue, increment conduit number printed onto next image
-            generate_cable_image(draw_queue)    # Create full conduit image
+            # generate_cable_image(draw_queue)    # Create full conduit image
             draw_queue.clear()                  # Empty draw queue for next image
             conduit_number += 1                 # Identifier for image
             conduit_name = "Conduit" + str(conduit_number)
@@ -131,7 +133,7 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
             check_free_air_space(conduit, cable)    # This function should always pass
             find_open_space(conduit, cable)         # Place next conduit at 0,0
 
-    generate_cable_image(draw_queue)  # Create full conduit image
+    # generate_cable_image(draw_queue)  # Create full conduit image
     draw_queue.clear()  # Empty draw queue for next image
     conduit_number += 1  # Identifier for image
     conduit_name = "Conduit" + str(conduit_number)
@@ -157,62 +159,68 @@ def check_free_air_space(conduit, cable):
         return 1
     else:
         # Return 0 for outside of if statement to check other cables/make next conduit
-        # print(f"Area failed for adding cable {cable.pull_number}. Theoretical Fill: {100*(total_area / (math.pi * (conduit_size/2) ** 2)):.2f}%")
         return 0
 
 
 # Spiraling out from center
 def find_open_space(conduit, new_cable):
-    radius_increment = 0.1          # Define the radius increment
-    angle_increment = 1             # Define the angle increment
-    # max_radius = conduit_size/2     # Maximum radius for placement
-    max_radius = 6 # for testing purposes
-    # Initial placement at (radius=0, angle=0    )
-    radius = 0
-    angle = 0
 
-    # Function to calculate distance between two polar coordinates
-    def calculate_distance(r1, a1, r2, a2):
-        x1 = r1 * math.cos(math.radians(a1))
-        y1 = r1 * math.sin(math.radians(a1))
-        x2 = r2 * math.cos(math.radians(a2))
-        y2 = r2 * math.sin(math.radians(a2))
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    # Skip over this for two conductor cables
+    # Just want to see this added to conduit, not interested in visualizing rn
+    if new_cable.diameter is None:
+        conduit.add_cable(new_cable, None, None)
+    else:
 
-    # Iterate through possible cable placements until a valid one is found or the conduit is full
-    while True:
-        # Initialize a flag to track cable overlap
-        overlap = False
+        radius_increment = 0.1         # Define the radius increment
+        angle_increment = 5             # Define the angle increment
+        # max_radius = conduit_size/2     # Maximum radius for placement
+        max_radius = 6 # for testing purposes
+        # Initial placement at (radius=0, angle=0    )
+        radius = 0 # EDITED FROM RADIUS = 0 TO FIT CABLES VISUALLY
+        angle = 0
 
-        # Iterate through existing cables in the conduit
-        for existing_cable, (cable_radius, cable_angle) in zip(conduit.cables, conduit.cable_data):
-            # Calculate distance between cables
-            distance = calculate_distance(radius, angle, cable_radius, cable_angle)
+        # Function to calculate distance between two polar coordinates
+        def calculate_distance(r1, a1, r2, a2):
+            x1 = r1 * math.cos(math.radians(a1))
+            y1 = r1 * math.sin(math.radians(a1))
+            x2 = r2 * math.cos(math.radians(a2))
+            y2 = r2 * math.sin(math.radians(a2))
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-            # If the cables are overlapping
-            if distance < ((new_cable.diameter / 2) + (existing_cable.diameter / 2)):
-                overlap = True  # Set the overlap flag to True
-                break           # Exit the loop since overlap is detected
+        # Iterate through possible cable placements until a valid one is found or the conduit is full
+        while True:
+            # Initialize a flag to track cable overlap
+            overlap = False
 
-        # If no overlap is detected, proceed with cable placement
-        if not overlap:
-            # Call a function to add the new cable to the draw queue
-            conduit.add_cable(new_cable, radius, angle)
-            add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
-            return radius, angle  # Return the valid placement
+            # Iterate through existing cables in the conduit
+            for existing_cable, (cable_radius, cable_angle) in zip(conduit.cables, conduit.cable_data):
+                # Calculate distance between cables
+                distance = calculate_distance(radius, angle, cable_radius, cable_angle)
 
-        # Increment angle by angle_increment
-        if radius == 0:
-            radius += radius_increment
-        else:
-            angle += angle_increment
+                # If the cables are overlapping
+                if distance < ((new_cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    overlap = True  # Set the overlap flag to True
+                    break           # Exit the loop since overlap is detected
 
-        # Check if angle has completed a full circle (360 degrees)
-        if angle >= 360:
-            angle = angle % 360  # Reset angle to 0
-            radius += radius_increment  # Increment radius
+            # If no overlap is detected, proceed with cable placement
+            if not overlap:
+                # Call a function to add the new cable to the draw queue
+                conduit.add_cable(new_cable, radius, angle)
+                add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
+                return radius, angle  # Return the valid placement
 
-        # Check if the conduit is full
-        if radius > max_radius:
-            print("Failed: Conduit is full.")
-            break
+            # Increment angle by angle_increment
+            if radius == 0:
+                radius += radius_increment
+            else:
+                angle += angle_increment
+
+            # Check if angle has completed a full circle (360 degrees)
+            if angle >= 360:
+                angle = angle % 360  # Reset angle to 0
+                radius += radius_increment  # Increment radius, EDITED FROM += TO -= TO FIT CABLES VISUALLY
+
+            # Check if the conduit is full
+            if radius > max_radius:
+                print("Failed: Conduit is full.")
+                break
