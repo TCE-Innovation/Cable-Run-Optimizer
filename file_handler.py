@@ -287,8 +287,8 @@ def generate_output_file():
 
                     start_row = None
 
-    # Center align cells in column D (Cable Pull Numbers) vertically and horizontally
-    for row in sheet.iter_rows(min_row=2, min_col=4, max_col=len(cable_list)):
+    # Center align cells in all columns for rows starting from the second row
+    for row in sheet.iter_rows(min_row=2):
         for cell in row:
             cell.alignment = Alignment(vertical='center', horizontal='center')
 
@@ -297,8 +297,8 @@ def generate_output_file():
     workbook.save(output_filename)
 
     pdf_file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC' \
-                    r'\Documents 1\Code\Git Files\Cable-Run-Optimizer\Optimization Results.pdf'
-    # subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
+                    r'\Documents 1\Code\Git Files\Cable-Run-Optimizer\Output File.xlsx'
+    subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
 
     print(f"Conduit data has been saved to {output_filename}")
