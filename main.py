@@ -4,11 +4,10 @@
 from conduit_algorithm import *
 from file_handler import *
 
-# user_interface()
 get_cable_sizes()             # Excel of all cables and their parameters
 get_cable_pull_sheet()        # Pull sheet excel
-sort_stationing()             # List each stationing value in the pull sheet, ordered
-optimize_for_conduit()        # Run conduit algorithm, generate conduit images
+stationing_values = sort_stationing()             # List each stationing value in the pull sheet, ordered
+optimize_for_conduit(stationing_values)        # Run conduit algorithm, generate conduit images
 generate_output_file()        # Create output excel file with generated conduits
 
 ###############

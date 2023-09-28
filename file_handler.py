@@ -23,8 +23,11 @@ import logging
 from .azure import upload_to_azure
 '''
 
+###############
+#### Local ####
+###############
 # Extract the diameter and weight of all cables from Cable Sizes.xlsx
-def get_cable_sizes():
+def get_cable_sizes():              # Local function
     # Path to the folder containing the Cable Pull Sheet
     file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
                 r'\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
@@ -82,9 +85,80 @@ def get_cable_sizes():
     workbook.close()
 
 
+###############
+#### Server ###
+###############
+# Extract the diameter and weight of all cables from Cable Sizes.xlsx
+'''
+def get_cable_sizes(cable_sizes):
+    try:
+        # Load the Excel file
+        workbook = openpyxl.load_workbook(BytesIO(cable_sizes.read()))
+        sheet = workbook.active
+        
+        # Initialize variables to track the special case
+        special_case = False
+        first_row_skipped = False  # Flag to skip the first row when in the special case
+        length = None
+        width = None
+
+        # Iterate over the rows starting from the second row (second because first row has the headers)
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            # Check for the special case
+            if row[0] == "* 2 Conductor Cables Below *":
+                special_case = True
+                continue  # Skip this row
+
+            if special_case:
+                if not first_row_skipped:
+                    first_row_skipped = True
+                    continue  # Skip the first row
+
+                # This is the special case, so process the data differently
+                size = row[0]
+                length = row[1]
+                width = row[2]
+                weight = row[3]
+
+                print(length)
+                print(width)
+
+                # Calculate the cross-sectional area as the product of length and width
+                cross_sectional_area = length * width
+
+                # Create a CableParameters object with diameter set to "None"
+                cable = CableParameters(size, None, weight, cross_sectional_area)
+                cable_sizes_list.append(cable)
+
+            else:
+                # Extract the cable parameters as usual
+                size = row[0]
+                diameter = row[1]
+                pounds_per_foot = row[2]
+                cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)
+
+                # Create a CableParameters object and append it to the list
+                cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
+                cable_sizes_list.append(cable)
+
+        # Close the workbook
+        workbook.close()
+
+    except openpyxl.utils.exceptions.InvalidFileException:
+        # Handle the case where the file cannot be opened (invalid Excel file)
+        logging.info("Invalid Excel file or sheet")
+    except Exception as e:
+        # Handle other exceptions
+        logging.info(f"An error occurred: {str(e)}")
+'''
 
 # Open cable pull sheet and extract all the cables and their info from it
-def get_cable_pull_sheet():
+# def get_cable_pull_sheet(pull_sheet): # Server function
+def get_cable_pull_sheet(): # Local function
+    
+    ###############
+    #### Local ####
+    ###############
     # Path to the folder containing the Cable Pull Sheet
     folder_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
                   r'\Code\Git Files\Cable-Run-Optimizer'
@@ -103,6 +177,18 @@ def get_cable_pull_sheet():
             # Load the Excel file
             workbook = openpyxl.load_workbook(file_path)
             sheet = workbook.active
+
+
+    ###############
+    #### Server ###
+    ###############
+    '''
+    # Open cable pull sheet and extract all the cables and their info from it
+    def get_cable_pull_sheet(pull_sheet):
+        # Load the Excel file
+        workbook = openpyxl.load_workbook(BytesIO(pull_sheet.read()))
+        sheet = workbook.active
+    '''
 
     # Initialize variables to store relevant column indices
     # This is done because the formatting of pull sheets can vary
@@ -175,16 +261,6 @@ def get_cable_pull_sheet():
             )
             cable_list.append(cable)
 
-    # print("Cable Pull Sheet:")
-    # for cable in cable_list:
-    #     print(
-    #         f"Pull Number: {cable.pull_number:<10} Stationing Start: {cable.stationing_start:<10} Stationing End: {cable.stationing_end:<10} Cable Size: {cable.cable_size:<10} Express: {cable.express:<10} Diameter: {cable.diameter:<10} Weight: {cable.weight:<10} Cross Sectional Area: {cable.cross_sectional_area:<10}")
-    # print()
-
-
-# Take the stationing from pull sheet and
-# organize it into a numerically ordered list,
-# where duplicate values are removed
 def sort_stationing():
     global stationing_values
 
@@ -200,6 +276,7 @@ def sort_stationing():
 
     # Convert the set to a list and sort it numerically
     stationing_values = sorted(list(unique_stationing_values))
+    return stationing_values
 
     # print("Stationing Values: ")
     # for value in stationing_values:
@@ -308,6 +385,9 @@ def generate_output_file():
         for cell in row:
             cell.alignment = Alignment(vertical='center', horizontal='center')
 
+    ###############
+    #### Local ####
+    ###############
     # Save the workbook to a file
     output_filename = "Output File.xlsx"
     workbook.save(output_filename)
@@ -318,3 +398,15 @@ def generate_output_file():
 
 
     print(f"Conduit data has been saved to {output_filename}")
+    
+    ###############
+    #### Server ###
+    ###############
+    '''
+    # Upload the workbook to azure blob storage
+    sas_url = upload_to_azure(workbook)
+
+    print(f"Conduit data has been saved to uploaded to blob storage.")
+
+    return sas_url
+    '''
