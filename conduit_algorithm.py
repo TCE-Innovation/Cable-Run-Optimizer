@@ -59,6 +59,8 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
     global stationing_start_text
     global stationing_end_text
 
+    conduit_area = 0 # Set initial area of conduit, it doesn't have cables in it yet
+
     # Text for generated image
     stationing_start_text = f"{str(start_stationing)[:-2]}+{str(start_stationing)[-2:]}"
     stationing_end_text = f"{str(end_stationing)[:-2]}+{str(end_stationing)[-2:]}"
@@ -70,7 +72,7 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
 
     # Create initial conduit for stationing range
     conduit_name = "Conduit" + str(conduit_number)
-    conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
+    conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space, conduit_area)
     conduits[conduit_name] = conduit
 
     # Initialize a list to keep track of which cables are being placed in a conduit
@@ -126,14 +128,13 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
                 else:
                     print(f"Fail. Cable {smaller_cable.pull_number} cannot fit into Conduit {conduit_number}")
 
-
             # Draw image, reset draw queue, increment conduit number printed onto next image
             # generate_cable_image(draw_queue)    # Create full conduit image
             draw_queue.clear()                  # Empty draw queue for next image
             conduit_number += 1                 # Identifier for image
             conduit_name = "Conduit" + str(conduit_number)
 
-            conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
+            conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space, conduit_area)
             conduits[conduit_name] = conduit
 
             conduit_free_air_space = 100 # Reset airspace in conduit
@@ -150,24 +151,26 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
 
 def check_free_air_space(conduit, cable):
     global conduit_free_air_space
-    total_area = 0
+    conduit.conduit_area = 0
     for existing_cable in conduit.cables:
-        total_area += existing_cable.cross_sectional_area
+        conduit.conduit_area += existing_cable.cross_sectional_area
 
     print(f"Testing if cable {cable.pull_number} can fit into Conduit {conduit_number}...")
 
-    total_area += cable.cross_sectional_area
+    conduit.conduit_area += cable.cross_sectional_area
     # print(f'Area: {total_area}')
-
+    print("CONDUIT FILL")
+    print(round((conduit.conduit_area  / (math.pi * (((conduit_size)/2) ** 2))) * 100, 2))
     # If area taken up by all cables in conduit is less than the maximum area that can be taken up by cable
-    if total_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
+    if conduit.conduit_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
         # Update free airspace value for conduit
-        conduit_free_air_space = round((1 - (total_area / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
+        conduit_free_air_space = round((1 - (conduit.conduit_area  / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
         conduit.conduit_free_air_space = conduit_free_air_space
         # print(f"Conduit Fill: {100 - conduit.conduit_free_air_space:.2f}%")
         return 1
     else:
         # Return 0 for outside of if statement to check other cables/make next conduit
+        conduit.conduit_area -= cable.cross_sectional_area
         return 0
 
 

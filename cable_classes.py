@@ -23,18 +23,21 @@ class Cable:
         self.weight = weight
         self.cross_sectional_area = cross_sectional_area
 
+
 # Class to create conduits
 class Conduit:
-    def __init__(self, stationing_start, stationing_end, conduit_free_air_space):
+    def __init__(self, stationing_start, stationing_end, conduit_free_air_space, conduit_area=None):
         self.cables = []  # List to hold cable objects
         self.cable_data = []  # List to hold cable data as (radius, angle) tuples
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
         self.conduit_free_air_space = conduit_free_air_space
+        self.conduit_area = conduit_area if conduit_area is not None else 0  # Use 0 if conduit_area is not provided
 
     def add_cable(self, cable, radius, angle):
         self.cables.append(cable)
         self.cable_data.append((radius, angle))
+
 
 # Class to create bundles
 class Bundle:

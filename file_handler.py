@@ -299,7 +299,10 @@ def generate_output_file():
         "Pull #",
         "Cable Size",
         "Express",
-        "Conduit Fill"
+        "Minimum Conduit Size",
+        "Conduit Fill",
+        "Upsized Conduit",
+        "Upsized Conduit Fill"
     ]
     sheet.append(headers)
 
@@ -317,7 +320,10 @@ def generate_output_file():
                 int(cable.pull_number),
                 cable.cable_size,
                 cable.express,
-                f"{round((100 - conduit_free_air_space), 2)}%"
+                conduit_size,
+                f"{round((100 - conduit_free_air_space), 2)}%",
+                conduit_size+0.25,
+                f"{round((conduit.conduit_area  / (math.pi * (((conduit_size+0.25)/2) ** 2))) * 100, 2)}%"
             ]
             sheet.append(row_data)
 
@@ -373,8 +379,23 @@ def generate_output_file():
                     sheet.merge_cells(express_range)
                     sheet[f'F{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
-                    # Merge Free Air Space cells
+                    # Merge Conduit Size cells
                     free_air_space_range = f'G{start_row}:G{row_num}'
+                    sheet.merge_cells(free_air_space_range)
+                    sheet[f'G{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    # Merge Free Air Space cells
+                    free_air_space_range = f'H{start_row}:H{row_num}'
+                    sheet.merge_cells(free_air_space_range)
+                    sheet[f'G{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    # Merge Free Air Space cells
+                    free_air_space_range = f'I{start_row}:I{row_num}'
+                    sheet.merge_cells(free_air_space_range)
+                    sheet[f'G{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    # Merge Free Air Space cells
+                    free_air_space_range = f'J{start_row}:J{row_num}'
                     sheet.merge_cells(free_air_space_range)
                     sheet[f'G{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
