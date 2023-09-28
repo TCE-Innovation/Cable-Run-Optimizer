@@ -1,10 +1,19 @@
+###############
+#### Local ####
+###############
+
 from visualizer import *
 import math
 
+###############
+#### Server ###
+###############
+'''
+from .cable_classes import *
+import math
+'''
 
-def optimize_for_conduit():
-    from file_handler import stationing_values
-
+def optimize_for_conduit(stationing_values):
     # Loop through the stationing values and group cables within each stationing range
     for i in range(len(stationing_values) - 1):
         # define the two stationing values that cables will be optimized between
@@ -34,7 +43,6 @@ def optimize_for_conduit():
         express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
         local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
 
-        print()
         # Create conduits, express cables first, then local cables
         if len(express_cables):
             print("Function call of create_conduits to create conduits from express cables...")
@@ -69,15 +77,15 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
     # to avoid double counting cables across conduits
     placed_cables = []
 
-    print("Pull Numbers of Cables within the stationing range to create conduits from:")
-    pull_numbers = ", ".join(str(cable.pull_number) for cable in cables_within_range)
-    print(pull_numbers)
-    print()
+    # print("Pull Numbers of Cables within the stationing range to create conduits from:")
+    # pull_numbers = ", ".join(str(cable.pull_number) for cable in cables_within_range)
+    # print(pull_numbers)
+    # print()
 
     # Go through all cables in the stationing range
     for cable in cables_within_range:
-        print()
-        print(f"Cable in outermost for loop: {cable.pull_number}")
+        # print()
+        # print(f"Cable in outermost for loop: {cable.pull_number}")
 
         # If the cable was already placed in a conduit,
         # skip iteration of loop to avoid double counting cables
@@ -124,6 +132,7 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
             draw_queue.clear()                  # Empty draw queue for next image
             conduit_number += 1                 # Identifier for image
             conduit_name = "Conduit" + str(conduit_number)
+
             conduit = Conduit(start_stationing, end_stationing, conduit_free_air_space)
             conduits[conduit_name] = conduit
 

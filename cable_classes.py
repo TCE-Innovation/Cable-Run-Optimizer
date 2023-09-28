@@ -48,7 +48,7 @@ class Bundle:
 cable_list = []
 
 # List to store cable parameter objects, all cable entries from Cables Sizes.xlsx
-cable_sizes = []
+cable_sizes_list = []
 
 # Create an empty dictionary to represent conduits
 # Holds all the generated conduits
