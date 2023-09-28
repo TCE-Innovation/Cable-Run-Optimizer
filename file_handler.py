@@ -1,3 +1,6 @@
+###############
+#### Local ####
+###############
 import os
 import openpyxl
 from openpyxl.utils import get_column_letter
@@ -6,6 +9,19 @@ import math
 from cable_classes import *
 import subprocess
 
+###############
+#### Server ###
+###############
+'''
+import openpyxl
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, Font
+import math
+from io import BytesIO
+from .cable_classes import *
+import logging
+from .azure import upload_to_azure
+'''
 
 # Extract the diameter and weight of all cables from Cable Sizes.xlsx
 def get_cable_sizes():
@@ -49,7 +65,7 @@ def get_cable_sizes():
 
             # Create a CableParameters object with diameter set to "None"
             cable = CableParameters(size, None, weight, cross_sectional_area)
-            cable_sizes.append(cable)
+            cable_sizes_list.append(cable)
 
         else:
             # Extract the cable parameters as usual
@@ -60,7 +76,7 @@ def get_cable_sizes():
 
             # Create a CableParameters object and append it to the list
             cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
-            cable_sizes.append(cable)
+            cable_sizes_list.append(cable)
 
     # Close the workbook
     workbook.close()
@@ -138,7 +154,7 @@ def get_cable_pull_sheet():
         # Initialize a variable to store cable information
         cable_info = None
         # Iterate through the list of cable size information
-        for info in cable_sizes:
+        for info in cable_sizes_list:
             # Check if the cable size matches the size of the current cable object
             if info.size == cable_size:
                 # If a match is found, store the cable size information
