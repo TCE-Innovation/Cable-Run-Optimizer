@@ -299,7 +299,10 @@ def generate_output_file():
         "Pull #",
         "Cable Size",
         "Express",
-        "Conduit Fill"
+        "Minimum Conduit Size",
+        "Conduit Fill",
+        "Upsized Conduit",
+        "Upsized Conduit Fill"
     ]
     sheet.append(headers)
 
@@ -317,7 +320,10 @@ def generate_output_file():
                 int(cable.pull_number),
                 cable.cable_size,
                 cable.express,
-                f"{round((100 - conduit_free_air_space), 2)}%"
+                conduit_size,
+                f"{round((100 - conduit_free_air_space), 2)}%",
+                conduit_size+0.25,
+                f"{round((conduit.conduit_area  / (math.pi * (((conduit_size+0.25)/2) ** 2))) * 100, 2)}%"
             ]
             sheet.append(row_data)
 
@@ -353,30 +359,15 @@ def generate_output_file():
                     continue
 
                 if row_num - start_row + 1 == count:
-                    # Merge Conduit Name cells
-                    conduit_name_range = f'A{start_row}:A{row_num}'
-                    sheet.merge_cells(conduit_name_range)
-                    sheet[f'A{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
-                    # Merge Stationing Start cells
-                    stationing_start_range = f'B{start_row}:B{row_num}'
-                    sheet.merge_cells(stationing_start_range)
-                    sheet[f'B{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+                    # Define the column letters for merging and alignment
+                    columns_to_merge = ['A', 'B', 'C', 'F', 'G', 'H', 'I', 'J']
 
-                    # Merge Stationing End cells
-                    stationing_end_range = f'C{start_row}:C{row_num}'
-                    sheet.merge_cells(stationing_end_range)
-                    sheet[f'C{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
-
-                    # Merge Express cells
-                    express_range = f'F{start_row}:F{row_num}'
-                    sheet.merge_cells(express_range)
-                    sheet[f'F{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
-
-                    # Merge Free Air Space cells
-                    free_air_space_range = f'G{start_row}:G{row_num}'
-                    sheet.merge_cells(free_air_space_range)
-                    sheet[f'G{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+                    # Loop through the columns and apply merging and alignment
+                    for column in columns_to_merge:
+                        column_range = f'{column}{start_row}:{column}{row_num}'
+                        sheet.merge_cells(column_range)
+                        sheet[f'{column}{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
 
                     start_row = None
 
