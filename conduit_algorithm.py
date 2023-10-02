@@ -128,6 +128,9 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
                 else:
                     print(f"Fail. Cable {smaller_cable.pull_number} cannot fit into Conduit {conduit_number}")
 
+            # Check if the conduit can be smaller than the maximum size
+            tightly_resize_conduit()
+
             # Draw image, reset draw queue, increment conduit number printed onto next image
             # generate_cable_image(draw_queue)    # Create full conduit image
             draw_queue.clear()                  # Empty draw queue for next image
@@ -149,22 +152,35 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
     conduit_name = "Conduit" + str(conduit_number)
 
 
+def tightly_resize_conduit():
+    # Work backwards, compare conduit fill of potential downsized conduits
+    # Keep working until fill of 40% or higher is reached
+    # Set the conduit size in the conduit class
+        # Need to add onto this class
+
+
+    pass
+
+
 def check_free_air_space(conduit, cable):
     global conduit_free_air_space
     conduit.conduit_area = 0
+    max_conduit_size = 3.5
+    # Sum up area of cables in conduit
     for existing_cable in conduit.cables:
         conduit.conduit_area += existing_cable.cross_sectional_area
 
     print(f"Testing if cable {cable.pull_number} can fit into Conduit {conduit_number}...")
 
+    # Add area of cable to test if it would fit into conduit
     conduit.conduit_area += cable.cross_sectional_area
+
     # print(f'Area: {total_area}')
-    print("CONDUIT FILL")
-    print(round((conduit.conduit_area  / (math.pi * (((conduit_size)/2) ** 2))) * 100, 2))
+    print(round((conduit.conduit_area  / (math.pi * ((max_conduit_size/2) ** 2))) * 100, 2))
     # If area taken up by all cables in conduit is less than the maximum area that can be taken up by cable
-    if conduit.conduit_area / (math.pi * (conduit_size/2) ** 2) < (1-free_air_space_requirement):
+    if conduit.conduit_area / (math.pi * (max_conduit_size/2) ** 2) < (1-free_air_space_requirement):
         # Update free airspace value for conduit
-        conduit_free_air_space = round((1 - (conduit.conduit_area  / (math.pi * ((conduit_size/2) ** 2)))) * 100, 2)
+        conduit_free_air_space = round((1 - (conduit.conduit_area  / (math.pi * ((max_conduit_size/2) ** 2)))) * 100, 2)
         conduit.conduit_free_air_space = conduit_free_air_space
         # print(f"Conduit Fill: {100 - conduit.conduit_free_air_space:.2f}%")
         return 1
