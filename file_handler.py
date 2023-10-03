@@ -60,8 +60,8 @@ def get_cable_sizes():              # Local function
             width = row[2]
             weight = row[3]
 
-            print(length)
-            print(width)
+            # print(length)
+            # print(width)
 
             # Calculate the cross-sectional area as the product of length and width
             cross_sectional_area = length * width
@@ -312,18 +312,28 @@ def generate_output_file():
         stationing_end = conduit.stationing_end
         conduit_free_air_space = conduit.conduit_free_air_space
 
+        conduit_sizes_index = next((index for index, x in enumerate(conduit_sizes) if x == conduit.conduit_size), None)
+        # print("Index in conduit sizes list:")
+        # print(conduit_sizes_index)
+        # print("Matching to conduit sizes list:")
+        # print(conduit_sizes[conduit_sizes_index])
+        # print("Size of conduit:")
+        # print(conduit.conduit_size)
+        # print(round((conduit.conduit_area  / (math.pi * ((conduit_sizes[conduit_sizes_index]/2) ** 2))) * 100, 2))
+        # print(conduit.conduit_area)
+        # print()
         for cable in conduit.cables:
             row_data = [
-                f"{conduit_name[:-1]} {conduit_name[-1:]}",
-                f"{str(stationing_start)[:-2]}+{str(stationing_start)[-2:]}",
-                f"{str(stationing_end)[:-2]}+{str(stationing_end)[-2:]}",
-                int(cable.pull_number),
-                cable.cable_size,
-                cable.express,
-                conduit_size,
-                f"{round((100 - conduit_free_air_space), 2)}%",
-                conduit_size+0.25,
-                f"{round((conduit.conduit_area  / (math.pi * (((conduit_size+0.25)/2) ** 2))) * 100, 2)}%"
+                f"{conduit_name[:-1]} {conduit_name[-1:]}",                     # Conduit name
+                f"{str(stationing_start)[:-2]}+{str(stationing_start)[-2:]}",   # Stationing start
+                f"{str(stationing_end)[:-2]}+{str(stationing_end)[-2:]}",       # Stationing end
+                int(cable.pull_number), # Pull Number
+                cable.cable_size,       # Cable size (ex. 7C#14)
+                cable.express,          # Express or local
+                conduit.conduit_size,                             # Radius
+                f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
+                conduit_sizes[conduit_sizes_index + 1],           # Upsized conduit
+                f"{round((conduit.conduit_area  / (math.pi * ((conduit_sizes[conduit_sizes_index+1]/2) ** 2))) * 100, 2)}%"  # Upsized conduit fill
             ]
             sheet.append(row_data)
 
