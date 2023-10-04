@@ -261,6 +261,7 @@ def get_cable_pull_sheet(): # Local function
             )
             cable_list.append(cable)
 
+
 def sort_stationing():
     global stationing_values
 
@@ -322,6 +323,7 @@ def generate_output_file():
         # print(round((conduit.conduit_area  / (math.pi * ((conduit_sizes[conduit_sizes_index]/2) ** 2))) * 100, 2))
         # print(conduit.conduit_area)
         # print()
+        print(f"{conduit_name} area: {conduit.conduit_area}")
         for cable in conduit.cables:
             row_data = [
                 f"{conduit_name[:-1]} {conduit_name[-1:]}",                     # Conduit name
@@ -331,7 +333,8 @@ def generate_output_file():
                 cable.cable_size,       # Cable size (ex. 7C#14)
                 cable.express,          # Express or local
                 conduit.conduit_size,                             # Radius
-                f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
+                f"{100 * conduit.conduit_area / (math.pi * ((conduit.conduit_size / 2) ** 2)):.2f}%",
+                # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
                 conduit_sizes[conduit_sizes_index + 1],           # Upsized conduit
                 f"{round((conduit.conduit_area  / (math.pi * ((conduit_sizes[conduit_sizes_index+1]/2) ** 2))) * 100, 2)}%"  # Upsized conduit fill
             ]

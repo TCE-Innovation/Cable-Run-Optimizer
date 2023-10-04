@@ -113,6 +113,7 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
                     # conduit.conduit_area += cable.cross_sectional_area
                     # Add the smaller cable to the list of placed cables to avoid double placement
                     placed_cables.append(smaller_cable)
+                    print(f"Cable {cable.pull_number}: {cable.cable_size} has been added to Conduit {conduit_number}")
                 # else:
                 #     print(f"Fail. Cable {smaller_cable.pull_number} cannot fit into Conduit {conduit_number}")
 
@@ -134,8 +135,11 @@ def create_conduits(cables_within_range, start_stationing, end_stationing, expre
 
             # With the cable that failed to be placed into the previous conduit, place into next one
             check_free_air_space(conduit, cable)    # This function should always pass
-            find_open_space(conduit, cable)         # Place next conduit at 0,0
+            # conduit.add_cable(conduit, None, None)
+            # find_open_space(conduit, cable)         # Place next conduit at 0,0
 
+    # Check if the conduit can be smaller than the maximum size
+    tightly_resize_conduit(conduit)
     # generate_cable_image(draw_queue)  # Create full conduit image
     draw_queue.clear()  # Empty draw queue for next image
     conduit_number += 1  # Identifier for image
@@ -156,12 +160,14 @@ def tightly_resize_conduit(conduit):
     # print(f"The current size of Conduit {conduit_number} is {conduit.conduit_size}")
 
     # While conduit fill is less than 40% with smaller size
-    while (conduit.conduit_area / (math.pi * ((conduit_sizes[size - 2]/2) ** 2))) < 0.4:
-        watch = conduit.conduit_area / (math.pi * ((conduit_sizes[size - 1]/2) ** 2))
+    while (100*conduit.conduit_area / (math.pi * ((conduit_sizes[size - 1]/2) ** 2))) < 40:
+        # print(f"Tighten call: {100*conduit.conduit_area / (math.pi * ((conduit_sizes[size - 1]/2) ** 2))}")
+        # watch = conduit.conduit_area / (math.pi * ((conduit_sizes[size - 1]/2) ** 2))
         size -= 1 # Size down conduit
 
     # Set conduit's size to smallest possible size
     conduit.conduit_size = conduit_sizes[size]
+    print(conduit.conduit_size)
 
     # print(f"Conduit {conduit_number} could not be {conduit_sizes[size - 1]}, "
     #       f"fill would be {(conduit.conduit_area / (math.pi * (conduit_sizes[size - 1] ** 2)))*100}%")
@@ -175,11 +181,12 @@ def check_free_air_space(conduit, cable):
     global conduit_free_air_space
     global max_conduit_size
 
-    print(f"Conduit {conduit_number} has a pre-check conduit fill of "
-          f"{100 * conduit.conduit_area / (math.pi * ((max_conduit_size / 2) ** 2)):.2f}%")
+    # print(f"Conduit {conduit_number} has a pre-check conduit fill of "
+    #       f"{100 * conduit.conduit_area / (math.pi * ((max_conduit_size / 2) ** 2)):.2f}%")
 
     # Add area of cable to test if it would fit into conduit
     conduit.conduit_area += cable.cross_sectional_area
+    # print(f"Cable {cable.pull_number}: {cable.cable_size} has an area of {cable.cross_sectional_area}")
 
     # print(f'Area: {total_area}')
     # print(round((conduit.conduit_area  / (math.pi * ((max_conduit_size/2) ** 2))) * 100, 2))
@@ -188,8 +195,8 @@ def check_free_air_space(conduit, cable):
         # Update free airspace value for conduit
         conduit_free_air_space = round((1 - (conduit.conduit_area  / (math.pi * ((max_conduit_size/2) ** 2)))) * 100, 2)
         conduit.conduit_free_air_space = conduit_free_air_space
-        print(f"Conduit {conduit_number} has a post-check conduit fill of "
-              f"{100 * conduit.conduit_area / (math.pi * ((max_conduit_size / 2) ** 2)):.2f}%")
+        # print(f"Conduit {conduit_number} has a post-check conduit fill of "
+        #       f"{100 * conduit.conduit_area / (math.pi * ((max_conduit_size / 2) ** 2)):.2f}%")
 
         return 1
     else:
