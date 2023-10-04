@@ -26,18 +26,26 @@ class Cable:
 
 # Class to create conduits
 class Conduit:
-    def __init__(self, stationing_start, stationing_end, conduit_free_air_space, conduit_area, conduit_size):
+    def __init__(self, stationing_start, stationing_end,
+                 conduit_area, conduit_fill, conduit_size, conduit_number):
         self.cables = []  # List to hold cable objects
         self.cable_data = []  # List to hold cable data as (radius, angle) tuples
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
-        self.conduit_free_air_space = conduit_free_air_space
-        self.conduit_area = conduit_area if conduit_area is not None else 0  # Use 0 if conduit_area is not provided
-        self.conduit_size = conduit_size if conduit_size is not None else 3.5
+        self.conduit_fill = conduit_fill
+        self.conduit_area = conduit_area if conduit_area is not None else 0     # Use 0 if conduit_area is not provided
+        self.conduit_size = conduit_size if conduit_size is not None else 3.5   # Use 3.5, max conduit size
+        self.conduit_number = conduit_number
 
-    def add_cable(self, cable, radius, angle):
+    # def add_cable(self, cable, radius, angle):
+    #     self.cables.append(cable)
+    #     self.cable_data.append((radius, angle))
+
+    def add_cable(self, cable):
         self.cables.append(cable)
-        self.cable_data.append((radius, angle))
+
+    def calculate_conduit_area(self):
+        self.conduit_area = sum(cable.cross_sectional_area for cable in self.cables)
 
 
 # Class to create bundles
@@ -66,7 +74,7 @@ bundles = {}
 conduit_sizes = [0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4]
 max_conduit_size = 3.5
 
-conduit_number = 1                  # Increments whenever another conduit is made
+# conduit_number = 1                  # Increments whenever another conduit is made
 conduit_free_air_space = 100        # Value used in calculations to check that conduit fill is in spec
 free_air_space_requirement = 0.6    # Value used in calculations to check that conduit fill is in spec
 
