@@ -1,3 +1,5 @@
+import math
+
 # Class used to hold data taken from Cables Sizes.xlsx
 # To be fed into Cable class
 class CableParameters:
@@ -44,8 +46,9 @@ class Conduit:
     def add_cable(self, cable):
         self.cables.append(cable)
 
-    def calculate_conduit_area(self):
+    def calculate_conduit_area_and_default_fill(self):
         self.conduit_area = sum(cable.cross_sectional_area for cable in self.cables)
+        self.conduit_fill = 100 * self.conduit_area / (((max_conduit_size/2) ** 2) * math.pi)
 
 
 # Class to create bundles
@@ -74,7 +77,7 @@ bundles = {}
 conduit_sizes = [0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4]
 max_conduit_size = 3.5
 
-# conduit_number = 1                  # Increments whenever another conduit is made
+conduit_number = 1                  # Increments whenever another conduit is made
 conduit_free_air_space = 100        # Value used in calculations to check that conduit fill is in spec
 free_air_space_requirement = 0.6    # Value used in calculations to check that conduit fill is in spec
 

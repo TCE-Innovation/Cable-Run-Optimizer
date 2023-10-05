@@ -88,7 +88,7 @@ def get_cable_sizes():  # Local function
     # Close the Excel workbook
     workbook.close()
 
-    print("[PASS] Cable sizes acquired.")
+    print("[PASS] Cable sizes acquired.\n")
 
 
 ###############
@@ -267,7 +267,7 @@ def get_cable_pull_sheet(): # Local function
                 cable_info.cross_sectional_area
             )
             cable_list.append(cable)
-    print("[PASS] Cable pull sheet obtained.")
+    print("[PASS] Cable pull sheet obtained.\n")
 
 
 def sort_stationing():
@@ -290,7 +290,9 @@ def sort_stationing():
 
 # Create excel output file with list of conduits and which cables are in them
 def generate_output_file():
-    print("[STATUS] Generating output file...")
+    from cable_classes import conduit_sizes
+
+    print("\n[STATUS] Generating output file...")
 
     # Create a new workbook and select the active sheet
     workbook = openpyxl.Workbook()
@@ -315,18 +317,17 @@ def generate_output_file():
     for conduit_name, conduit in conduits.items():
 
         conduit_sizes_index = next((index for index, x in enumerate(conduit_sizes) if x == conduit.conduit_size), None)
-        print(f"{conduit_name} area: {conduit.conduit_area}")
 
         for cable in conduit.cables:
             row_data = [
-                conduit_name,                                                                   # Conduit name
+                f"Conduit {conduit.conduit_number}",                                                                   # Conduit name
                 f"{str(conduit.stationing_start)[:-2]}+{str(conduit.stationing_start)[-2:]}",   # Stationing start
                 f"{str(conduit.stationing_end)[:-2]}+{str(conduit.stationing_end)[-2:]}",       # Stationing end
                 int(cable.pull_number),                 # Pull Number
                 cable.cable_size,                       # Cable size (ex. 7C#14)
                 cable.express,                          # Express or local
                 conduit.conduit_size,                   # Conduit size in inches
-                conduit.conduit_fill,                    # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
+                str(conduit.conduit_fill) + "%",             # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
                 conduit_sizes[conduit_sizes_index + 1], # Upsized conduit
                 f"{(100 * conduit.conduit_area / (math.pi * ((conduit_sizes[conduit_sizes_index + 1] / 2) ** 2))):.2f}%" # Upsized conduit fill
             ]
