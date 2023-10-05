@@ -111,7 +111,7 @@ def create_conduits(cables_to_place, start_stationing, end_stationing):
                 # If a smaller cable fits
                 if check_free_air_space(conduit, cable):
                     add_cable_to_conduit(conduit, cable)    # Place cable into cable
-                    cables_to_place.remove()                # Remove cable from list of cables to place
+                    cables_to_place.remove(cable)                # Remove cable from list of cables to place
                     cable_placed = True                     # Set flag to true that cable was placed
                     break
             # If no cables were able to be placed into the conduit
@@ -129,7 +129,7 @@ def create_conduits(cables_to_place, start_stationing, end_stationing):
 # Work backwards, compare conduit fill of potential downsized conduits
 # Keep working until before fill of 40% or higher is reached
 def tightly_resize_conduit(conduit):
-    print(f"[STATUS] Checking if Conduit {conduit.conduit_number} can be resized...")
+    print(f"\n[STATUS] Checking if Conduit {conduit.conduit_number} can be resized...")
 
     # List of potential conduit sizes
     from cable_classes import conduit_sizes
