@@ -23,11 +23,14 @@ import logging
 from .azure import upload_to_azure
 '''
 
+
 ###############
 #### Local ####
 ###############
 # Extract the diameter and weight of all cables from Cable Sizes.xlsx
-def get_cable_sizes():              # Local function
+def get_cable_sizes():  # Local function
+    print("[STATUS] Fetching cable sizes...")
+
     # Path to the folder containing the Cable Pull Sheet
     file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
                 r'\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
@@ -42,47 +45,50 @@ def get_cable_sizes():              # Local function
     length = None
     width = None
 
-    # Iterate over the rows starting from the second row (second because first row has the headers)
+    # Iterate over the rows starting from the second row
+    # First row has headers, not cable data, so don't scan those
     for row in sheet.iter_rows(min_row=2, values_only=True):
-        # Check for the special case
-        if row[0] == "* 2 Conductor Cables Below *":
-            special_case = True
-            continue  # Skip this row
 
+        # Check to see if the file scanner has reached the section with 2 conductor cables
+        if row[0] == "* 2 Conductor Cables Below *":
+            special_case = True     # Set flag to move onto headers of 2 conductor cables
+            continue                # Skip this iteration of the loop, to move onto the headers of 2 conductor cables
+        # If at the headers of the 2 conductor cables
+        # Skip the iteration of the for loop to avoid scanning in header titles
         if special_case:
             if not first_row_skipped:
                 first_row_skipped = True
                 continue  # Skip the first row
 
-            # This is the special case, so process the data differently
+            # Reading in data for 2 conductor cables
             size = row[0]
             length = row[1]
             width = row[2]
             weight = row[3]
 
-            # print(length)
-            # print(width)
-
             # Calculate the cross-sectional area as the product of length and width
+            # 2 conductor cables are approximated as rectangles
             cross_sectional_area = length * width
 
-            # Create a CableParameters object with diameter set to "None"
+            # Create a CableParameters object with diameter set to "None" and add to cable sizes list
             cable = CableParameters(size, None, weight, cross_sectional_area)
             cable_sizes_list.append(cable)
-
+        # For all cables other than 2 conductor cables
         else:
             # Extract the cable parameters as usual
             size = row[0]
             diameter = row[1]
             pounds_per_foot = row[2]
-            cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)
+            cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)  # Area of circle
 
             # Create a CableParameters object and append it to the list
             cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
             cable_sizes_list.append(cable)
 
-    # Close the workbook
+    # Close the Excel workbook
     workbook.close()
+
+    print("[PASS] Cable sizes acquired.\n")
 
 
 ###############
@@ -152,10 +158,11 @@ def get_cable_sizes(cable_sizes):
         logging.info(f"An error occurred: {str(e)}")
 '''
 
+
 # Open cable pull sheet and extract all the cables and their info from it
 # def get_cable_pull_sheet(pull_sheet): # Server function
 def get_cable_pull_sheet(): # Local function
-    
+    print("[STATUS] Fetching cable pull sheet...")
     ###############
     #### Local ####
     ###############
@@ -260,6 +267,7 @@ def get_cable_pull_sheet(): # Local function
                 cable_info.cross_sectional_area
             )
             cable_list.append(cable)
+    print("[PASS] Cable pull sheet obtained.\n")
 
 
 def sort_stationing():
@@ -279,14 +287,12 @@ def sort_stationing():
     stationing_values = sorted(list(unique_stationing_values))
     return stationing_values
 
-    # print("Stationing Values: ")
-    # for value in stationing_values:
-    #     print(f"{str(value)[:-2]}+{str(value)[-2:]}")
-
 
 # Create excel output file with list of conduits and which cables are in them
 def generate_output_file():
-    print("Generating output file...")
+    from cable_classes import conduit_sizes
+
+    print("\n[STATUS] Generating output file...")
 
     # Create a new workbook and select the active sheet
     workbook = openpyxl.Workbook()
@@ -309,34 +315,21 @@ def generate_output_file():
 
     # Write conduit data and cable attributes to the Excel file
     for conduit_name, conduit in conduits.items():
-        stationing_start = conduit.stationing_start
-        stationing_end = conduit.stationing_end
-        conduit_free_air_space = conduit.conduit_free_air_space
 
         conduit_sizes_index = next((index for index, x in enumerate(conduit_sizes) if x == conduit.conduit_size), None)
-        # print("Index in conduit sizes list:")
-        # print(conduit_sizes_index)
-        # print("Matching to conduit sizes list:")
-        # print(conduit_sizes[conduit_sizes_index])
-        # print("Size of conduit:")
-        # print(conduit.conduit_size)
-        # print(round((conduit.conduit_area  / (math.pi * ((conduit_sizes[conduit_sizes_index]/2) ** 2))) * 100, 2))
-        # print(conduit.conduit_area)
-        # print()
-        print(f"{conduit_name} area: {conduit.conduit_area}")
+
         for cable in conduit.cables:
             row_data = [
-                f"{conduit_name[:-1]} {conduit_name[-1:]}",                     # Conduit name
-                f"{str(stationing_start)[:-2]}+{str(stationing_start)[-2:]}",   # Stationing start
-                f"{str(stationing_end)[:-2]}+{str(stationing_end)[-2:]}",       # Stationing end
-                int(cable.pull_number), # Pull Number
-                cable.cable_size,       # Cable size (ex. 7C#14)
-                cable.express,          # Express or local
-                conduit.conduit_size,                             # Radius
-                f"{100 * conduit.conduit_area / (math.pi * ((conduit.conduit_size / 2) ** 2)):.2f}%",
-                # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
-                conduit_sizes[conduit_sizes_index + 1],           # Upsized conduit
-                f"{round((conduit.conduit_area  / (math.pi * ((conduit_sizes[conduit_sizes_index+1]/2) ** 2))) * 100, 2)}%"  # Upsized conduit fill
+                f"Conduit {conduit.conduit_number}",                                                                   # Conduit name
+                f"{str(conduit.stationing_start)[:-2]}+{str(conduit.stationing_start)[-2:]}",   # Stationing start
+                f"{str(conduit.stationing_end)[:-2]}+{str(conduit.stationing_end)[-2:]}",       # Stationing end
+                int(cable.pull_number),                 # Pull Number
+                cable.cable_size,                       # Cable size (ex. 7C#14)
+                cable.express,                          # Express or local
+                conduit.conduit_size,                   # Conduit size in inches
+                str(conduit.conduit_fill) + "%",             # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
+                conduit_sizes[conduit_sizes_index + 1], # Upsized conduit
+                f"{(100 * conduit.conduit_area / (math.pi * ((conduit_sizes[conduit_sizes_index + 1] / 2) ** 2))):.2f}%" # Upsized conduit fill
             ]
             sheet.append(row_data)
 
@@ -396,12 +389,14 @@ def generate_output_file():
     output_filename = "Output File.xlsx"
     workbook.save(output_filename)
 
+    print(f"[PASS] Output file {output_filename} has been saved.")
+    print(f"[STATUS] Opening output file...")
+
     pdf_file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC' \
                     r'\Documents 1\Code\Git Files\Cable-Run-Optimizer\Output File.xlsx'
     subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
 
-    print(f"Conduit data has been saved to {output_filename}")
     
     ###############
     #### Server ###

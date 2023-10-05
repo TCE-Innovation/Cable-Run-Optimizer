@@ -1,3 +1,5 @@
+import math
+
 # Class used to hold data taken from Cables Sizes.xlsx
 # To be fed into Cable class
 class CableParameters:
@@ -26,18 +28,27 @@ class Cable:
 
 # Class to create conduits
 class Conduit:
-    def __init__(self, stationing_start, stationing_end, conduit_free_air_space, conduit_area, conduit_size):
+    def __init__(self, stationing_start, stationing_end,
+                 conduit_area, conduit_fill, conduit_size, conduit_number):
         self.cables = []  # List to hold cable objects
         self.cable_data = []  # List to hold cable data as (radius, angle) tuples
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
-        self.conduit_free_air_space = conduit_free_air_space
-        self.conduit_area = conduit_area if conduit_area is not None else 0  # Use 0 if conduit_area is not provided
-        self.conduit_size = conduit_size if conduit_size is not None else 3.5
+        self.conduit_fill = conduit_fill
+        self.conduit_area = conduit_area if conduit_area is not None else 0     # Use 0 if conduit_area is not provided
+        self.conduit_size = conduit_size if conduit_size is not None else 3.5   # Use 3.5, max conduit size
+        self.conduit_number = conduit_number
 
-    def add_cable(self, cable, radius, angle):
+    # def add_cable(self, cable, radius, angle):
+    #     self.cables.append(cable)
+    #     self.cable_data.append((radius, angle))
+
+    def add_cable(self, cable):
         self.cables.append(cable)
-        self.cable_data.append((radius, angle))
+
+    def calculate_conduit_area_and_default_fill(self):
+        self.conduit_area = sum(cable.cross_sectional_area for cable in self.cables)
+        self.conduit_fill = 100 * self.conduit_area / (((max_conduit_size/2) ** 2) * math.pi)
 
 
 # Class to create bundles
