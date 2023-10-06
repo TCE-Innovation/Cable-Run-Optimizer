@@ -2,6 +2,7 @@
 #### Local ####
 ###############
 import os
+import re
 import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font
@@ -88,7 +89,7 @@ def get_cable_sizes():  # Local function
     # Close the Excel workbook
     workbook.close()
 
-    print("[PASS] Cable sizes acquired.\n")
+    print(f"[PASS] Cable sizes acquired.\n")
 
 
 ###############
@@ -163,28 +164,29 @@ def get_cable_sizes(cable_sizes):
 # def get_cable_pull_sheet(pull_sheet): # Server function
 def get_cable_pull_sheet(): # Local function
     print("[STATUS] Fetching cable pull sheet...")
+
     ###############
     #### Local ####
     ###############
-    # Path to the folder containing the Cable Pull Sheet
-    folder_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
-                  r'\Code\Git Files\Cable-Run-Optimizer'
 
-    # Iterate over files in the file explorer
-    for file_name in os.listdir(folder_path):
-        # Check if the file is an Excel file
-        if file_name.endswith('.xlsx') or file_name.endswith('.xls'):
-            # Check if the file name is "Messenger Cable Sizes"
-            if file_name == 'Cable Sizes.xlsx':
-                continue  # Skip this file and move to the next file
+    # Updated column headers to match your fixed column format
+    pull_number_col_index =         1  # Column A
+    cable_size_col_index =          2  # Column B
+    express_col_index =             3  # Column C
+    stationing_start_col_index =    4  # Column D
+    stationing_end_col_index =      5  # Column E
+    distance_col_index =            6  # Column F (for absolute distances)
 
-            # Construct the full file path
-            file_path = os.path.join(folder_path, file_name)
+    # Regular expression pattern to detect stationing values (both numerical and location descriptors)
+    stationing_pattern = r'\d+\+\d+|[A-Z\-]+'
 
-            # Load the Excel file
-            workbook = openpyxl.load_workbook(file_path)
-            sheet = workbook.active
+    # Path to the "Test Basic Pull Sheet.xlsx" file
+    file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
+                r'\Code\Git Files\Cable-Run-Optimizer\Test Basic Pull Sheet.xlsx'
 
+    # Load the Excel file
+    workbook = openpyxl.load_workbook(file_path)
+    sheet = workbook.active
 
     ###############
     #### Server ###
@@ -197,51 +199,21 @@ def get_cable_pull_sheet(): # Local function
         sheet = workbook.active
     '''
 
-    # Initialize variables to store relevant column indices
-    # This is done because the formatting of pull sheets can vary
-    pull_number_col_index = -1
-    stationing_start_col_index = -1
-    stationing_end_col_index = -1
-    cable_size_col_index = -1
-    express_col_index = -1
-
-    # Iterate over the column headers in the first row
-    for column_index in range(1, sheet.max_column + 1):
-        header = sheet.cell(row=1, column=column_index).value
-        if header:
-            # Convert the header to lowercase for case-insensitive matching
-            header = header.lower()
-
-            # Check if the header contains the keywords
-            if 'pull' in header:
-                pull_number_col_index = column_index
-            elif 'start' in header or 'from' in header:
-                stationing_start_col_index = column_index
-            elif 'end' in header or 'to' in header:
-                stationing_end_col_index = column_index
-            elif 'size' in header:
-                cable_size_col_index = column_index
-            elif 'express' in header:
-                express_col_index = column_index
-
     # Iterate over the rows to extract information from relevant columns
-    for row in sheet.iter_rows(min_row=2):
-        pull_number = sheet.cell(row=row[0].row,
-                                 column=pull_number_col_index).value if pull_number_col_index != -1 else None
-        stationing_start = sheet.cell(row=row[0].row,
-                                      column=stationing_start_col_index).value if stationing_start_col_index != -1 else None
-        stationing_end = sheet.cell(row=row[0].row,
-                                    column=stationing_end_col_index).value if stationing_end_col_index != -1 else None
-        cable_size = sheet.cell(row=row[0].row,
-                                column=cable_size_col_index).value if cable_size_col_index != -1 else None
-        express = sheet.cell(row=row[0].row,
-                             column=express_col_index).value if express_col_index != -1 else None
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        pull_number = row[0]
+        cable_size = row[1]
+        express = row[2]
+        stationing_start = row[3]
+        stationing_end = row[4]
 
-        # Modify stationing values
-        if stationing_start is not None:
-            stationing_start = int(stationing_start.replace('+', ''))
-        if stationing_end is not None:
-            stationing_end = int(stationing_end.replace('+', ''))
+        # Check if stationing_start is a numerical stationing value
+        if '+' in str(stationing_start):
+            # If it's a numerical stationing value, treat it as such
+            absolute_distance = None
+        else:
+            # If it's a location descriptor, check if there's an absolute distance in Column F
+            absolute_distance = row[5]  # Assuming Column F contains absolute distance
 
         # Find the corresponding CableParameters object based on the cable size
         # Initialize a variable to store cable information
@@ -257,17 +229,27 @@ def get_cable_pull_sheet(): # Local function
 
         if cable_info is not None:
             cable = Cable(
-                str(pull_number),
-                int(stationing_start),
-                int(stationing_end),
+                pull_number,
+                stationing_start,
+                stationing_end,
                 cable_size,
                 express,
                 cable_info.diameter,
                 cable_info.pounds_per_foot,
-                cable_info.cross_sectional_area
+                cable_info.cross_sectional_area,
+                absolute_distance
             )
             cable_list.append(cable)
-    print("[PASS] Cable pull sheet obtained.\n")
+    print(f"[PASS] Cable pull sheet obtained.\n")
+
+    # Print out the cables at the end of the function
+    for cable in cable_list:
+        print(f"Cable: Pull #{cable.pull_number}, Size: {cable.cable_size}, Express: {cable.express}, "
+              f"Stationing Start: {cable.stationing_start}, Stationing End: {cable.stationing_end}, "
+              f"Absolute Distance: {cable.absolute_distance}")
+
+    # Return the cable list if needed for further processing
+    return cable_list
 
 
 def sort_stationing():
@@ -285,6 +267,11 @@ def sort_stationing():
 
     # Convert the set to a list and sort it numerically
     stationing_values = sorted(list(unique_stationing_values))
+
+    # Print out all the stationing values
+    for value in stationing_values:
+        print(value)
+
     return stationing_values
 
 
@@ -321,8 +308,8 @@ def generate_output_file():
         for cable in conduit.cables:
             row_data = [
                 f"Conduit {conduit.conduit_number}",                                                                   # Conduit name
-                f"{str(conduit.stationing_start)[:-2]}+{str(conduit.stationing_start)[-2:]}",   # Stationing start
-                f"{str(conduit.stationing_end)[:-2]}+{str(conduit.stationing_end)[-2:]}",       # Stationing end
+                f"{conduit.stationing_start}",   # Stationing start
+                f"{conduit.stationing_end}",       # Stationing end
                 int(cable.pull_number),                 # Pull Number
                 cable.cable_size,                       # Cable size (ex. 7C#14)
                 cable.express,                          # Express or local

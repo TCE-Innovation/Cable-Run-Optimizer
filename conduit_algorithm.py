@@ -57,8 +57,6 @@ def optimize_for_conduit(stationing_values):
             create_conduits(local_cables, start_stationing, end_stationing)
 
 
-
-
 def create_new_conduit(start_stationing, end_stationing, conduit_nmbr):
     conduit = Conduit(start_stationing, end_stationing,
                       conduit_area=0, conduit_fill=0, conduit_size=3.5, conduit_number=conduit_nmbr)
@@ -96,7 +94,7 @@ def create_conduits(cables_to_place, start_stationing, end_stationing):
 
     # While there are cables to place
     while cables_to_place:
-        cable = cables_to_place[0]  # Take the biggest cable from the the list
+        cable = cables_to_place[0]  # Take the biggest cable from the list
 
         # If cable fits the conduit
         if check_free_air_space(conduit, cable):

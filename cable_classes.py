@@ -15,7 +15,7 @@ class CableParameters:
 # to fill in information that isn't from cable pull sheet (diameter, weight, area)
 class Cable:
     def __init__(self, pull_number, stationing_start: int, stationing_end: int,
-                 cable_size, express, diameter, weight, cross_sectional_area):
+                 cable_size, express, diameter, weight, cross_sectional_area, absolute_distance):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -24,6 +24,7 @@ class Cable:
         self.diameter = diameter
         self.weight = weight
         self.cross_sectional_area = cross_sectional_area
+        self.absolute_distance = absolute_distance
 
 
 # Class to create conduits
