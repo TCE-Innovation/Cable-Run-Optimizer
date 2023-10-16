@@ -7,8 +7,8 @@ from file_handler import *
 get_cable_sizes()             # Excel of all cables and their parameters
 get_cable_pull_sheet()        # Pull sheet excel
 stationing_values = sort_stationing()             # List each stationing value in the pull sheet, ordered
-# optimize_for_conduit(stationing_values)        # Run conduit algorithm, generate conduit images
-# generate_output_file()        # Create output excel file with generated conduits
+optimize_for_conduit(stationing_values_numeric, stationing_text_pairs)        # Run conduit algorithm, generate conduit images
+generate_output_file()        # Create output excel file with generated conduits
 
 # conduit_nmbr = 1
 #
@@ -31,6 +31,15 @@ stationing_values = sort_stationing()             # List each stationing value i
 #     print(f"Conduit Name: {conduit.cables[0]}")
 #     print(f"Conduit Size: {conduit.conduit_size}")
 
+# from cable_classes import stationing_text_pairs
+#
+# place1 = "Location A"
+# place2 = "Location B"
+#
+# stationing_set = (place1, place2)
+# stationing_text_pairs.append(stationing_set)
+#
+# print(stationing_text_pairs[0][1])
 
 
 # print(conduits["Conduit1"].cables[0])

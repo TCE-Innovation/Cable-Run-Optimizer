@@ -214,6 +214,7 @@ def get_cable_pull_sheet(): # Local function
         else:
             # If it's a location descriptor, check if there's an absolute distance in Column F
             absolute_distance = row[5]  # Assuming Column F contains absolute distance
+            stationing_text_pairs.append((stationing_start, stationing_end))  # Log text descriptor pair
 
         # Find the corresponding CableParameters object based on the cable size
         # Initialize a variable to store cable information
@@ -253,26 +254,25 @@ def get_cable_pull_sheet(): # Local function
 
 
 def sort_stationing():
-    global stationing_values
 
     # Create a set to store unique stationing values
     unique_stationing_values = set()
 
     for cable in cable_list:
-        if cable.stationing_start:
+        if cable.stationing_start and cable.absolute_distance is not None:  # Only adding numeric stationing values
             unique_stationing_values.add(cable.stationing_start)
 
-        if cable.stationing_end:
+        if cable.stationing_end and cable.absolute_distance is not None:    # Only adding numeric stationing values
             unique_stationing_values.add(cable.stationing_end)
 
     # Convert the set to a list and sort it numerically
-    stationing_values = sorted(list(unique_stationing_values))
+    stationing_values_numeric = sorted(list(unique_stationing_values))
 
     # Print out all the stationing values
-    for value in stationing_values:
+    for value in stationing_values_numeric:
         print(value)
 
-    return stationing_values
+    return stationing_values_numeric, stationing_text_pairs
 
 
 # Create excel output file with list of conduits and which cables are in them

@@ -1,5 +1,6 @@
 import math
 
+
 # Class used to hold data taken from Cables Sizes.xlsx
 # To be fed into Cable class
 class CableParameters:
@@ -89,7 +90,8 @@ express_text = None
 
 # Initialize an empty list to store unique stationing values
 # Used in file_handler.py
-stationing_values = list()
+stationing_values_numeric = list()
+stationing_text_pairs = list()
 
 # List to hold cables to be drawn with their polar coordinates (radius and angle)
 # Used in visualizer.py

@@ -14,12 +14,13 @@ import math
 '''
 
 
-def optimize_for_conduit(stationing_values):
+def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
     # Loop through the stationing values and group cables within each stationing range
-    for i in range(len(stationing_values) - 1):
+    # HANDLE ONLY NUMERIC STATIONING VALUES
+    for i in range(len(stationing_values_numeric) - 1):
         # define the two stationing values that cables will be optimized between
-        start_stationing = stationing_values[i]
-        end_stationing = stationing_values[i + 1]
+        start_stationing = stationing_values_numeric[i]
+        end_stationing = stationing_values_numeric[i + 1]
 
         # Create a list to store cables within the current stationing range
         cables_within_range = []
@@ -55,6 +56,37 @@ def optimize_for_conduit(stationing_values):
             create_conduits(express_cables, start_stationing, end_stationing)
         if len(local_cables):    # Checking if there are local cables to sort
             create_conduits(local_cables, start_stationing, end_stationing)
+
+    # Handle all text descriptors of stationing start and end
+    for start, end in stationing_text_pairs:
+
+        # Create a list to store cables within the current stationing range
+        cables_within_range = []
+
+        for cable in cable_list:
+            if cable.stationing_start == start and cable.stationing_end == end:
+                cables_within_range.append(cable)
+
+        # Separate express and local cables
+        express_cables = []
+        local_cables = []
+
+        for cable in cables_within_range:
+
+            if cable.express.lower() == "express":
+                express_cables.append(cable)
+            elif cable.express.lower() == "local":
+                local_cables.append(cable)
+
+        # Sort express and local cables separately, sorting by size
+        express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
+        local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
+
+        # Create conduits
+        if len(express_cables):  # Checking if there are express cables to sort
+            create_conduits(express_cables, start, end)
+        if len(local_cables):    # Checking if there are local cables to sort
+            create_conduits(local_cables, start, end)
 
 
 def create_new_conduit(start_stationing, end_stationing, conduit_nmbr):
