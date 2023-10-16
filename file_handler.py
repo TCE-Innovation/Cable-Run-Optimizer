@@ -254,6 +254,7 @@ def get_cable_pull_sheet(): # Local function
 
 
 def sort_stationing():
+    global stationing_text_pairs
 
     # Create a set to store unique stationing values
     unique_stationing_values = set()
@@ -268,9 +269,21 @@ def sort_stationing():
     # Convert the set to a list and sort it numerically
     stationing_values_numeric = sorted(list(unique_stationing_values))
 
+
     # Print out all the stationing values
     for value in stationing_values_numeric:
         print(value)
+
+    # Create a set to store unique stationing text pairs
+    unique_stationing_text_pairs = set(stationing_text_pairs)
+    stationing_text_pairs = list(unique_stationing_text_pairs)
+
+    print("MAMA MIA HERE IS THE STATIONING TEXT VALUES SIZE, SHOULD BE 1")
+    print(len(stationing_text_pairs))
+
+    print("MAMA MIA HERE ARE THE STATIONING TEXT PAIRS")
+    for start, end in stationing_text_pairs:
+        print(f"Start: {start}, End: {end}")
 
     return stationing_values_numeric, stationing_text_pairs
 

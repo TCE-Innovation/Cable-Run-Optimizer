@@ -15,6 +15,11 @@ import math
 
 
 def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
+    # Create a set to store unique stationing text pairs
+    unique_stationing_text_pairs = set(stationing_text_pairs)
+    stationing_text_pairs = list(unique_stationing_text_pairs)
+
+
     # Loop through the stationing values and group cables within each stationing range
     # HANDLE ONLY NUMERIC STATIONING VALUES
     for i in range(len(stationing_values_numeric) - 1):
@@ -56,6 +61,9 @@ def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
             create_conduits(express_cables, start_stationing, end_stationing)
         if len(local_cables):    # Checking if there are local cables to sort
             create_conduits(local_cables, start_stationing, end_stationing)
+    print("MAMA MIA HERE ARE THE STATIONING TEXT PAIRS")
+    for start, end in stationing_text_pairs:
+        print(f"Start: {start}, End: {end}")
 
     # Handle all text descriptors of stationing start and end
     for start, end in stationing_text_pairs:
@@ -164,7 +172,7 @@ def tightly_resize_conduit(conduit):
     # List of potential conduit sizes
     from cable_classes import conduit_sizes
 
-    size = len(conduit_sizes) - 2 # Biggest conduit size (4 inches)
+    size = len(conduit_sizes) - 2  # Biggest conduit size (4 inches)
 
     # While conduit fill is less than 40% with smaller size
     while (100*conduit.conduit_area / (math.pi * ((conduit_sizes[size - 1]/2) ** 2))) < 40:
