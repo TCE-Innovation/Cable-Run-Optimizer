@@ -19,7 +19,6 @@ def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
     unique_stationing_text_pairs = set(stationing_text_pairs)
     stationing_text_pairs = list(unique_stationing_text_pairs)
 
-
     # Loop through the stationing values and group cables within each stationing range
     # HANDLE ONLY NUMERIC STATIONING VALUES
     for i in range(len(stationing_values_numeric) - 1):
