@@ -1,6 +1,7 @@
 ###############
 #### Local ####
 ###############
+'''
 import os
 import re
 import openpyxl
@@ -9,11 +10,12 @@ from openpyxl.styles import Alignment, Font
 import math
 from cable_classes import *
 import subprocess
+'''
 
 ###############
 #### Server ###
 ###############
-'''
+
 import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font
@@ -22,13 +24,14 @@ from io import BytesIO
 from .cable_classes import *
 import logging
 from .azure import upload_to_azure
-'''
+
 
 
 ###############
 #### Local ####
 ###############
 # Extract the diameter and weight of all cables from Cable Sizes.xlsx
+'''
 def get_cable_sizes():  # Local function
     print("[STATUS] Fetching cable sizes...")
 
@@ -90,13 +93,14 @@ def get_cable_sizes():  # Local function
     workbook.close()
 
     print(f"[PASS] Cable sizes acquired.\n")
-
+'''
 
 ###############
 #### Server ###
 ###############
 # Extract the diameter and weight of all cables from Cable Sizes.xlsx
-'''
+
+
 def get_cable_sizes(cable_sizes):
     try:
         # Load the Excel file
@@ -157,18 +161,19 @@ def get_cable_sizes(cable_sizes):
     except Exception as e:
         # Handle other exceptions
         logging.info(f"An error occurred: {str(e)}")
-'''
 
+###############
+#### Local ####
+###############
 
 # Open cable pull sheet and extract all the cables and their info from it
 # def get_cable_pull_sheet(pull_sheet): # Server function
+'''
 def get_cable_pull_sheet(): # Local function
     print("[STATUS] Fetching cable pull sheet...")
 
-    ###############
-    #### Local ####
-    ###############
 
+    
     # Updated column headers to match your fixed column format
     pull_number_col_index =         1  # Column A
     cable_size_col_index =          2  # Column B
@@ -183,21 +188,22 @@ def get_cable_pull_sheet(): # Local function
     # Path to the "Test Basic Pull Sheet.xlsx" file
     file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
                 r'\Code\Git Files\Cable-Run-Optimizer\Test Basic Pull Sheet.xlsx'
-
+    
     # Load the Excel file
     workbook = openpyxl.load_workbook(file_path)
     sheet = workbook.active
+'''
 
-    ###############
-    #### Server ###
-    ###############
-    '''
-    # Open cable pull sheet and extract all the cables and their info from it
-    def get_cable_pull_sheet(pull_sheet):
-        # Load the Excel file
-        workbook = openpyxl.load_workbook(BytesIO(pull_sheet.read()))
-        sheet = workbook.active
-    '''
+###############
+#### Server ###
+###############
+
+
+# Open cable pull sheet and extract all the cables and their info from it
+def get_cable_pull_sheet(pull_sheet):
+    # Load the Excel file
+    workbook = openpyxl.load_workbook(BytesIO(pull_sheet.read()))
+    sheet = workbook.active
 
     # Iterate over the rows to extract information from relevant columns
     for row in sheet.iter_rows(min_row=2, values_only=True):
@@ -277,13 +283,6 @@ def sort_stationing():
     # Create a set to store unique stationing text pairs
     unique_stationing_text_pairs = set(stationing_text_pairs)
     stationing_text_pairs = list(unique_stationing_text_pairs)
-
-    print("MAMA MIA HERE IS THE STATIONING TEXT VALUES SIZE, SHOULD BE 1")
-    print(len(stationing_text_pairs))
-
-    print("MAMA MIA HERE ARE THE STATIONING TEXT PAIRS")
-    for start, end in stationing_text_pairs:
-        print(f"Start: {start}, End: {end}")
 
     return stationing_values_numeric, stationing_text_pairs
 
@@ -385,6 +384,7 @@ def generate_output_file():
     ###############
     #### Local ####
     ###############
+    '''
     # Save the workbook to a file
     output_filename = "Output File.xlsx"
     workbook.save(output_filename)
@@ -395,17 +395,17 @@ def generate_output_file():
     pdf_file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC' \
                     r'\Documents 1\Code\Git Files\Cable-Run-Optimizer\Output File.xlsx'
     subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
-
+    '''
 
     
     ###############
     #### Server ###
     ###############
-    '''
+
     # Upload the workbook to azure blob storage
     sas_url = upload_to_azure(workbook)
 
     print(f"Conduit data has been saved to uploaded to blob storage.")
 
     return sas_url
-    '''
+

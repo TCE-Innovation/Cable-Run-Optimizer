@@ -1,17 +1,17 @@
 ###############
 #### Local ####
 ###############
-
+'''
 from visualizer import *
 import math
-
+'''
 ###############
 #### Server ###
 ###############
-'''
+
 from .cable_classes import *
 import math
-'''
+
 
 
 def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):

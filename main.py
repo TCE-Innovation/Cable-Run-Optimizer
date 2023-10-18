@@ -1,6 +1,7 @@
 ###############
 #### Local ####
 ###############
+'''
 from conduit_algorithm import *
 from file_handler import *
 
@@ -9,52 +10,12 @@ get_cable_pull_sheet()        # Pull sheet excel
 stationing_values = sort_stationing()             # List each stationing value in the pull sheet, ordered
 optimize_for_conduit(stationing_values_numeric, stationing_text_pairs)        # Run conduit algorithm, generate conduit images
 generate_output_file()        # Create output excel file with generated conduits
-
-# conduit_nmbr = 1
-#
-# conduit = Conduit(100, 200,
-#                   conduit_area=0, conduit_fill=0, conduit_size=3.5, conduit_number=conduit_nmbr)
-# # Conduit area will be updated every time a new cable is added (add_cable_to_conduit function)
-# # Conduit size + fill will be updated when the optimal conduit size is determined (tightly_resize_conduit function)
-#
-# # Add newly made conduit to list of conduits
-# conduits["Conduit" + str(conduit_nmbr)] = conduit
-#
-# conduit = Conduit(200, 300,
-#                   conduit_area=0, conduit_fill=0, conduit_size=2.5, conduit_number=conduit_nmbr)
-#
-# conduit_nmbr += 1
-#
-# conduits["Conduit" + str(conduit_nmbr)] = conduit
-#
-# for conduit_name, conduit in conduits.items():
-#     print(f"Conduit Name: {conduit.cables[0]}")
-#     print(f"Conduit Size: {conduit.conduit_size}")
-
-# from cable_classes import stationing_text_pairs
-#
-# place1 = "Location A"
-# place2 = "Location B"
-#
-# stationing_set = (place1, place2)
-# stationing_text_pairs.append(stationing_set)
-#
-# print(stationing_text_pairs[0][1])
-
-
-# print(conduits["Conduit1"].cables[0])
-
-
-
-
-
-
-
+'''
 
 ###############
 #### Server ###
 ###############
-'''
+
 from .conduit_algorithm import *
 from .file_handler import get_cable_pull_sheet, get_cable_sizes, sort_stationing, generate_output_file
 import logging
@@ -80,4 +41,3 @@ def execute_CRO(pull_sheet, cable_sizes):
 
     return sas_url
 
-'''
