@@ -1,17 +1,14 @@
-###############
-#### Local ####
-###############
-'''
-from visualizer import *
-import math
-'''
-###############
-#### Server ###
-###############
+from settings import local_code_flag
+from settings import server_code_flag
 
-from .cable_classes import *
-import math
+if local_code_flag:
+    from visualizer import *
+    import math
 
+
+elif server_code_flag:
+    from .cable_classes import *
+    import math
 
 
 def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
