@@ -1,7 +1,7 @@
 from settings import local_code_flag
 from settings import server_code_flag
 
-if local_code_flag is True:
+if local_code_flag:
     ###############
     #### Local ####
     ###############
@@ -15,14 +15,6 @@ if local_code_flag is True:
     from cable_classes import *
     import subprocess
 
-    # Path to the "Test Basic Pull Sheet.xlsx" file
-    file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
-                r'\Code\Git Files\Cable-Run-Optimizer\Test Basic Pull Sheet.xlsx'
-
-    # Load the Excel file
-    workbook = openpyxl.load_workbook(file_path)
-    sheet = workbook.active
-
     # Extract the diameter and weight of all cables from Cable Sizes.xlsx
     def get_cable_sizes():  # Local function
         print("[STATUS] Fetching cable sizes...")
@@ -35,57 +27,12 @@ if local_code_flag is True:
         workbook = openpyxl.load_workbook(file_path)
         sheet = workbook.active
 
-        # Initialize variables to track the special case
-        special_case = False
-        first_row_skipped = False  # Flag to skip the first row when in the special case
-        length = None
-        width = None
-
-        # Iterate over the rows starting from the second row
-        # First row has headers, not cable data, so don't scan those
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-
-            # Check to see if the file scanner has reached the section with 2 conductor cables
-            if row[0] == "* 2 Conductor Cables Below *":
-                special_case = True  # Set flag to move onto headers of 2 conductor cables
-                continue  # Skip this iteration of the loop, to move onto the headers of 2 conductor cables
-            # If at the headers of the 2 conductor cables
-            # Skip the iteration of the for loop to avoid scanning in header titles
-            if special_case:
-                if not first_row_skipped:
-                    first_row_skipped = True
-                    continue  # Skip the first row
-
-                # Reading in data for 2 conductor cables
-                size = row[0]
-                length = row[1]
-                width = row[2]
-                weight = row[3]
-
-                # Calculate the cross-sectional area as the product of length and width
-                # 2 conductor cables are approximated as rectangles
-                cross_sectional_area = length * width
-
-                # Create a CableParameters object with diameter set to "None" and add to cable sizes list
-                cable = CableParameters(size, None, weight, cross_sectional_area)
-                cable_sizes_list.append(cable)
-            # For all cables other than 2 conductor cables
-            else:
-                # Extract the cable parameters as usual
-                size = row[0]
-                diameter = row[1]
-                pounds_per_foot = row[2]
-                cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)  # Area of circle
-
-                # Create a CableParameters object and append it to the list
-                cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
-                cable_sizes_list.append(cable)
+        parse_cable_sizes_excel(sheet)
 
         # Close the Excel workbook
         workbook.close()
 
         print(f"[PASS] Cable sizes acquired.\n")
-
 
     # Open cable pull sheet and extract all the cables and their info from it
     # def get_cable_pull_sheet(pull_sheet): # Server function
@@ -98,6 +45,15 @@ if local_code_flag is True:
         stationing_start_col_index = 4  # Column D
         stationing_end_col_index = 5  # Column E
         distance_col_index = 6  # Column F (for absolute distances)
+
+        # Path to the "Test Basic Pull Sheet.xlsx" file
+        file_path = r'C:\Users\roneill\OneDrive - Iovino Enterprises, LLC\Documents 1' \
+                    r'\Code\Git Files\Cable-Run-Optimizer\Test Basic Pull Sheet.xlsx'
+
+        # Load the Excel file
+        workbook = openpyxl.load_workbook(file_path)
+        sheet = workbook.active
+
 
         # Regular expression pattern to detect stationing values (both numerical and location descriptors)
         stationing_pattern = r'\d+\+\d+|[A-Z\-]+'
@@ -155,7 +111,8 @@ if local_code_flag is True:
         # Return the cable list if needed for further processing
         return cable_list
 
-elif server_code_flag is True:
+
+elif server_code_flag:
     ###############
     #### Server ###
     ###############
@@ -169,12 +126,6 @@ elif server_code_flag is True:
     import logging
     from .azure import upload_to_azure
 
-    # Open cable pull sheet and extract all the cables and their info from it
-    def get_cable_pull_sheet(pull_sheet):
-        # Load the Excel file
-        workbook = openpyxl.load_workbook(BytesIO(pull_sheet.read()))
-        sheet = workbook.active
-
     # Extract the diameter and weight of all cables from Cable Sizes.xlsx
     def get_cable_sizes(cable_sizes):
 
@@ -183,50 +134,7 @@ elif server_code_flag is True:
             workbook = openpyxl.load_workbook(BytesIO(cable_sizes.read()))
             sheet = workbook.active
 
-            # Initialize variables to track the special case
-            special_case = False
-            first_row_skipped = False  # Flag to skip the first row when in the special case
-            length = None
-            width = None
-
-            # Iterate over the rows starting from the second row (second because first row has the headers)
-            for row in sheet.iter_rows(min_row=2, values_only=True):
-                # Check for the special case
-                if row[0] == "* 2 Conductor Cables Below *":
-                    special_case = True
-                    continue  # Skip this row
-
-                if special_case:
-                    if not first_row_skipped:
-                        first_row_skipped = True
-                        continue  # Skip the first row
-
-                    # This is the special case, so process the data differently
-                    size = row[0]
-                    length = row[1]
-                    width = row[2]
-                    weight = row[3]
-
-                    print(length)
-                    print(width)
-
-                    # Calculate the cross-sectional area as the product of length and width
-                    cross_sectional_area = length * width
-
-                    # Create a CableParameters object with diameter set to "None"
-                    cable = CableParameters(size, None, weight, cross_sectional_area)
-                    cable_sizes_list.append(cable)
-
-                else:
-                    # Extract the cable parameters as usual
-                    size = row[0]
-                    diameter = row[1]
-                    pounds_per_foot = row[2]
-                    cross_sectional_area = round(math.pi * ((diameter / 2) ** 2), 4)
-
-                    # Create a CableParameters object and append it to the list
-                    cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
-                    cable_sizes_list.append(cable)
+            parse_cable_sizes_excel(sheet)
 
             # Close the workbook
             workbook.close()
@@ -237,6 +145,13 @@ elif server_code_flag is True:
         except Exception as e:
             # Handle other exceptions
             logging.info(f"An error occurred: {str(e)}")
+
+    # Open cable pull sheet and extract all the cables and their info from it
+    def get_cable_pull_sheet(pull_sheet):
+        # Load the Excel file
+        workbook = openpyxl.load_workbook(BytesIO(pull_sheet.read()))
+        sheet = workbook.active
+
 
 
 
@@ -265,6 +180,53 @@ def sort_stationing():
     stationing_text_pairs = list(unique_stationing_text_pairs)
 
     return stationing_values_numeric, stationing_text_pairs
+
+
+def parse_cable_sizes_excel(sheet):
+    # Initialize variables to track the special case
+    special_case = False
+    first_row_skipped = False  # Flag to skip the first row when in the special case
+    length = None
+    width = None
+
+    # Iterate over the rows starting from the second row (second because first row has the headers)
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        # Check for the special case
+        if row[0] == "* 2 Conductor Cables Below *":
+            special_case = True
+            continue  # Skip this row
+
+        if special_case:
+            if not first_row_skipped:
+                first_row_skipped = True
+                continue  # Skip the first row
+
+            # This is the special case, so process the data differently
+            size = row[0]
+            length = row[1]
+            width = row[2]
+            weight = row[3]
+
+            print(length)
+            print(width)
+
+            # Calculate the cross-sectional area as the product of length and width
+            cross_sectional_area = length * width
+
+            # Create a CableParameters object with diameter set to "None"
+            cable = CableParameters(size, None, weight, cross_sectional_area)
+            cable_sizes_list.append(cable)
+
+        else:
+            # Extract the cable parameters as usual
+            size = row[0]
+            diameter = row[1]
+            pounds_per_foot = row[2]
+            cross_sectional_area = round(math.pi * ((float(diameter) / 2) ** 2), 4)
+
+            # Create a CableParameters object and append it to the list
+            cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
+            cable_sizes_list.append(cable)
 
 
 # Create excel output file with list of conduits and which cables are in them
@@ -369,12 +331,12 @@ def generate_output_file():
         # Save the workbook to a file
         output_filename = "Output File.xlsx"
         workbook.save(output_filename)
-    
+
         print(f"[PASS] Output file {output_filename} has been saved.")
         print(f"[STATUS] Opening output file...")
-    
+
         pdf_file_path = 'C:/Users/roneill/OneDrive - Iovino Enterprises, LLC/Documents 1/Code/Git Files/Cable-Run-Optimizer/Output File.xlsx'
-    
+
         subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
     elif server_code_flag:

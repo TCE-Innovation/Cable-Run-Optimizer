@@ -2,19 +2,11 @@ from settings import local_code_flag
 from settings import server_code_flag
 
 if local_code_flag:
-    ###############
-    #### Local ####
-    ###############
-
     from visualizer import *
     import math
 
 
 elif server_code_flag:
-    ###############
-    #### Server ###
-    ###############
-
     from .cable_classes import *
     import math
 
