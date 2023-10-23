@@ -2,9 +2,6 @@ from settings import local_code_flag
 from settings import server_code_flag
 
 if local_code_flag:
-    ###############
-    #### Local ####
-    ###############
 
     import os
     import re
@@ -16,6 +13,9 @@ if local_code_flag:
     import subprocess
 
     # Extract the diameter and weight of all cables from Cable Sizes.xlsx
+    file_path = None
+
+
     def get_cable_sizes():  # Local function
         print("[STATUS] Fetching cable sizes...")
 
@@ -24,6 +24,7 @@ if local_code_flag:
                     r'\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
 
         # Load the Excel file
+
         workbook = openpyxl.load_workbook(file_path)
         sheet = workbook.active
 
@@ -33,6 +34,7 @@ if local_code_flag:
         workbook.close()
 
         print(f"[PASS] Cable sizes acquired.\n")
+
 
     # Open cable pull sheet and extract all the cables and their info from it
     # def get_cable_pull_sheet(pull_sheet): # Server function
@@ -54,9 +56,8 @@ if local_code_flag:
         workbook = openpyxl.load_workbook(file_path)
         sheet = workbook.active
 
-
         # Regular expression pattern to detect stationing values (both numerical and location descriptors)
-        stationing_pattern = r'\d+\+\d+|[A-Z\-]+'
+        # stationing_pattern = r'\d+\+\d+|[A-Z\-]+'
 
         # Iterate over the rows to extract information from relevant columns
         for row in sheet.iter_rows(min_row=2, values_only=True):
@@ -113,9 +114,6 @@ if local_code_flag:
 
 
 elif server_code_flag:
-    ###############
-    #### Server ###
-    ###############
 
     import openpyxl
     from openpyxl.utils import get_column_letter
@@ -126,12 +124,18 @@ elif server_code_flag:
     import logging
     from .azure import upload_to_azure
 
-    # Extract the diameter and weight of all cables from Cable Sizes.xlsx
-    def get_cable_sizes(cable_sizes):
 
+    # Extract the diameter and weight of all cables from Cable Sizes.xlsx
+    def get_cable_sizes(cable_sizes, bytes_flag):
         try:
-            # Load the Excel file
-            workbook = openpyxl.load_workbook(BytesIO(cable_sizes.read()))
+            logging.info(bytes_flag)
+            if bytes_flag:
+                logging.info("Bytes flag is true, loading workbook from bytes.")
+                workbook = openpyxl.load_workbook(BytesIO(cable_sizes))
+            else:
+                logging.info("Bytes flag is false, loading workbook from file.")
+                workbook = openpyxl.load_workbook(BytesIO(cable_sizes.read()))
+
             sheet = workbook.active
 
             parse_cable_sizes_excel(sheet)
@@ -146,13 +150,65 @@ elif server_code_flag:
             # Handle other exceptions
             logging.info(f"An error occurred: {str(e)}")
 
+
     # Open cable pull sheet and extract all the cables and their info from it
     def get_cable_pull_sheet(pull_sheet):
         # Load the Excel file
         workbook = openpyxl.load_workbook(BytesIO(pull_sheet.read()))
         sheet = workbook.active
 
+        # Iterate over the rows to extract information from relevant columns
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            pull_number = row[0]
+            cable_size = row[1]
+            express = row[2]
+            stationing_start = row[3]
+            stationing_end = row[4]
 
+            # Check if stationing_start is a numerical stationing value
+            if '+' in str(stationing_start):
+                # If it's a numerical stationing value, treat it as such
+                absolute_distance = None
+            else:
+                # If it's a location descriptor, check if there's an absolute distance in Column F
+                absolute_distance = row[5]  # Assuming Column F contains absolute distance
+                stationing_text_pairs.append((stationing_start, stationing_end))  # Log text descriptor pair
+
+            # Find the corresponding CableParameters object based on the cable size
+            # Initialize a variable to store cable information
+            cable_info = None
+            # Iterate through the list of cable size information
+            for info in cable_sizes_list:
+                # Check if the cable size matches the size of the current cable object
+                if info.size == cable_size:
+                    # If a match is found, store the cable size information
+                    cable_info = info
+                    # Exit the loop since we found the relevant cable size
+                    break
+
+            if cable_info is not None:
+                cable = Cable(
+                    pull_number,
+                    stationing_start,
+                    stationing_end,
+                    cable_size,
+                    express,
+                    cable_info.diameter,
+                    cable_info.pounds_per_foot,
+                    cable_info.cross_sectional_area,
+                    absolute_distance
+                )
+                cable_list.append(cable)
+        print(f"[PASS] Cable pull sheet obtained.\n")
+
+        # Print out the cables at the end of the function
+        for cable in cable_list:
+            print(f"Cable: Pull #{cable.pull_number}, Size: {cable.cable_size}, Express: {cable.express}, "
+                  f"Stationing Start: {cable.stationing_start}, Stationing End: {cable.stationing_end}, "
+                  f"Absolute Distance: {cable.absolute_distance}")
+
+        # Return the cable list if needed for further processing
+        return cable_list
 
 
 def sort_stationing():
@@ -231,7 +287,7 @@ def parse_cable_sizes_excel(sheet):
 
 # Create excel output file with list of conduits and which cables are in them
 def generate_output_file():
-    from cable_classes import conduit_sizes
+    from .cable_classes import conduit_sizes
 
     print("\n[STATUS] Generating output file...")
 
@@ -325,9 +381,6 @@ def generate_output_file():
             cell.alignment = Alignment(vertical='center', horizontal='center')
 
     if local_code_flag:
-        ###############
-        #### Local ####
-        ###############
         # Save the workbook to a file
         output_filename = "Output File.xlsx"
         workbook.save(output_filename)
@@ -340,9 +393,6 @@ def generate_output_file():
         subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
     elif server_code_flag:
-        ###############
-        #### Server ###
-        ###############
 
         # Upload the workbook to azure blob storage
         sas_url = upload_to_azure(workbook)

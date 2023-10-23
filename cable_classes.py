@@ -103,4 +103,3 @@ draw_queue = []
 # to know that following conduit pdf files will be merged
 
 first_file_flag = False
-byte_flag = False

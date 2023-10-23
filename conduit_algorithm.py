@@ -2,7 +2,7 @@ from settings import local_code_flag
 from settings import server_code_flag
 
 if local_code_flag:
-    from visualizer import *
+    #from visualizer import *
     import math
 
 
@@ -57,7 +57,7 @@ def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
             create_conduits(express_cables, start_stationing, end_stationing)
         if len(local_cables):    # Checking if there are local cables to sort
             create_conduits(local_cables, start_stationing, end_stationing)
-    print("MAMA MIA HERE ARE THE STATIONING TEXT PAIRS")
+
     for start, end in stationing_text_pairs:
         print(f"Start: {start}, End: {end}")
 
@@ -166,7 +166,7 @@ def tightly_resize_conduit(conduit):
     print(f"\n[STATUS] Checking if Conduit {conduit.conduit_number} can be resized...")
 
     # List of potential conduit sizes
-    from cable_classes import conduit_sizes
+    from .cable_classes import conduit_sizes
 
     size = len(conduit_sizes) - 2  # Biggest conduit size (4 inches)
 
