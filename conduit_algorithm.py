@@ -4,6 +4,7 @@ from settings import server_code_flag
 if local_code_flag:
     #from visualizer import *
     import math
+    from cable_classes import *
 
 
 elif server_code_flag:
@@ -13,14 +14,15 @@ elif server_code_flag:
 
 def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
     # Create a set to store unique stationing text pairs
-    unique_stationing_text_pairs = set(stationing_text_pairs)
-    stationing_text_pairs = list(unique_stationing_text_pairs)
+    # unique_stationing_text_pairs = set(stationing_text_pairs)
+    # stationing_text_pairs = list(unique_stationing_text_pairs)
 
     # Loop through the stationing values and group cables within each stationing range
     # HANDLE ONLY NUMERIC STATIONING VALUES
     for i in range(len(stationing_values_numeric) - 1):
         # define the two stationing values that cables will be optimized between
         start_stationing = stationing_values_numeric[i]
+
         end_stationing = stationing_values_numeric[i + 1]
 
         # Create a list to store cables within the current stationing range
@@ -165,8 +167,10 @@ def create_conduits(cables_to_place, start_stationing, end_stationing):
 def tightly_resize_conduit(conduit):
     print(f"\n[STATUS] Checking if Conduit {conduit.conduit_number} can be resized...")
 
-    # List of potential conduit sizes
-    from .cable_classes import conduit_sizes
+    if local_code_flag:
+        from cable_classes import conduit_sizes
+    elif server_code_flag: # List of potential conduit sizes
+        from .cable_classes import conduit_sizes
 
     size = len(conduit_sizes) - 2  # Biggest conduit size (4 inches)
 

@@ -71,6 +71,7 @@ if local_code_flag:
             if '+' in str(stationing_start):
                 # If it's a numerical stationing value, treat it as such
                 absolute_distance = None
+                # stationing_values_numeric.append((stationing_start, stationing_end))
             else:
                 # If it's a location descriptor, check if there's an absolute distance in Column F
                 absolute_distance = row[5]  # Assuming Column F contains absolute distance
@@ -218,15 +219,16 @@ def sort_stationing():
     unique_stationing_values = set()
 
     for cable in cable_list:
-        if cable.stationing_start and cable.absolute_distance is not None:  # Only adding numeric stationing values
+        if cable.absolute_distance is None:  # Only adding numeric stationing values
             unique_stationing_values.add(cable.stationing_start)
 
-        if cable.stationing_end and cable.absolute_distance is not None:  # Only adding numeric stationing values
+        if cable.absolute_distance is None:  # Only adding numeric stationing values
             unique_stationing_values.add(cable.stationing_end)
 
     # Convert the set to a list and sort it numerically
     stationing_values_numeric = sorted(list(unique_stationing_values))
 
+    print("[STATUS] Printing all stationiong values obtained: ")
     # Print out all the stationing values
     for value in stationing_values_numeric:
         print(value)
@@ -263,9 +265,6 @@ def parse_cable_sizes_excel(sheet):
             width = row[2]
             weight = row[3]
 
-            print(length)
-            print(width)
-
             # Calculate the cross-sectional area as the product of length and width
             cross_sectional_area = length * width
 
@@ -287,7 +286,11 @@ def parse_cable_sizes_excel(sheet):
 
 # Create excel output file with list of conduits and which cables are in them
 def generate_output_file():
-    from .cable_classes import conduit_sizes
+
+    if local_code_flag:
+        from cable_classes import conduit_sizes
+    elif server_code_flag:
+        from .cable_classes import conduit_sizes
 
     print("\n[STATUS] Generating output file...")
 
