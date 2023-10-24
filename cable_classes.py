@@ -60,17 +60,6 @@ class Bundle:
         self.radii = []  # List to hold radii
         self.angles = []  # List to hold angles
 
-
-# List of Cable objects, all cables obtained from the pull sheet
-cable_list = []
-
-# List to store cable parameter objects, all cable entries from Cables Sizes.xlsx
-cable_sizes_list = []
-
-# Create an empty dictionary to represent conduits
-# Holds all the generated conduits
-conduits = {}
-
 # Create an empty dictionary to represent bundles
 # Holds all the generated bundles
 bundles = {}
@@ -103,4 +92,3 @@ draw_queue = []
 # to know that following conduit pdf files will be merged
 
 first_file_flag = False
-byte_flag = False

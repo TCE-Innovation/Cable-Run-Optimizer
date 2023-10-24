@@ -1,9 +1,11 @@
-from settings import local_code_flag
-from settings import server_code_flag
+from .settings import local_code_flag
+from .settings import server_code_flag
+import logging
 
 if local_code_flag:
-    from visualizer import *
+    #from visualizer import *
     import math
+    from cable_classes import *
 
 
 elif server_code_flag:
@@ -11,16 +13,22 @@ elif server_code_flag:
     import math
 
 
-def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
+
+def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs, cable_list):
+    logging.info("Running optimize_for_conduit function.")
+    logging.info("length of cable_list: %s", len(cable_list))
+    conduits = {}
+    #
     # Create a set to store unique stationing text pairs
-    unique_stationing_text_pairs = set(stationing_text_pairs)
-    stationing_text_pairs = list(unique_stationing_text_pairs)
+    # unique_stationing_text_pairs = set(stationing_text_pairs)
+    # stationing_text_pairs = list(unique_stationing_text_pairs)
 
     # Loop through the stationing values and group cables within each stationing range
     # HANDLE ONLY NUMERIC STATIONING VALUES
     for i in range(len(stationing_values_numeric) - 1):
         # define the two stationing values that cables will be optimized between
         start_stationing = stationing_values_numeric[i]
+
         end_stationing = stationing_values_numeric[i + 1]
 
         # Create a list to store cables within the current stationing range
@@ -54,10 +62,10 @@ def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
 
         # Create conduits
         if len(express_cables):  # Checking if there are express cables to sort
-            create_conduits(express_cables, start_stationing, end_stationing)
+            conduits = create_conduits(express_cables, start_stationing, end_stationing, conduits)
         if len(local_cables):    # Checking if there are local cables to sort
-            create_conduits(local_cables, start_stationing, end_stationing)
-    print("MAMA MIA HERE ARE THE STATIONING TEXT PAIRS")
+            conduits = create_conduits(local_cables, start_stationing, end_stationing, conduits)
+
     for start, end in stationing_text_pairs:
         print(f"Start: {start}, End: {end}")
 
@@ -88,12 +96,17 @@ def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs):
 
         # Create conduits
         if len(express_cables):  # Checking if there are express cables to sort
-            create_conduits(express_cables, start, end)
+            conduits = create_conduits(express_cables, start, end, conduits)
         if len(local_cables):    # Checking if there are local cables to sort
-            create_conduits(local_cables, start, end)
+            conduits = create_conduits(local_cables, start, end, conduits)
+
+    logging.info("End of optimize_for_conduit function.")
+    logging.info("length of cable_list: %s", len(cable_list))
+
+    return conduits
 
 
-def create_new_conduit(start_stationing, end_stationing, conduit_nmbr):
+def create_new_conduit(start_stationing, end_stationing, conduit_nmbr, conduits):
     conduit = Conduit(start_stationing, end_stationing,
                       conduit_area=0, conduit_fill=0, conduit_size=3.5, conduit_number=conduit_nmbr)
     # Conduit area will be updated every time a new cable is added (add_cable_to_conduit function)
@@ -102,8 +115,8 @@ def create_new_conduit(start_stationing, end_stationing, conduit_nmbr):
 
     # Add newly made conduit to list of conduits
     conduits["Conduit" + str(conduit_nmbr)] = conduit
-
-    return conduit
+    logging.info("in create new conduit, length of conduits %s", len(conduits))
+    return conduit, conduits
 
 
 def add_cable_to_conduit(conduit, cable):
@@ -120,14 +133,17 @@ def add_cable_to_conduit(conduit, cable):
     # return placed_cables
 
 
-def create_conduits(cables_to_place, start_stationing, end_stationing):
-    global conduit_number
+def create_conduits(cables_to_place, start_stationing, end_stationing, conduits):
     # Initialize a list to keep track of which cables are being placed in a conduit
     # to avoid double counting cables across conduits
     placed_cables = []
+    global conduit_number
 
-    conduit = create_new_conduit(start_stationing, end_stationing, conduit_number)  # Create first conduit
+    if len(conduits) == 0:
+        conduit_number = 1
 
+    conduit, conduits = create_new_conduit(start_stationing, end_stationing, conduit_number, conduits)  # Create first conduit
+    logging.info("conduit %s", conduit.conduit_number)
     # While there are cables to place
     while cables_to_place:
         cable = cables_to_place[0]  # Take the biggest cable from the list
@@ -153,11 +169,11 @@ def create_conduits(cables_to_place, start_stationing, end_stationing):
                 # See if conduit can be smaller while maintaining 40% fill
                 tightly_resize_conduit(conduit)
                 # Create a new conduit
-                conduit = create_new_conduit(start_stationing, end_stationing, conduit.conduit_number + 1)
-
+                conduit, conduits = create_new_conduit(start_stationing, end_stationing, conduit.conduit_number + 1, conduits)
     # After all cables are placed, tighten the size of the last conduit made
     tightly_resize_conduit(conduit)
     conduit_number = conduit.conduit_number + 1
+    return conduits
 
 
 # Work backwards, compare conduit fill of potential downsized conduits
@@ -165,8 +181,10 @@ def create_conduits(cables_to_place, start_stationing, end_stationing):
 def tightly_resize_conduit(conduit):
     print(f"\n[STATUS] Checking if Conduit {conduit.conduit_number} can be resized...")
 
-    # List of potential conduit sizes
-    from cable_classes import conduit_sizes
+    if local_code_flag:
+        from cable_classes import conduit_sizes
+    elif server_code_flag: # List of potential conduit sizes
+        from .cable_classes import conduit_sizes
 
     size = len(conduit_sizes) - 2  # Biggest conduit size (4 inches)
 
