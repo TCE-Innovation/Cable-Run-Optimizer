@@ -3,7 +3,6 @@ from settings import server_code_flag
 import logging
 
 if local_code_flag:
-    #from visualizer import *
     import math
     from cable_classes import *
 
@@ -13,22 +12,18 @@ elif server_code_flag:
     import math
 
 
-
 def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs, cable_list):
-    logging.info("Running optimize_for_conduit function.")
-    logging.info("length of cable_list: %s", len(cable_list))
+    if server_code_flag:
+        logging.info("Running optimize_for_conduit function.")
+        logging.info("length of cable_list: %s", len(cable_list))
+
     conduits = {}
-    #
-    # Create a set to store unique stationing text pairs
-    # unique_stationing_text_pairs = set(stationing_text_pairs)
-    # stationing_text_pairs = list(unique_stationing_text_pairs)
 
     # Loop through the stationing values and group cables within each stationing range
     # HANDLE ONLY NUMERIC STATIONING VALUES
     for i in range(len(stationing_values_numeric) - 1):
         # define the two stationing values that cables will be optimized between
         start_stationing = stationing_values_numeric[i]
-
         end_stationing = stationing_values_numeric[i + 1]
 
         # Create a list to store cables within the current stationing range
@@ -100,8 +95,9 @@ def optimize_for_conduit(stationing_values_numeric, stationing_text_pairs, cable
         if len(local_cables):    # Checking if there are local cables to sort
             conduits = create_conduits(local_cables, start, end, conduits)
 
-    logging.info("End of optimize_for_conduit function.")
-    logging.info("length of cable_list: %s", len(cable_list))
+    if server_code_flag:
+        logging.info("End of optimize_for_conduit function.")
+        logging.info("length of cable_list: %s", len(cable_list))
 
     return conduits
 

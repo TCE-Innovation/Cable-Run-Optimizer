@@ -53,16 +53,34 @@ class Conduit:
         self.conduit_fill = 100 * self.conduit_area / (((max_conduit_size/2) ** 2) * math.pi)
 
 
-# Class to create bundles
+# Class to create conduits
 class Bundle:
-    def __init__(self):
+    def __init__(self, stationing_start, stationing_end,
+                 bundle_diameter, bundle_weight,  bundle_number):
         self.cables = []  # List to hold cable objects
-        self.radii = []  # List to hold radii
-        self.angles = []  # List to hold angles
+        self.cable_data = []
+        self.stationing_start = stationing_start
+        self.stationing_end = stationing_end
+        self.bundle_diameter = bundle_diameter
+        self.bundle_weight = bundle_weight
+        self.bundle_number = bundle_number
+
+    # def add_cable(self, cable, radius, angle):
+    #     self.cables.append(cable)
+    #     self.cable_data.append((radius, angle))
+
+    def add_cable(self, cable):
+        self.cables.append(cable)
+
+    def calculate_bundle_diameter_and_weight(self):
+        self.bundle_diameter = sum(cable.diameter for cable in self.cables)
+        self.bundle_weight = sum(cable.weight for cable in self.cables)
+
 
 # Create an empty dictionary to represent bundles
 # Holds all the generated bundles
-bundles = {}
+# bundles = {}
+bundle_number = 1
 
 # Potential conduit sizes, inches
 conduit_sizes = [0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4]
