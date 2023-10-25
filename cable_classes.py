@@ -92,3 +92,5 @@ draw_queue = []
 # to know that following conduit pdf files will be merged
 
 first_file_flag = False
+
+cable_list = []

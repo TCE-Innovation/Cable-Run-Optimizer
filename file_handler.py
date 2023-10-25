@@ -1,5 +1,5 @@
-from .settings import local_code_flag
-from .settings import server_code_flag
+from settings import local_code_flag
+from settings import server_code_flag
 
 if local_code_flag:
 
@@ -28,17 +28,20 @@ if local_code_flag:
         workbook = openpyxl.load_workbook(file_path)
         sheet = workbook.active
 
-        parse_cable_sizes_excel(sheet)
+        cable_sizes_list = parse_cable_sizes_excel(sheet)
 
         # Close the Excel workbook
         workbook.close()
 
         print(f"[PASS] Cable sizes acquired.\n")
 
+        return cable_sizes_list
 
     # Open cable pull sheet and extract all the cables and their info from it
     # def get_cable_pull_sheet(pull_sheet): # Server function
-    def get_cable_pull_sheet(cable_sizes_list, cable_list):  # Local function
+    def get_cable_pull_sheet(cable_list, cable_sizes_list):  # Local function
+        cable_list = []
+
         print("[STATUS] Fetching cable pull sheet...")
         # Updated column headers to match your fixed column format
         pull_number_col_index = 1  # Column A
@@ -225,16 +228,22 @@ elif server_code_flag:
 
 
 def sort_stationing(cable_list):
-    logging.info("Running sort_stationing function.")
+    if server_code_flag:
+        logging.info("Running sort_stationing function.")
+
     global stationing_text_pairs
     stationing_values_numeric = []
 
-    logging.info("Start: stationing_text_pairs %s", stationing_text_pairs)
-    logging.info("Start: stationing_values_numeric %s", stationing_values_numeric)
+    if server_code_flag:
+        logging.info("Start: stationing_text_pairs %s", stationing_text_pairs)
+        logging.info("Start: stationing_values_numeric %s", stationing_values_numeric)
 
     # Create a set to store unique stationing values
     unique_stationing_values = set()
-    logging.info("In sort stationing. Length of cable_list: %s", len(cable_list))
+
+    if server_code_flag:
+        logging.info("In sort stationing. Length of cable_list: %s", len(cable_list))
+
     for cable in cable_list:
         if cable.absolute_distance is None:  # Only adding numeric stationing values
             unique_stationing_values.add(cable.stationing_start)
@@ -254,8 +263,10 @@ def sort_stationing(cable_list):
     unique_stationing_text_pairs = set(stationing_text_pairs)
     stationing_text_pairs = list(unique_stationing_text_pairs)
 
-    logging.info("End: stationing_text_pairs %s", stationing_text_pairs)
-    logging.info("End: stationing_values_numeric %s", stationing_values_numeric)
+    if server_code_flag:
+        logging.info("End: stationing_text_pairs %s", stationing_text_pairs)
+        logging.info("End: stationing_values_numeric %s", stationing_values_numeric)
+
     return stationing_values_numeric, stationing_text_pairs
 
 
@@ -304,7 +315,9 @@ def parse_cable_sizes_excel(sheet):
             cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
             cable_sizes_list.append(cable)
 
-    logging.info("End of parse_cable_sizes_excel. Cable sizes list length: %s", len(cable_sizes_list))
+    if server_code_flag:
+       logging.info("End of parse_cable_sizes_excel. Cable sizes list length: %s", len(cable_sizes_list))
+
     return cable_sizes_list
 
 
@@ -336,7 +349,9 @@ def generate_output_file(conduits):
     ]
     sheet.append(headers)
 
-    logging.info("Conduit list length: %s", len(conduits))
+    if server_code_flag:
+        logging.info("Conduit list length: %s", len(conduits))
+
     # Write conduit data and cable attributes to the Excel file
     for conduit_name, conduit in conduits.items():
 

@@ -1,5 +1,5 @@
-from .settings import local_code_flag
-from .settings import server_code_flag
+from settings import local_code_flag
+from settings import server_code_flag
 import logging
 
 if local_code_flag:
