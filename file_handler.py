@@ -1,5 +1,4 @@
-from settings import local_code_flag
-from settings import server_code_flag
+from settings import *
 
 if local_code_flag:
 
@@ -12,11 +11,10 @@ if local_code_flag:
     from cable_classes import *
     import subprocess
 
-    # Extract the diameter and weight of all cables from Cable Sizes.xlsx
     file_path = None
 
-
-    def get_cable_sizes():  # Local function
+    # Extract the diameter and weight of all cables from Cable Sizes.xlsx
+    def get_cable_sizes():
         print("[STATUS] Fetching cable sizes...")
 
         # Path to the folder containing the Cable Pull Sheet
@@ -24,7 +22,6 @@ if local_code_flag:
                     r'\Code\Git Files\Cable-Run-Optimizer\Cable Sizes.xlsx'
 
         # Load the Excel file
-
         workbook = openpyxl.load_workbook(file_path)
         sheet = workbook.active
 
@@ -38,8 +35,8 @@ if local_code_flag:
         return cable_sizes_list
 
     # Open cable pull sheet and extract all the cables and their info from it
-    # def get_cable_pull_sheet(pull_sheet): # Server function
-    def get_cable_pull_sheet(cable_list, cable_sizes_list):  # Local function
+    def get_cable_pull_sheet(cable_list, cable_sizes_list):
+        # Initialize empty cable list to hold cables from pull sheet
         cable_list = []
 
         print("[STATUS] Fetching cable pull sheet...")
@@ -64,11 +61,11 @@ if local_code_flag:
 
         # Iterate over the rows to extract information from relevant columns
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            pull_number = row[0]
-            cable_size = row[1]
-            express = row[2]
-            stationing_start = row[3]
-            stationing_end = row[4]
+            pull_number         = row[0]
+            cable_size          = row[1]
+            express             = row[2]
+            stationing_start    = row[3]
+            stationing_end      = row[4]
 
             # Check if stationing_start is a numerical stationing value
             if '+' in str(stationing_start):
@@ -128,7 +125,6 @@ elif server_code_flag:
     import logging
     from .azure import upload_to_azure
 
-
     # Extract the diameter and weight of all cables from Cable Sizes.xlsx
     def get_cable_sizes(cable_sizes, bytes_flag):
         try:
@@ -155,7 +151,6 @@ elif server_code_flag:
         except Exception as e:
             # Handle other exceptions
             logging.info(f"An error occurred: {str(e)}")
-
 
     # Open cable pull sheet and extract all the cables and their info from it
     def get_cable_pull_sheet(pull_sheet, cable_sizes_list):
@@ -321,8 +316,12 @@ def parse_cable_sizes_excel(sheet):
     return cable_sizes_list
 
 
+def parse_cable_pull_sheet(sheet):
+    pass
+
+
 # Create excel output file with list of conduits and which cables are in them
-def generate_output_file(conduits):
+def generate_output_file_for_conduit(conduits):
     if local_code_flag:
         from cable_classes import conduit_sizes
     elif server_code_flag:
@@ -352,6 +351,7 @@ def generate_output_file(conduits):
     if server_code_flag:
         logging.info("Conduit list length: %s", len(conduits))
 
+
     # Write conduit data and cable attributes to the Excel file
     for conduit_name, conduit in conduits.items():
 
@@ -369,6 +369,285 @@ def generate_output_file(conduits):
                 str(conduit.conduit_fill) + "%",  # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
                 conduit_sizes[conduit_sizes_index + 1],  # Upsized conduit
                 f"{(100 * conduit.conduit_area / (math.pi * ((conduit_sizes[conduit_sizes_index + 1] / 2) ** 2))):.2f}%"
+                # Upsized conduit fill
+            ]
+            sheet.append(row_data)
+
+
+    # Write bundle data and cable attributes to the Excel file
+    for bundle_name, bundle in bundles.items():
+
+        for cable in bundle.cables:
+            row_data = [
+                f"Conduit {bundle.bundle_number}",  # Bundle number
+                f"{bundle.stationing_start}",       # Stationing start
+                f"{bundle.stationing_end}",         # Stationing end
+                int(cable.pull_number),             # Individual cable pull number
+                cable.cable_size,                   # Cable size (ex. 7C#14)
+                cable.express,                      # Express or local
+                bundle.bundle_diameter,             # Bundle diameter
+                bundle.bundle_weight                # Bundle weight
+                # Upsized conduit fill
+            ]
+            sheet.append(row_data)
+
+
+    # Set column width to fit the text in each header
+    for col_num, header in enumerate(headers, start=1):
+        col_letter = openpyxl.utils.get_column_letter(col_num)
+        column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
+        sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
+
+    # Apply bold font to the header row
+    for cell in sheet[1]:
+        cell.font = Font(bold=True)
+
+    # Dictionary to store counts for each conduit name
+    conduit_counts = {}
+
+    # Count the occurrences of each conduit name
+    for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1)):
+        conduit_name = row[0].value
+        if conduit_name not in conduit_counts:
+            conduit_counts[conduit_name] = 1
+        else:
+            conduit_counts[conduit_name] += 1
+
+    # Merge cells for each conduit name and adjust Stationing Start and Stationing End columns
+    for conduit_name, count in conduit_counts.items():
+        start_row = None
+        for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1), start=2):
+            if row[0].value == conduit_name:
+                if start_row is None:
+                    start_row = row_num
+                if count == 1:
+                    continue
+
+                if row_num - start_row + 1 == count:
+
+                    # Define the column letters for merging and alignment
+                    columns_to_merge = ['A', 'B', 'C', 'F', 'G', 'H', 'I', 'J']
+
+                    # Loop through the columns and apply merging and alignment
+                    for column in columns_to_merge:
+                        column_range = f'{column}{start_row}:{column}{row_num}'
+                        sheet.merge_cells(column_range)
+                        sheet[f'{column}{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                    start_row = None
+
+    # Center align cells in all columns for rows starting from the second row
+    for row in sheet.iter_rows(min_row=2):
+        for cell in row:
+            cell.alignment = Alignment(vertical='center', horizontal='center')
+
+    if local_code_flag:
+        # Save the workbook to a file
+        output_filename = "Output File.xlsx"
+        workbook.save(output_filename)
+
+        print(f"[PASS] Output file {output_filename} has been saved.")
+        print(f"[STATUS] Opening output file...")
+
+        pdf_file_path = 'C:/Users/roneill/OneDrive - Iovino Enterprises, LLC/Documents 1/Code/Git Files/Cable-Run-Optimizer/Output File.xlsx'
+
+        subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
+
+    elif server_code_flag:
+
+        # Upload the workbook to azure blob storage
+        sas_url = upload_to_azure(workbook)
+
+        print(f"Conduit data has been saved to uploaded to blob storage.")
+
+        return sas_url
+
+    def generate_output_file_for_conduit(conduits):
+        if local_code_flag:
+            from cable_classes import conduit_sizes
+        elif server_code_flag:
+            from .cable_classes import conduit_sizes
+
+        print("\n[STATUS] Generating output file...")
+
+        # Create a new workbook and select the active sheet
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+
+        # Set column headers
+        headers = [
+            "Conduit",
+            "Stationing Start",
+            "Stationing End",
+            "Pull #",
+            "Cable Size",
+            "Express",
+            "Minimum Conduit Size",
+            "Conduit Fill",
+            "Upsized Conduit",
+            "Upsized Conduit Fill"
+        ]
+        sheet.append(headers)
+
+        if server_code_flag:
+            logging.info("Conduit list length: %s", len(conduits))
+
+        if run_conduit_optimization:
+            # Write conduit data and cable attributes to the Excel file
+            for conduit_name, conduit in conduits.items():
+
+                conduit_sizes_index = next(
+                    (index for index, x in enumerate(conduit_sizes) if x == conduit.conduit_size), None)
+
+                for cable in conduit.cables:
+                    row_data = [
+                        f"Conduit {conduit.conduit_number}",  # Conduit name
+                        f"{conduit.stationing_start}",  # Stationing start
+                        f"{conduit.stationing_end}",  # Stationing end
+                        int(cable.pull_number),  # Pull Number
+                        cable.cable_size,  # Cable size (ex. 7C#14)
+                        cable.express,  # Express or local
+                        conduit.conduit_size,  # Conduit size in inches
+                        str(conduit.conduit_fill) + "%",
+                        # f"{round((100 - conduit_free_air_space), 2)}%",   # Conduit fill
+                        conduit_sizes[conduit_sizes_index + 1],  # Upsized conduit
+                        f"{(100 * conduit.conduit_area / (math.pi * ((conduit_sizes[conduit_sizes_index + 1] / 2) ** 2))):.2f}%"
+                        # Upsized conduit fill
+                    ]
+                    sheet.append(row_data)
+
+        if run_messenger_optimization:
+            # Write bundle data and cable attributes to the Excel file
+            for bundle_name, bundle in bundles.items():
+
+                for cable in bundle.cables:
+                    row_data = [
+                        f"Conduit {bundle.bundle_number}",  # Bundle number
+                        f"{bundle.stationing_start}",  # Stationing start
+                        f"{bundle.stationing_end}",  # Stationing end
+                        int(cable.pull_number),  # Individual cable pull number
+                        cable.cable_size,  # Cable size (ex. 7C#14)
+                        cable.express,  # Express or local
+                        bundle.bundle_diameter,  # Bundle diameter
+                        bundle.bundle_weight  # Bundle weight
+                        # Upsized conduit fill
+                    ]
+                    sheet.append(row_data)
+
+        # Set column width to fit the text in each header
+        for col_num, header in enumerate(headers, start=1):
+            col_letter = openpyxl.utils.get_column_letter(col_num)
+            column_width = max(len(header), max(len(str(cell.value)) for cell in sheet[col_letter]))
+            sheet.column_dimensions[col_letter].width = column_width + 2  # Adding some extra width for padding
+
+        # Apply bold font to the header row
+        for cell in sheet[1]:
+            cell.font = Font(bold=True)
+
+        # Dictionary to store counts for each conduit name
+        conduit_counts = {}
+
+        # Count the occurrences of each conduit name
+        for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1)):
+            conduit_name = row[0].value
+            if conduit_name not in conduit_counts:
+                conduit_counts[conduit_name] = 1
+            else:
+                conduit_counts[conduit_name] += 1
+
+        # Merge cells for each conduit name and adjust Stationing Start and Stationing End columns
+        for conduit_name, count in conduit_counts.items():
+            start_row = None
+            for row_num, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=1),
+                                          start=2):
+                if row[0].value == conduit_name:
+                    if start_row is None:
+                        start_row = row_num
+                    if count == 1:
+                        continue
+
+                    if row_num - start_row + 1 == count:
+
+                        # Define the column letters for merging and alignment
+                        columns_to_merge = ['A', 'B', 'C', 'F', 'G', 'H', 'I', 'J']
+
+                        # Loop through the columns and apply merging and alignment
+                        for column in columns_to_merge:
+                            column_range = f'{column}{start_row}:{column}{row_num}'
+                            sheet.merge_cells(column_range)
+                            sheet[f'{column}{start_row}'].alignment = Alignment(vertical='center', horizontal='center')
+
+                        start_row = None
+
+        # Center align cells in all columns for rows starting from the second row
+        for row in sheet.iter_rows(min_row=2):
+            for cell in row:
+                cell.alignment = Alignment(vertical='center', horizontal='center')
+
+        if local_code_flag:
+            # Save the workbook to a file
+            output_filename = "Output File.xlsx"
+            workbook.save(output_filename)
+
+            print(f"[PASS] Output file {output_filename} has been saved.")
+            print(f"[STATUS] Opening output file...")
+
+            pdf_file_path = 'C:/Users/roneill/OneDrive - Iovino Enterprises, LLC/Documents 1/Code/Git Files/Cable-Run-Optimizer/Output File.xlsx'
+
+            subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
+
+        elif server_code_flag:
+
+            # Upload the workbook to azure blob storage
+            sas_url = upload_to_azure(workbook)
+
+            print(f"Conduit data has been saved to uploaded to blob storage.")
+
+            return sas_url
+
+
+# Create excel output file with list of conduits and which cables are in them
+def generate_output_file_for_messenger(bundles):
+    if local_code_flag:
+        from cable_classes import conduit_sizes
+    elif server_code_flag:
+        from .cable_classes import conduit_sizes
+
+    print("\n[STATUS] Generating output file...")
+
+    # Create a new workbook and select the active sheet
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Set column headers
+    headers = [
+        "Bundle",
+        "Stationing Start",
+        "Stationing End",
+        "Pull #",
+        "Cable Size",
+        "Express",
+        "Bundle Diameter",
+        "Bundle Weight",
+    ]
+    sheet.append(headers)
+
+    if server_code_flag:
+        logging.info("Conduit list length: %s", len(bundles))
+
+    # Write bundle data and cable attributes to the Excel file
+    for bundle_name, bundle in bundles.items():
+
+        for cable in bundle.cables:
+            row_data = [
+                f"Conduit {bundle.bundle_number}",  # Bundle number
+                f"{bundle.stationing_start}",       # Stationing start
+                f"{bundle.stationing_end}",         # Stationing end
+                int(cable.pull_number),             # Individual cable pull number
+                cable.cable_size,                   # Cable size (ex. 7C#14)
+                cable.express,                      # Express or local
+                bundle.bundle_diameter,             # Bundle diameter
+                bundle.bundle_weight                # Bundle weight
                 # Upsized conduit fill
             ]
             sheet.append(row_data)

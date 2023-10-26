@@ -1,5 +1,4 @@
-from settings import local_code_flag
-from settings import server_code_flag
+from settings import *
 import logging
 
 if local_code_flag:
@@ -104,7 +103,7 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
 
 def create_new_bundle(start_stationing, end_stationing, bundle_nmbr, bundles):
     bundle = Bundle(start_stationing, end_stationing,
-                      bundle_diameter=0, bundle_weight=0, bundle_number=bundle_nmbr)
+                    bundle_diameter=0, bundle_weight=0, bundle_number=bundle_nmbr)
     # Bundle diameter and weight will be updated every time a new cable is added
     print(f"[STATUS] Bundle {bundle.bundle_number} has been created")
 
@@ -122,22 +121,21 @@ def add_cable_to_bundle(bundle, cable):
     bundle.add_cable(cable)            # Add cable to bundle
     bundle.calculate_bundle_diameter_and_weight()    # Update total diameter and weight
 
-
     # placed_cables.append(cable)         # Add cable to list of placed cables
 
     # return placed_cables
 
 
 def create_bundles(cables_to_place, start_stationing, end_stationing, bundles):
-    # Initialize a list to keep track of which cables are being placed in a conduit
-    # to avoid double counting cables across conduits
+    # Initialize a list to keep track of which cables are being placed in a bundle
+    # to avoid double counting cables across bundles
     placed_cables = []
     global bundle_number
 
     if len(bundles) == 0:
         bundle_number = 1
 
-    bundle, bundles = create_new_bundle(start_stationing, end_stationing, bundle_number, bundles)  # Create first conduit
+    bundle, bundles = create_new_bundle(start_stationing, end_stationing, bundle_number, bundles)  # Create first bundle
 
     if server_code_flag:
         logging.info("bundle %s", bundle.bundle_number)
@@ -147,8 +145,8 @@ def create_bundles(cables_to_place, start_stationing, end_stationing, bundles):
         cable = cables_to_place[0]  # Take the biggest cable from the list
 
         # If cable fits the conduit
-        if check_free_air_space(bundle, cable):
-            add_cable_to_bundle(bundle, cable)    # Place cable into cable
+        if check_diameter_and_weight(bundle, cable):
+            add_cable_to_bundle(bundle, cable)      # Place cable into cable
             cables_to_place.remove(cable)           # Remove cable from list of cables to place
         # Else cable does not fit the conduit
         else:
@@ -157,10 +155,10 @@ def create_bundles(cables_to_place, start_stationing, end_stationing, bundles):
             # Go through the rest of the cables to place, to see if a smaller cable fits
             for cable in cables_to_place:
                 # If a smaller cable fits
-                if check_free_air_space(bundle, cable):
+                if check_diameter_and_weight(bundle, cable):
                     add_cable_to_bundle(bundle, cable)    # Place cable into cable
-                    cables_to_place.remove(cable)                # Remove cable from list of cables to place
-                    cable_placed = True                     # Set flag to true that cable was placed
+                    cables_to_place.remove(cable)         # Remove cable from list of cables to place
+                    cable_placed = True                   # Set flag to true that cable was placed
                     break
             # If no cables were able to be placed into the conduit
             if cable_placed is not True:
@@ -176,11 +174,88 @@ def create_bundles(cables_to_place, start_stationing, end_stationing, bundles):
     return bundles
 
 
-# Work backwards, compare conduit fill of potential downsized conduits
-# Keep working until before fill of 40% or higher is reached
-def tightly_resize_conduit(conduit):
-    pass
+def check_diameter_and_weight(bundle, cable):
+
+    global max_bundle_weight
+
+    bundle.bundle_weight += cable.weight
+
+    # If added cable would make bundle overweight
+    if bundle.bundle_weight > max_bundle_weight:
+        return 0
+
+    # Find open space to place cable, do a check if that would have the bundle go over maximum diameter requirement
+    # if not find_open_space(bundle, cable):
+    #     return 0
+
+    # Indicate that cable can be added to bundle
+    return 1
 
 
-def check_free_air_space(conduit, cable):
-    pass
+# Spiraling out from center to find placement
+def find_open_space(bundle, new_cable):
+
+    # Skip over this for two conductor cables
+    # Just want to see this added to conduit, not interested in visualizing rn
+    if new_cable.diameter is None:
+        bundle.add_cable(new_cable, None, None)
+    else:
+
+        radius_increment = 0.1         # Define the radius increment
+        angle_increment = 5             # Define the angle increment
+        # max_radius = conduit_size/2     # Maximum radius for placement
+        max_radius = 6 # for testing purposes
+        # Initial placement at (radius=0, angle=0    )
+        radius = 0 # EDITED FROM RADIUS = 0 TO FIT CABLES VISUALLY
+        angle = 0
+
+        # Function to calculate distance between two polar coordinates
+        def calculate_distance(r1, a1, r2, a2):
+            x1 = r1 * math.cos(math.radians(a1))
+            y1 = r1 * math.sin(math.radians(a1))
+            x2 = r2 * math.cos(math.radians(a2))
+            y2 = r2 * math.sin(math.radians(a2))
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+        # Iterate through possible cable placements until a valid one is found or the conduit is full
+        while True:
+            # Initialize a flag to track cable overlap
+            overlap = False
+
+            # Iterate through existing cables in the conduit
+            for existing_cable, (cable_radius, cable_angle) in zip(bundle.cables, bundle.cable_data):
+                # Calculate distance between cables
+                distance = calculate_distance(radius, angle, cable_radius, cable_angle)
+
+                # If the cables are overlapping
+                if distance < ((new_cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    overlap = True  # Set the overlap flag to True
+                    break           # Exit the loop since overlap is detected
+
+            # If no overlap is detected, proceed with cable placement
+            if not overlap:
+                # Call a function to add the new cable to the draw queue
+                bundle.add_cable(new_cable, radius, angle)
+                # add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
+                return radius, angle  # Return the valid placement
+
+            # Increment angle by angle_increment
+            if radius == 0:
+                radius += radius_increment
+            else:
+                angle += angle_increment
+
+            # Check if angle has completed a full circle (360 degrees)
+            if angle >= 360:
+                angle = angle % 360  # Reset angle to 0
+                radius += radius_increment  # Increment radius, EDITED FROM += TO -= TO FIT CABLES VISUALLY
+
+            # Check if the conduit is full
+            if radius > max_radius:
+                print("Failed: Conduit is full.")
+                break
+
+    # Add logic checking if cable goes over radius requirement
+    # If goes over, return 0, if it fits, return 1
+
+    return 1

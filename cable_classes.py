@@ -32,8 +32,8 @@ class Cable:
 class Conduit:
     def __init__(self, stationing_start, stationing_end,
                  conduit_area, conduit_fill, conduit_size, conduit_number):
-        self.cables = []  # List to hold cable objects
-        self.cable_data = []  # List to hold cable data as (radius, angle) tuples
+        self.cables = []        # List to hold cable objects
+        self.cable_data = []    # List to hold cable data as (radius, angle) tuples
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
         self.conduit_fill = conduit_fill
@@ -57,7 +57,7 @@ class Conduit:
 class Bundle:
     def __init__(self, stationing_start, stationing_end,
                  bundle_diameter, bundle_weight,  bundle_number):
-        self.cables = []  # List to hold cable objects
+        self.cables = []        # List to hold cable objects
         self.cable_data = []
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -81,6 +81,8 @@ class Bundle:
 # Holds all the generated bundles
 # bundles = {}
 bundle_number = 1
+max_bundle_weight = 20000   # lb/mft
+
 
 # Potential conduit sizes, inches
 conduit_sizes = [0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4]
