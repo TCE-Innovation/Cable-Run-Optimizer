@@ -182,6 +182,7 @@ def check_diameter_and_weight(bundle, cable):
 
     # If added cable would make bundle overweight
     if bundle.bundle_weight > max_bundle_weight:
+        bundle.bundle_weight -= cable.weight
         return 0
 
     # Find open space to place cable, do a check if that would have the bundle go over maximum diameter requirement

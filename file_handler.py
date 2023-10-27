@@ -340,17 +340,16 @@ def generate_output_file_for_conduit(conduits):
         "Stationing End",
         "Pull #",
         "Cable Size",
-        "Express",
-        "Minimum Conduit Size",
+        "Express/Local",
+        "Minimum Conduit Size (in)",
         "Conduit Fill",
-        "Upsized Conduit",
+        "Upsized Conduit (in)",
         "Upsized Conduit Fill"
     ]
     sheet.append(headers)
 
     if server_code_flag:
         logging.info("Conduit list length: %s", len(conduits))
-
 
     # Write conduit data and cable attributes to the Excel file
     for conduit_name, conduit in conduits.items():
@@ -481,10 +480,10 @@ def generate_output_file_for_conduit(conduits):
             "Stationing End",
             "Pull #",
             "Cable Size",
-            "Express",
-            "Minimum Conduit Size",
+            "Express/Local",
+            "Minimum Conduit Size (in)",
             "Conduit Fill",
-            "Upsized Conduit",
+            "Upsized Conduit (in)",
             "Upsized Conduit Fill"
         ]
         sheet.append(headers)
@@ -626,9 +625,9 @@ def generate_output_file_for_messenger(bundles):
         "Stationing End",
         "Pull #",
         "Cable Size",
-        "Express",
-        "Bundle Diameter",
-        "Bundle Weight",
+        "Express/Local",
+        "Bundle Diameter (in)",
+        "Bundle Weight (lb/mft)",
     ]
     sheet.append(headers)
 
@@ -640,14 +639,14 @@ def generate_output_file_for_messenger(bundles):
 
         for cable in bundle.cables:
             row_data = [
-                f"Conduit {bundle.bundle_number}",  # Bundle number
+                f"Bundle {bundle.bundle_number}",  # Bundle number
                 f"{bundle.stationing_start}",       # Stationing start
                 f"{bundle.stationing_end}",         # Stationing end
                 int(cable.pull_number),             # Individual cable pull number
                 cable.cable_size,                   # Cable size (ex. 7C#14)
                 cable.express,                      # Express or local
                 bundle.bundle_diameter,             # Bundle diameter
-                bundle.bundle_weight                # Bundle weight
+                bundle.bundle_weight/1000           # Bundle weight
                 # Upsized conduit fill
             ]
             sheet.append(row_data)

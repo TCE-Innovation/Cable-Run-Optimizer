@@ -82,6 +82,7 @@ class Bundle:
 # bundles = {}
 bundle_number = 1
 max_bundle_weight = 20000   # lb/mft
+max_bundle_diameter = 6     # inches
 
 
 # Potential conduit sizes, inches
