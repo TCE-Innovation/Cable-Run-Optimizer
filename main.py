@@ -25,14 +25,18 @@ if local_code_flag:
         conduits = optimize_for_conduit(stationing_values_numeric, stationing_text_pairs, cable_list)
 
         # Create output Excel file with generated conduits
-        generate_output_file_for_conduit(conduits)
+        # generate_output_file_for_conduit(conduits)
+        generate_output_file(conduits)
 
     elif run_messenger_optimization:
         # Perform optimization
         bundles = optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cable_list)
 
         # Create output Excel file with generated bundles
-        generate_output_file_for_messenger(bundles)
+        # generate_output_file_for_messenger(bundles)
+        generate_output_file(bundles)
+
+
 
 # Running code on TCIG.nyc website
 elif server_code_flag:
