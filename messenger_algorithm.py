@@ -45,6 +45,10 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
                 local_cables.append(cable)
 
         # Sort express and local cables separately, sorting by size
+        ###################################################################################
+        # EDIT THIS CODE SO THAT CABLES ARE SORTED BASED ON WHEN THEY WILL EXIT THE BUNDLE,
+        # THEN FOR CABLES THAT HAVE SAME DROP OFF POINT, SORT BY SIZE
+        ###################################################################################
         express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
         local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
 
@@ -186,29 +190,30 @@ def check_diameter_and_weight(bundle, cable):
         return 0
 
     # Find open space to place cable, do a check if that would have the bundle go over maximum diameter requirement
-    # if not find_open_space(bundle, cable):
-    #     return 0
+    if not find_open_space(bundle, cable):
+        return 0
 
     # Indicate that cable can be added to bundle
     return 1
 
 
 # Spiraling out from center to find placement
-def find_open_space(bundle, new_cable):
+def find_open_space(bundle, cable):
 
     # Skip over this for two conductor cables
     # Just want to see this added to conduit, not interested in visualizing rn
-    if new_cable.diameter is None:
-        bundle.add_cable(new_cable, None, None)
+    if cable.diameter is None:
+        bundle.add_cable(cable, None, None)
     else:
+        # The radis and angle increments are how much you spiral out from the center
+        radius_increment = 0.1  # Define the radius increment
+        angle_increment = 5     # Define the angle increment
 
-        radius_increment = 0.1         # Define the radius increment
-        angle_increment = 5             # Define the angle increment
-        # max_radius = conduit_size/2     # Maximum radius for placement
-        max_radius = 6 # for testing purposes
-        # Initial placement at (radius=0, angle=0    )
-        radius = 0 # EDITED FROM RADIUS = 0 TO FIT CABLES VISUALLY
+        # Initial placement at (radius=0, angle=0)
+        radius = 0
         angle = 0
+
+        max_radius = max_bundle_diameter/2
 
         # Function to calculate distance between two polar coordinates
         def calculate_distance(r1, a1, r2, a2):
@@ -218,27 +223,30 @@ def find_open_space(bundle, new_cable):
             y2 = r2 * math.sin(math.radians(a2))
             return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-        # Iterate through possible cable placements until a valid one is found or the conduit is full
+        # Iterate through possible cable placements until a valid one is found or the bundle is full
         while True:
             # Initialize a flag to track cable overlap
             overlap = False
 
             # Iterate through existing cables in the conduit
-            for existing_cable, (cable_radius, cable_angle) in zip(bundle.cables, bundle.cable_data):
+            for existing_cable in bundle.cables:
                 # Calculate distance between cables
-                distance = calculate_distance(radius, angle, cable_radius, cable_angle)
+                distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
 
                 # If the cables are overlapping
-                if distance < ((new_cable.diameter / 2) + (existing_cable.diameter / 2)):
+                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
                     overlap = True  # Set the overlap flag to True
                     break           # Exit the loop since overlap is detected
 
             # If no overlap is detected, proceed with cable placement
             if not overlap:
                 # Call a function to add the new cable to the draw queue
-                bundle.add_cable(new_cable, radius, angle)
+                # bundle.add_cable(radius, angle)
+                cable.radius = round(radius , 5)
+                cable.angle = angle
                 # add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
-                return radius, angle  # Return the valid placement
+                print(f"[STATUS] Cable {cable.pull_number} was placed at {cable.radius}, {cable.angle}")
+                return 1  # Return that a cable was placed
 
             # Increment angle by angle_increment
             if radius == 0:
@@ -253,8 +261,8 @@ def find_open_space(bundle, new_cable):
 
             # Check if the conduit is full
             if radius > max_radius:
-                print("Failed: Conduit is full.")
-                break
+                print("Failed: Bundle is full.")
+                return 0
 
     # Add logic checking if cable goes over radius requirement
     # If goes over, return 0, if it fits, return 1

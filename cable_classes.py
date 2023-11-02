@@ -16,7 +16,8 @@ class CableParameters:
 # to fill in information that isn't from cable pull sheet (diameter, weight, area)
 class Cable:
     def __init__(self, pull_number, stationing_start: int, stationing_end: int,
-                 cable_size, express, diameter, weight, cross_sectional_area, absolute_distance):
+                 cable_size, express, diameter, weight, cross_sectional_area, absolute_distance,
+                 radius=None, angle=None):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -26,6 +27,8 @@ class Cable:
         self.weight = weight
         self.cross_sectional_area = cross_sectional_area
         self.absolute_distance = absolute_distance
+        self.radius = radius    # if radius is not None else 0
+        self.angle = angle      # if angle is not None else 0
 
 
 # Class to create conduits
@@ -56,7 +59,7 @@ class Conduit:
 # Class to create conduits
 class Bundle:
     def __init__(self, stationing_start, stationing_end,
-                 bundle_diameter, bundle_weight,  bundle_number):
+                 bundle_diameter, bundle_weight, bundle_number):
         self.cables = []        # List to hold cable objects
         self.cable_data = []
         self.stationing_start = stationing_start
@@ -65,8 +68,8 @@ class Bundle:
         self.bundle_weight = bundle_weight
         self.bundle_number = bundle_number
 
-    # def add_cable(self, cable, radius, angle):
-    #     self.cables.append(cable)
+    # def add_cable(self, radius, angle):
+    #     # self.cables.append(cable)
     #     self.cable_data.append((radius, angle))
 
     def add_cable(self, cable):
@@ -80,7 +83,7 @@ class Bundle:
 # Create an empty dictionary to represent bundles
 # Holds all the generated bundles
 # bundles = {}
-bundle_number = 1
+# bundle_number = 1
 max_bundle_weight = 20000   # lb/mft
 max_bundle_diameter = 6     # inches
 
@@ -112,6 +115,6 @@ draw_queue = []
 # When the first conduit is created, the flag is set to be true
 # to know that following conduit pdf files will be merged
 
-first_file_flag = False
+# first_file_flag = False
 
 cable_list = []

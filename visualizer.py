@@ -11,9 +11,10 @@ dpi = (121, 121)  # DPI to scale size of file, with the aim to not need to zoom 
 
 
 # This function draws individual cables, and is called by generate_cable_image
-def draw_cable(draw, radius, angle_deg, cable, polar_center):
+# def draw_cable(draw, radius, angle_deg, cable, polar_center):
+def draw_cable(draw, cable):
     # scaling_factor = 82                   # Increase the scaling factor
-    scaling_factor = 82 * (6/conduit_size) + 3  # Increase the scaling factor
+    scaling_factor = 82 * (6/max_bundle_diameter) + 3  # Increase the scaling factor
     text_margin_x = -50                     # Cable info text x
     text_margin_y = -50                     # Cable info text y
     text_color = "black"
@@ -23,7 +24,8 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     font = ImageFont.truetype("arial.ttf", font_size)
 
     # Convert the angle from degrees to radians
-    angle_rad = math.radians(360 - angle_deg)
+    # angle_rad = math.radians(360 - cable.radius)
+    cable.angle = math.radians(360 - cable.radius)
 
     # Extract cable data attributes
     pull_number = cable.pull_number
@@ -37,8 +39,10 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
     cable_radius = diameter * scaling_factor
 
     # Calculate the polar coordinates for the center of the circle
-    center_x = polar_center[0] + radius * math.cos(angle_rad)
-    center_y = polar_center[1] + radius * math.sin(angle_rad)
+    # center_x = polar_center[0] + cable.radius * math.cos(angle_rad)
+    # center_y = polar_center[1] + cable.radius * math.sin(angle_rad)
+    center_x = 500 + cable.radius * math.cos(cable.angle)
+    center_y = 500 + cable.radius * math.sin(cable.angle)
 
     # Draw the cable as a filled circle
     cable_color = "#20df35"  # Teal
@@ -70,8 +74,12 @@ def draw_cable(draw, radius, angle_deg, cable, polar_center):
 # This function draws everything but the individual cables,
 # including the graph and text at the top left
 # This function calls draw_cable()
-def generate_cable_image(draw_queue):
-    global first_file_flag
+def generate_cable_image(bundle):
+    print(f"\n[STATUS] Running Visualizer on Bundle {bundle.bundle_number}...")
+
+    # global first_file_flag
+    # first_file_flag = False
+
     # Create a new image with a white background
     image = Image.new("RGB", image_size, "white")
     draw = ImageDraw.Draw(image)
@@ -137,9 +145,13 @@ def generate_cable_image(draw_queue):
         draw.line([line_start, line_end], fill="black", width=1)
 
     # Loop through the draw_queue and draw each cable
-    for radius, angle_deg, cable in draw_queue:
-        draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
+    # for radius, angle_deg, cable in draw_queue:
+        # draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
     # 166 relates to spacing of cables apart from each other
+
+    for cable in bundle.cables:
+        # draw_cable(draw, cable.radius * 166, cable.angle, cable)
+        draw_cable(draw, cable)
 
 
     # DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
@@ -193,22 +205,22 @@ def generate_cable_image(draw_queue):
     # END DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
 
 
-    global conduit_number
+    # global conduit_number
     # Write "Scale: " text at the bottom left of the image
     scale_text = "Scale: 0.5 inches/radius increment"
-    conduit_size_text = f"Conduit Size: {conduit_size} inches"
-    conduit_number_text = f"Conduit: {conduit_number}"
+    # conduit_size_text = f"Conduit Size: {conduit_size} inches"
+    # conduit_number_text = f"Conduit: {conduit_number}"
 
-    from conduit_algorithm import stationing_start_text
-    from conduit_algorithm import stationing_end_text
-    stationing_start_text = f"Start: {stationing_start_text}"
-    stationing_end_text = f"End: {stationing_end_text}"
+    # from conduit_algorithm import stationing_start_text
+    # from conduit_algorithm import stationing_end_text
+    # stationing_start_text = f"Start: {stationing_start_text}"
+    # stationing_end_text = f"End: {stationing_end_text}"
 
     # from conduit_algorithm import conduit_free_air_space
     # conduit_free_air_space_text = f"{conduit_free_air_space}"
 
-    from conduit_algorithm import express_text
-    from conduit_algorithm import conduit_free_air_space
+    # from conduit_algorithm import express_text
+    # from conduit_algorithm import conduit_free_air_space
     #
     text_color = "black"
     font_size = 15
@@ -220,25 +232,25 @@ def generate_cable_image(draw_queue):
     text_y = 5
 
     text_lines = [
-        f"Scale: {conduit_size/12} inches/radius increment",
-        f"Conduit Size: {conduit_size} inches",
+        f"Scale: TEST inches/radius increment",
+        # f"Conduit Size: {conduit_size} inches",
         # f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
-        f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
-        f"Start: {stationing_start_text}",
-        f"End: {stationing_end_text}",
-        f"Conduit: {conduit_number}",
-        express_text
+        # f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
+        # f"Start: {stationing_start_text}",
+        # f"End: {stationing_end_text}",
+        # f"Conduit: {conduit_number}",
+        # express_text
     ]
     for line in text_lines:
         draw.text((text_x, text_y), line, fill=text_color, font=font)
         text_y += font_size + 5  # Adjust the vertical spacing
 
-    conduit_number += 1
+    # conduit_number += 1
 
     temp_pdf_file = "Conduit temp file.pdf"
     image.save(temp_pdf_file, dpi=dpi)  # Higher resolution
 
-    if first_file_flag:
+    if bundle.bundle_number != 1:
         output_pdf_file = "Optimization Results.pdf"
         # input_pdf_file = "Conduit.pdf"
 
@@ -262,7 +274,6 @@ def generate_cable_image(draw_queue):
             pdf_writer.write(output_pdf)
 
     else:
-        first_file_flag = True
         file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC" \
                     r"\Documents 1\Code\Git Files\Cable-Run-Optimizer"
         file_name = "Optimization Results.pdf"
@@ -270,5 +281,5 @@ def generate_cable_image(draw_queue):
         image.save(full_file_path, dpi=dpi)  # Higher resolution
 
 
-def add_to_draw_queue(cable, radius, angle_deg):
-    draw_queue.append((radius, angle_deg, cable))
+# def add_to_draw_queue(cable, radius, angle_deg):
+#     draw_queue.append((radius, angle_deg, cable))

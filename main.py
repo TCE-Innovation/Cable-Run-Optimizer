@@ -7,6 +7,7 @@ if local_code_flag:
     from messenger_algorithm import *
     from file_handler import *
     from cable_classes import *
+    from visualizer import *
 
     print("[START] Running local code...")
 
@@ -25,15 +26,18 @@ if local_code_flag:
         conduits = optimize_for_conduit(stationing_values_numeric, stationing_text_pairs, cable_list)
 
         # Create output Excel file with generated conduits
-        # generate_output_file_for_conduit(conduits)
+        # generate_cable_image(draw_queue)
         generate_output_file(conduits)
 
     elif run_messenger_optimization:
         # Perform optimization
         bundles = optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cable_list)
 
-        # Create output Excel file with generated bundles
-        # generate_output_file_for_messenger(bundles)
+        for bundle_name, bundle in bundles.items():
+            for cable in bundle.cables:
+                print(f"Cable {cable.pull_number}; Radius {cable.radius}; Angle {cable.angle}")
+            generate_cable_image(bundle)
+
         generate_output_file(bundles)
 
 
@@ -68,7 +72,7 @@ elif server_code_flag:
             logging.info("after opt con conduits list %s", len(conduits))
 
             logging.info("Generating output file.")
-            sas_url = generate_output_file_for_conduit(conduits)
+            sas_url = generate_output_file(conduits)
 
         elif run_messenger_optimization:
             logging.info("Optimizing for messenger.")
@@ -76,6 +80,6 @@ elif server_code_flag:
             logging.info("after opt con conduits list %s", len(bundles))
 
             logging.info("Generating output file.")
-            sas_url = generate_output_file_for_messenger(bundles)
+            sas_url = generate_output_file(bundles)
 
         return sas_url

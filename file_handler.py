@@ -99,7 +99,7 @@ if local_code_flag:
                     cable_info.diameter,
                     cable_info.pounds_per_foot,
                     cable_info.cross_sectional_area,
-                    absolute_distance
+                    absolute_distance,
                 )
                 cable_list.append(cable)
         print(f"[PASS] Cable pull sheet obtained.\n")
@@ -316,10 +316,6 @@ def parse_cable_sizes_excel(sheet):
     return cable_sizes_list
 
 
-def parse_cable_pull_sheet(sheet):
-    pass
-
-
 def generate_output_file(cable_run_list):
     if local_code_flag:
         from cable_classes import conduit_sizes
@@ -466,7 +462,7 @@ def generate_output_file(cable_run_list):
 
         pdf_file_path = 'C:/Users/roneill/OneDrive - Iovino Enterprises, LLC/Documents 1/Code/Git Files/Cable-Run-Optimizer/Output File.xlsx'
 
-        subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
+        # subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
     elif server_code_flag:
 
