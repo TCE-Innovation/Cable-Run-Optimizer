@@ -210,7 +210,7 @@ def find_open_space(bundle, cable):
         angle_increment = 5     # Define the angle increment
 
         # Initial placement at (radius=0, angle=0)
-        radius = 0
+        radius = 0.5
         angle = 0
 
         max_radius = max_bundle_diameter/2
