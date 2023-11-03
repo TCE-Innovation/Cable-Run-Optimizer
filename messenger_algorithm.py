@@ -210,7 +210,7 @@ def find_open_space(bundle, cable):
         angle_increment = 5     # Define the angle increment
 
         # Initial placement at (radius=0, angle=0)
-        radius = 0.5
+        radius = 0
         angle = 0
 
         max_radius = max_bundle_diameter/2
@@ -244,6 +244,10 @@ def find_open_space(bundle, cable):
                 # bundle.add_cable(radius, angle)
                 cable.radius = round(radius , 5)
                 cable.angle = angle
+                bundle.bundle_diameter = 2 * (cable.radius + (cable.diameter/2))
+                print(f"\nCable radius coordinate: {cable.radius}, cable radius: {cable.diameter/2}")
+                print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter/2)) * 2}")
+                print(f"[STATUS] Bundle {bundle.bundle_number} has an updated diameter of {bundle.bundle_diameter} inches")
                 # add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
                 print(f"[STATUS] Cable {cable.pull_number} was placed at {cable.radius}, {cable.angle}")
                 return 1  # Return that a cable was placed
@@ -259,9 +263,9 @@ def find_open_space(bundle, cable):
                 angle = angle % 360  # Reset angle to 0
                 radius += radius_increment  # Increment radius, EDITED FROM += TO -= TO FIT CABLES VISUALLY
 
-            # Check if the conduit is full
-            if radius > max_radius:
-                print("Failed: Bundle is full.")
+            # Check if the conduit is full, if the cable added would have the bundle go beyond 6 inches in diameter
+            if radius + (cable.diameter/2) > max_radius:
+                print(f"Failed: Bundle is full. Radius coordinate {radius} + Cable radius {cable.radius} > {max_radius}")
                 return 0
 
     # Add logic checking if cable goes over radius requirement

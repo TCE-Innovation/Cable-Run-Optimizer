@@ -76,7 +76,7 @@ class Bundle:
         self.cables.append(cable)
 
     def calculate_bundle_diameter_and_weight(self):
-        self.bundle_diameter = sum(cable.diameter for cable in self.cables)
+        # self.bundle_diameter = sum(cable.diameter for cable in self.cables)
         self.bundle_weight = sum(cable.weight for cable in self.cables)
 
 

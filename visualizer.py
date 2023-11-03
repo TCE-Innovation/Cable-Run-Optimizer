@@ -3,6 +3,7 @@ from cable_classes import *
 import math
 from PyPDF2 import PdfReader, PdfWriter
 import os
+from settings import *
 
 
 # Define image size and dpi
@@ -28,16 +29,16 @@ def draw_cable(draw, cable):
 
     # Convert the angle from degrees to radians
     # angle_rad = math.radians(360 - cable.radius)
-    print(f"The cable's radius in degrees is {cable.angle}")
+    # print(f"The cable's angle in degrees is {cable.angle}")
     angle_rad = math.radians(360 - cable.angle)
-    print(f"The cable's radius in radians is {angle_rad}")
+    # print(f"The cable's angle in radians is {angle_rad}")
     # cable.angle = math.radians(360 - cable.radius)
 
     # Calculate the scaled radius based on the cable's diameter
     # cable_radius = cable.diameter * scaling_factor
 
-    print(f"Cartesian x coordinate: {cable.radius * math.cos(angle_rad)}")
-    print(f"Cartesian y coordinate: {cable.radius * math.sin(angle_rad)}")
+    # print(f"Cartesian x coordinate: {cable.radius * math.cos(angle_rad)}")
+    # print(f"Cartesian y coordinate: {cable.radius * math.sin(angle_rad)}")
 
     # Calculate the polar coordinates for the center of the circle
     center_x = 500 + distance_multiplier * cable.radius * math.cos(angle_rad)
@@ -78,17 +79,17 @@ def draw_cable(draw, cable):
     draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
 
     # Create a text label with the cable information
-    # text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
-    # text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
-    text_x = center_x - text_margin_x    # Add x-direction offset
-    text_y = center_y - text_margin_y    # Add y-direction offset
+    text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
+    text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
+    # text_x = center_x - text_margin_x    # Add x-direction offset
+    # text_y = center_y - text_margin_y    # Add y-direction offset
 
     text_lines = [
         f"P: {cable.pull_number}",
-        f"E: {cable.express}",
+        # f"E: {cable.express}",
         f"S: {cable.cable_size}",
-        f"D: {cable.diameter} inches",
-        f"W: {cable.weight}",
+        # f"D: {cable.diameter} inches",
+        # f"W: {cable.weight}",
         # f"A: {cable.cross_sectional_area}",
         f"R, θ: {cable.radius}, {cable.angle}"
     ]
@@ -257,19 +258,23 @@ def generate_cable_image(bundle):
     # text_y = image_size[1] - font_size - 10
     text_y = 5
 
-    text_lines = [
-        f"Scale: TEST inches/radius increment",
-        # f"Conduit Size: {conduit_size} inches",
-        # f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
-        # f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
-        # f"Start: {stationing_start_text}",
-        # f"End: {stationing_end_text}",
-        # f"Conduit: {conduit_number}",
-        # express_text
-    ]
-    for line in text_lines:
-        draw.text((text_x, text_y), line, fill=text_color, font=font)
-        text_y += font_size + 5  # Adjust the vertical spacing
+    if run_messenger_optimization:
+        text_lines = [
+            f"Scale: 0.5 inches/radius increment",
+            f"Bundle: {bundle.bundle_number}",
+            f"Weight: {bundle.bundle_weight/1000} lb/ft",
+            f"Diameter: {round(bundle.bundle_diameter, 4)} in"
+            # f"Conduit Size: {conduit_size} inches",
+            # f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
+            # f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
+            # f"Start: {stationing_start_text}",
+            # f"End: {stationing_end_text}",
+            # f"Conduit: {conduit_number}",
+            # express_text
+        ]
+        for line in text_lines:
+            draw.text((text_x, text_y), line, fill=text_color, font=font)
+            text_y += font_size + 5  # Adjust the vertical spacing
 
     # conduit_number += 1
 
