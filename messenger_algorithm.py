@@ -44,13 +44,26 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
             elif cable.express.lower() == "local":
                 local_cables.append(cable)
 
-        # Sort express and local cables separately, sorting by size
-        ###################################################################################
-        # EDIT THIS CODE SO THAT CABLES ARE SORTED BASED ON WHEN THEY WILL EXIT THE BUNDLE,
-        # THEN FOR CABLES THAT HAVE SAME DROP OFF POINT, SORT BY SIZE
-        ###################################################################################
-        express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
-        local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
+        # express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
+        # local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
+
+        # Sort cables by length and within the sorted list sort cables of same length by size
+        # express_cables.sort(
+        #     key=lambda cable: ((cable.stationing_end - cable.stationing_start), -cable.cross_sectional_area),
+        #     reverse=True)
+        # local_cables.sort(
+        #     key=lambda cable: ((cable.stationing_end - cable.stationing_start), -cable.cross_sectional_area),
+        #     reverse=True)
+
+        # Sort express and local cables separately
+        # Sort first by cable length (stationing_end - stationing_start) in descending order
+        # Then sort by cable size (cross_sectional_area) in descending order
+        express_cables.sort(key=lambda cable: (
+        int(cable.stationing_end.replace("+", "")) - int(cable.stationing_start.replace("+", "")),
+        -cable.cross_sectional_area), reverse=True)
+        local_cables.sort(key=lambda cable: (
+        int(cable.stationing_end.replace("+", "")) - int(cable.stationing_start.replace("+", "")),
+        -cable.cross_sectional_area), reverse=True)
 
         # Print the sorted express cables
         print("[INFO] Sorted Express Cables:")
