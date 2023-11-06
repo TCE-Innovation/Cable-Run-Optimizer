@@ -281,35 +281,36 @@ def generate_cable_image(bundle):
     temp_pdf_file = "Conduit temp file.pdf"
     image.save(temp_pdf_file, dpi=dpi)  # Higher resolution
 
-    if bundle.bundle_number != 1:
-        output_pdf_file = "Optimization Results.pdf"
-        # input_pdf_file = "Conduit.pdf"
+    if local_code_flag:
+        if bundle.bundle_number != 1:
+            output_pdf_file = "Optimization Results.pdf"
+            # input_pdf_file = "Conduit.pdf"
 
-        # Create a PDF writer object
-        pdf_writer = PdfWriter()
+            # Create a PDF writer object
+            pdf_writer = PdfWriter()
 
-        # Open the existing PDF file and add its pages to the writer object
-        with open(output_pdf_file, "rb") as existing_pdf:
-            pdf_reader = PdfReader(existing_pdf)
-            for page in pdf_reader.pages:
-                pdf_writer.add_page(page)  # Add the existing page
+            # Open the existing PDF file and add its pages to the writer object
+            with open(output_pdf_file, "rb") as existing_pdf:
+                pdf_reader = PdfReader(existing_pdf)
+                for page in pdf_reader.pages:
+                    pdf_writer.add_page(page)  # Add the existing page
 
-        # Open the temporary PDF and add its pages to the writer object
-        with open(temp_pdf_file, "rb") as temp_pdf:
-            pdf_reader = PdfReader(temp_pdf)
-            for page in pdf_reader.pages:
-                pdf_writer.add_page(page)
+            # Open the temporary PDF and add its pages to the writer object
+            with open(temp_pdf_file, "rb") as temp_pdf:
+                pdf_reader = PdfReader(temp_pdf)
+                for page in pdf_reader.pages:
+                    pdf_writer.add_page(page)
 
-        # Save the merged PDF
-        with open(output_pdf_file, "wb") as output_pdf:
-            pdf_writer.write(output_pdf)
+            # Save the merged PDF
+            with open(output_pdf_file, "wb") as output_pdf:
+                pdf_writer.write(output_pdf)
 
-    else:
-        file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC" \
-                    r"\Documents 1\Code\Git Files\Cable-Run-Optimizer"
-        file_name = "Optimization Results.pdf"
-        full_file_path = os.path.join(file_path, file_name)
-        image.save(full_file_path, dpi=dpi)  # Higher resolution
+        else:
+            file_path = r"C:\Users\roneill\OneDrive - Iovino Enterprises, LLC" \
+                        r"\Documents 1\Code\Git Files\Cable-Run-Optimizer"
+            file_name = "Optimization Results.pdf"
+            full_file_path = os.path.join(file_path, file_name)
+            image.save(full_file_path, dpi=dpi)  # Higher resolution
 
 
 # def add_to_draw_queue(cable, radius, angle_deg):
