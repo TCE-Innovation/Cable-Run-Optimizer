@@ -44,17 +44,6 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
             elif cable.express.lower() == "local":
                 local_cables.append(cable)
 
-        # express_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
-        # local_cables.sort(key=lambda cable: cable.cross_sectional_area, reverse=True)
-
-        # Sort cables by length and within the sorted list sort cables of same length by size
-        # express_cables.sort(
-        #     key=lambda cable: ((cable.stationing_end - cable.stationing_start), -cable.cross_sectional_area),
-        #     reverse=True)
-        # local_cables.sort(
-        #     key=lambda cable: ((cable.stationing_end - cable.stationing_start), -cable.cross_sectional_area),
-        #     reverse=True)
-
         # Sort express and local cables separately
         # Sort first by cable length (stationing_end - stationing_start) in descending order
         # Then sort by cable size (cross_sectional_area) in descending order
@@ -214,8 +203,7 @@ def check_diameter_and_weight(bundle, cable):
 # Spiraling out from center to find placement
 def find_open_space(bundle, cable):
 
-    # Skip over this for two conductor cables
-    # Just want to see this added to conduit, not interested in visualizing rn
+    # If cable is a 2 Conductor Cable
     if cable.diameter is None:
         bundle.add_cable(cable, None, None)
     else:

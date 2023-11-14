@@ -33,6 +33,9 @@ if local_code_flag:
 
         print(f"[PASS] Cable sizes acquired.\n")
 
+        for info in cable_sizes_list:
+            print(f"{info.size}")
+
         return cable_sizes_list
 
 
@@ -102,10 +105,11 @@ if local_code_flag:
                     cable_info.pounds_per_foot,
                     cable_info.cross_sectional_area,
                     absolute_distance,
+                    cable_info.two_conductor
                 )
                 cable_list.append(cable)
         print(f"[PASS] Cable pull sheet obtained.\n")
-
+        print(len(cable_list))
         # Print out the cables at the end of the function
         for cable in cable_list:
             print(f"Cable: Pull #{cable.pull_number}, Size: {cable.cable_size}, Express: {cable.express}, "
@@ -214,7 +218,8 @@ elif server_code_flag:
                     cable_info.diameter,
                     cable_info.pounds_per_foot,
                     cable_info.cross_sectional_area,
-                    absolute_distance
+                    absolute_distance,
+                    cable_info.two_conductor
                 )
                 cable_list.append(cable)
                 logging.info("Cable %s : %s pulled", cable.pull_number, cable.cable_size)
@@ -302,7 +307,7 @@ def parse_cable_sizes_excel(sheet):
                 first_row_skipped = True
                 continue  # Skip the first row
 
-            # This is the special case, so process the data differently
+            # This is the case of 2 conductors cables
             size = row[0]
             length = row[1]
             width = row[2]
@@ -311,8 +316,18 @@ def parse_cable_sizes_excel(sheet):
             # Calculate the cross-sectional area as the product of length and width
             cross_sectional_area = length * width
 
+            # Setting the diameter of the cable to be one conductor + jacket surrounding it
+            if length > width:
+                cable = CableParameters(size, length/2, weight, cross_sectional_area, True)
+                print(f"Created cable: Size: {cable.size}, Diameter: {cable.diameter}, Weight: {cable.pounds_per_foot}, "
+                      f"Cross-sectional Area: {cable.cross_sectional_area}, Is 2C: {cable.two_conductor}")
+            elif length < width:
+                cable = CableParameters(size, width / 2, weight, cross_sectional_area, True)
+                print(f"Created cable: Size: {cable.size}, Diameter: {cable.diameter}, Weight: {cable.pounds_per_foot}, "
+                      f"Cross-sectional Area: {cable.cross_sectional_area}, Is 2C: {cable.two_conductor}")
+
             # Create a CableParameters object with diameter set to "None"
-            cable = CableParameters(size, None, weight, cross_sectional_area)
+            # cable = CableParameters(size, None, weight, cross_sectional_area, True)
             cable_sizes_list.append(cable)
 
         else:
@@ -325,7 +340,9 @@ def parse_cable_sizes_excel(sheet):
             cross_sectional_area = round(math.pi * ((float(diameter) / 2) ** 2), 4)
 
             # Create a CableParameters object and append it to the list
-            cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area)
+            cable = CableParameters(size, diameter, pounds_per_foot, cross_sectional_area, False)
+            print(f"Created cable: Size: {cable.size}, Diameter: {cable.diameter}, Weight: {cable.pounds_per_foot}, "
+                  f"Cross-sectional Area: {cable.cross_sectional_area}, Is 2C: {cable.two_conductor}")
             cable_sizes_list.append(cable)
 
     if server_code_flag:
