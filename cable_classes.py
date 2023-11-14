@@ -16,7 +16,8 @@ class CableParameters:
 # to fill in information that isn't from cable pull sheet (diameter, weight, area)
 class Cable:
     def __init__(self, pull_number, stationing_start: int, stationing_end: int,
-                 cable_size, express, diameter, weight, cross_sectional_area, absolute_distance):
+                 cable_size, express, diameter, weight, cross_sectional_area, absolute_distance,
+                 radius=None, angle=None):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -26,24 +27,22 @@ class Cable:
         self.weight = weight
         self.cross_sectional_area = cross_sectional_area
         self.absolute_distance = absolute_distance
+        self.radius = radius    # if radius is not None else 0
+        self.angle = angle      # if angle is not None else 0
 
 
 # Class to create conduits
 class Conduit:
     def __init__(self, stationing_start, stationing_end,
                  conduit_area, conduit_fill, conduit_size, conduit_number):
-        self.cables = []  # List to hold cable objects
-        self.cable_data = []  # List to hold cable data as (radius, angle) tuples
+        self.cables = []        # List to hold cable objects
+        self.cable_data = []    # List to hold cable data as (radius, angle) tuples
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
         self.conduit_fill = conduit_fill
         self.conduit_area = conduit_area if conduit_area is not None else 0     # Use 0 if conduit_area is not provided
         self.conduit_size = conduit_size if conduit_size is not None else 3.5   # Use 3.5, max conduit size
         self.conduit_number = conduit_number
-
-    # def add_cable(self, cable, radius, angle):
-    #     self.cables.append(cable)
-    #     self.cable_data.append((radius, angle))
 
     def add_cable(self, cable):
         self.cables.append(cable)
@@ -55,14 +54,31 @@ class Conduit:
 
 # Class to create bundles
 class Bundle:
-    def __init__(self):
-        self.cables = []  # List to hold cable objects
-        self.radii = []  # List to hold radii
-        self.angles = []  # List to hold angles
+    def __init__(self, stationing_start, stationing_end,
+                 bundle_diameter, bundle_weight, bundle_number):
+        self.cables = []        # List to hold cable objects
+        self.cable_data = []
+        self.stationing_start = stationing_start
+        self.stationing_end = stationing_end
+        self.bundle_diameter = bundle_diameter
+        self.bundle_weight = bundle_weight
+        self.bundle_number = bundle_number
+
+    def add_cable(self, cable):
+        self.cables.append(cable)
+
+    def calculate_bundle_diameter_and_weight(self):
+        # self.bundle_diameter = sum(cable.diameter for cable in self.cables)
+        self.bundle_weight = sum(cable.weight for cable in self.cables)
+
 
 # Create an empty dictionary to represent bundles
 # Holds all the generated bundles
-bundles = {}
+# bundles = {}
+# bundle_number = 1
+max_bundle_weight = 20000   # lb/mft
+max_bundle_diameter = 6     # inches
+
 
 # Potential conduit sizes, inches
 conduit_sizes = [0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4]
@@ -82,13 +98,4 @@ express_text = None
 stationing_values_numeric = list()
 stationing_text_pairs = list()
 
-# List to hold cables to be drawn with their polar coordinates (radius and angle)
-# Used in visualizer.py
-draw_queue = []
-
-# For output pdf file generation
-# Used in visualizer.py
-# When the first conduit is created, the flag is set to be true
-# to know that following conduit pdf files will be merged
-
-first_file_flag = False
+cable_list = []
