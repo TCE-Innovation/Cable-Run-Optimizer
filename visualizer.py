@@ -103,7 +103,10 @@ def draw_cable(draw, cable):
 # including the graph and text at the top left
 # This function calls draw_cable()
 def generate_cable_image(bundle):
-    print(f"\n[STATUS] Running Visualizer on Bundle {bundle.bundle_number}...")
+    if run_conduit_optimization:
+        print(f"\n[STATUS] Running Visualizer on Bundle {bundle.bundle_number}...")
+    elif run_messenger_optimization:
+        print(f"\n[STATUS] Running Visualizer on Conduit {Conduit.conduit_number}...")
 
     # global first_file_flag
     # first_file_flag = False

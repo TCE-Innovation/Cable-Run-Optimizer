@@ -509,7 +509,7 @@ def generate_output_file(cable_run_list, runType):
 
         pdf_file_path = 'C:/Users/roneill/OneDrive - Iovino Enterprises, LLC/Documents 1/Code/Git Files/Cable-Run-Optimizer/Output File.xlsx'
 
-        subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
+        # subprocess.run(["start", "", pdf_file_path], shell=True, check=True)
 
     elif server_code_flag:
 

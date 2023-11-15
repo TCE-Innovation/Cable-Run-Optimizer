@@ -57,7 +57,7 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
         # Print the sorted express cables
         print("[INFO] Sorted Express Cables:")
         for cable in express_cables:
-            print(f"Pull #: {cable.pull_number}, Cable Size: {cable.cable_size}")
+            print(f"Pull #: {cable.pull_number}, Cable Size: {cable.cable_size}, Area: {cable.cross_sectional_area}")
         print()
 
         # Create bundles
@@ -204,7 +204,7 @@ def check_diameter_and_weight(bundle, cable):
 def find_open_space(bundle, cable):
 
     # If cable is a 2 Conductor Cable
-    if cable.two_conductor is True:
+    # if cable.two_conductor is True:
         # First find placement for first conductor of cable, which is represented
         # with a pseudo diameter within the diameter attribute
 
@@ -220,47 +220,56 @@ def find_open_space(bundle, cable):
 
         # Once the entire cable is placed, draw a pseudo continuous array of circles between the placement coordinates
         # of the two conductors, to draw out the entirety of the two conductor cable
-        pass
-    elif cable.two_conductor is False:
-        # The radis and angle increments are how much you spiral out from the center
-        radius_increment = 0.1  # Define the radius increment
-        angle_increment = 5     # Define the angle increment
+        # pass
+    # elif cable.two_conductor is False:
+    # The radis and angle increments are how much you spiral out from the center
+    radius_increment = 0.1  # Define the radius increment
+    angle_increment = 5     # Define the angle increment
 
-        # Initial placement at (radius=0, angle=0)
-        radius = 0
-        angle = 0
+    # Initial placement at (radius=0, angle=0)
+    radius = 0
+    angle = 0
 
-        max_radius = max_bundle_diameter/2
+    max_radius = max_bundle_diameter/2
 
-        # Function to calculate distance between two polar coordinates
-        def calculate_distance(r1, a1, r2, a2):
-            x1 = r1 * math.cos(math.radians(a1))
-            y1 = r1 * math.sin(math.radians(a1))
-            x2 = r2 * math.cos(math.radians(a2))
-            y2 = r2 * math.sin(math.radians(a2))
-            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    # Function to calculate distance between two polar coordinates
+    def calculate_distance(r1, a1, r2, a2):
+        x1 = r1 * math.cos(math.radians(a1))
+        y1 = r1 * math.sin(math.radians(a1))
+        x2 = r2 * math.cos(math.radians(a2))
+        y2 = r2 * math.sin(math.radians(a2))
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-        # Iterate through possible cable placements until a valid one is found or the bundle is full
-        while True:
-            # Initialize a flag to track cable overlap
-            overlap = False
+    # Iterate through possible cable placements until a valid one is found or the bundle is full
+    while True:
+        # Initialize a flag to track cable overlap
+        overlap = False
 
-            # Iterate through existing cables in the conduit
-            for existing_cable in bundle.cables:
-                # Calculate distance between cables
-                distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+        # Iterate through existing cables in the conduit
+        for existing_cable in bundle.cables:
+            # Calculate distance between cables
+            distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
 
-                # If the cables are overlapping
-                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                    overlap = True  # Set the overlap flag to True
-                    break           # Exit the loop since overlap is detected
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                overlap = True  # Set the overlap flag to True
+                break           # Exit the loop since overlap is detected
 
-            # If no overlap is detected, proceed with cable placement
-            if not overlap:
+        # If no overlap is detected, proceed with cable placement
+        if not overlap:
+            # If two conductor cable, check if the second conductor of the two conductor cable can fit
+            if cable.two_conductor is True:
+                # Need to spiral the second conductor by an offset of half the length of the cable
+                # around the coordinates of the first conductor being placed
+                print(f"The placement radius is {radius}\nThe placement angle is {angle}")
+                pass
+            # Otherwise, whole cable was already placed, proceed updating coordinates for cable
+            elif cable.two_conductor is False:
                 # Call a function to add the new cable to the draw queue
                 # bundle.add_cable(radius, angle)
-                cable.radius = round(radius , 5)
+                cable.radius = round(radius, 5)
                 cable.angle = angle
+                # Update bundle diameter to be the outermost point of outermost cable
                 bundle.bundle_diameter = 2 * (cable.radius + (cable.diameter/2))
                 print(f"\nCable radius coordinate: {cable.radius}, cable radius: {cable.diameter/2}")
                 print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter/2)) * 2}")
@@ -269,23 +278,18 @@ def find_open_space(bundle, cable):
                 print(f"[STATUS] Cable {cable.pull_number} was placed at {cable.radius}, {cable.angle}")
                 return 1  # Return that a cable was placed
 
-            # Increment angle by angle_increment
-            if radius == 0:
-                radius += radius_increment
-            else:
-                angle += angle_increment
+        # Increment angle by angle_increment
+        if radius == 0:
+            radius += radius_increment
+        else:
+            angle += angle_increment
 
-            # Check if angle has completed a full circle (360 degrees)
-            if angle >= 360:
-                angle = angle % 360  # Reset angle to 0
-                radius += radius_increment  # Increment radius, EDITED FROM += TO -= TO FIT CABLES VISUALLY
+        # Check if angle has completed a full circle (360 degrees)
+        if angle >= 360:
+            angle = angle % 360  # Reset angle to 0
+            radius += radius_increment  # Increment radius, EDITED FROM += TO -= TO FIT CABLES VISUALLY
 
-            # Check if the conduit is full, if the cable added would have the bundle go beyond 6 inches in diameter
-            if radius + (cable.diameter/2) > max_radius:
-                print(f"Failed: Bundle is full. Radius coordinate {radius} + Cable radius {cable.radius} > {max_radius}")
-                return 0
-
-    # Add logic checking if cable goes over radius requirement
-    # If goes over, return 0, if it fits, return 1
-
-    return 1
+        # Check if the conduit is full, if the cable added would have the bundle go beyond 6 inches in diameter
+        if radius + (cable.diameter/2) > max_radius:
+            print(f"Failed: Bundle is full. Radius coordinate {radius} + Cable radius {cable.radius} > {max_radius}")
+            return 0

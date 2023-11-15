@@ -26,22 +26,29 @@ if local_code_flag:
         conduits = optimize_for_conduit(stationing_values_numeric, stationing_text_pairs, cable_list)
 
         # Create output Excel file with generated conduits
-        # generate_cable_image(draw_queue)
         runType = "Conduit"
         generate_output_file(conduits, runType)
+
+        for conduit_name, conduit in conduits.items():
+            for cable in conduit.cables:
+                print(f"Cable {cable.pull_number}; Radius {cable.radius}; Angle {cable.angle}")
+            generate_cable_image(conduit)
+
+        subprocess.run(["start", "", "Optimization Results.pdf"], shell=True, check=True)
 
     elif run_messenger_optimization:
         # Perform optimization
         bundles = optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cable_list)
 
+
+        runType = "Messenger"
+        generate_output_file(bundles, runType)
+
         for bundle_name, bundle in bundles.items():
             for cable in bundle.cables:
                 print(f"Cable {cable.pull_number}; Radius {cable.radius}; Angle {cable.angle}")
             generate_cable_image(bundle)
-
         subprocess.run(["start", "", "Optimization Results.pdf"], shell=True, check=True)
-        runType = "Messenger"
-        generate_output_file(bundles, runType)
 
 
 
