@@ -124,7 +124,7 @@ def create_new_bundle(start_stationing, end_stationing, bundle_nmbr, bundles):
 
 
 def add_cable_to_bundle(bundle, cable):
-    print(f"[STATUS] Adding Cable {cable.pull_number} ({cable.cable_size}) to Bundle {bundle.bundle_number}...")
+    # print(f"[STATUS] Adding Cable {cable.pull_number} ({cable.cable_size}) to Bundle {bundle.bundle_number}...")
     bundle.add_cable(cable)            # Add cable to bundle
     bundle.calculate_bundle_diameter_and_weight()    # Update total diameter and weight
 
@@ -245,24 +245,59 @@ def find_open_space(bundle, cable):
         # Initialize a flag to track cable overlap
         overlap = False
 
-        # Iterate through existing cables in the conduit
-        for existing_cable in bundle.cables:
-            # Calculate distance between cables
-            distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+        # Check is prospective cable placement (radius, angle) would not cause overlap
+        # with already placed cables in the bundle
+        overlap = check_overlap(cable, bundle, radius, angle)
 
-            # If the cables are overlapping
-            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                overlap = True  # Set the overlap flag to True
-                break           # Exit the loop since overlap is detected
+        # Iterate through existing cables in the conduit
+        # for existing_cable in bundle.cables:
+        #     # Calculate distance between cables
+        #     distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+        #
+        #     # If the cables are overlapping
+        #     if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+        #         overlap = True  # Set the overlap flag to True
+        #         break           # Exit the loop since overlap is detected
 
         # If no overlap is detected, proceed with cable placement
         if not overlap:
             # If two conductor cable, check if the second conductor of the two conductor cable can fit
             if cable.two_conductor is True:
+
+                # For two conductor cables
+                if not check_overlap(cable, bundle, radius + cable.diameter, angle):
+                    cable.radius = round(radius, 5), round(radius + cable.diameter,5)
+                    cable.angle = angle, angle
+                    # Update bundle diameter to be the outermost point of outermost cable
+                    # cable = Cable(
+                    #     cable.pull_number,
+                    #     cable.stationing_start,
+                    #     cable.stationing_end,
+                    #     cable.cable_size,
+                    #     cable.express,
+                    #     cable.diameter,
+                    #     cable.weight,
+                    #     cable.cross_sectional_area,
+                    #     cable.absolute_distance,
+                    #     cable.two_conductor,
+                    #     cable.radius + cable.diameter,
+                    #     cable.angle
+                    # )
+                    # add_cable_to_bundle(bundle, cable)
+                    bundle.bundle_diameter = 2 * (cable.radius[1] + (cable.diameter / 2))
+                return 1
                 # Need to spiral the second conductor by an offset of half the length of the cable
                 # around the coordinates of the first conductor being placed
-                print(f"The placement radius is {radius}\nThe placement angle is {angle}")
-                pass
+                # print(f"The placement radius is {round(radius, 2)}\nThe placement angle is {angle}")
+
+                # print(f"\nCable radius coordinate: {cable.radius}, cable radius: {cable.diameter / 2}")
+                # print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter / 2)) * 2}")
+                # print(
+                #     f"[STATUS] Bundle {bundle.bundle_number} has an updated diameter of {bundle.bundle_diameter} inches")
+                # # add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
+                # print(f"[STATUS] Cable {cable.pull_number} was placed at {cable.radius}, {cable.angle}")
+                # return 1
+
             # Otherwise, whole cable was already placed, proceed updating coordinates for cable
             elif cable.two_conductor is False:
                 # Call a function to add the new cable to the draw queue
@@ -293,3 +328,23 @@ def find_open_space(bundle, cable):
         if radius + (cable.diameter/2) > max_radius:
             print(f"Failed: Bundle is full. Radius coordinate {radius} + Cable radius {cable.radius} > {max_radius}")
             return 0
+
+def check_overlap(cable, bundle, radius, angle):
+    def calculate_distance(r1, a1, r2, a2):
+        x1 = r1 * math.cos(math.radians(a1))
+        y1 = r1 * math.sin(math.radians(a1))
+        x2 = r2 * math.cos(math.radians(a2))
+        y2 = r2 * math.sin(math.radians(a2))
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+    for existing_cable in bundle.cables:
+        # Calculate distance between cables
+        distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+
+        # If the cables are overlapping
+        if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+            # Set overlap flag to true
+            return True
+
+    # If no overlap detected
+    return False

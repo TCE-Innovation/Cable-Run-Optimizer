@@ -4,12 +4,14 @@ import math
 # Class used to hold data taken from Cables Sizes.xlsx
 # To be fed into Cable class
 class CableParameters:
-    def __init__(self, size, diameter, pounds_per_foot, cross_sectional_area, two_conductor):
+    def __init__(self, size, diameter, pounds_per_foot, cross_sectional_area, two_conductor, length=None, width=None):
         self.size = size
         self.diameter = diameter
         self.pounds_per_foot = pounds_per_foot
         self.cross_sectional_area = cross_sectional_area
         self.two_conductor = two_conductor
+        self.length = length
+        self.width = width
 
 
 # Class that holds the information from the cable pull sheet + cable size info
@@ -18,7 +20,7 @@ class CableParameters:
 class Cable:
     def __init__(self, pull_number, stationing_start: int, stationing_end: int,
                  cable_size, express, diameter, weight, cross_sectional_area, absolute_distance,
-                 two_conductor: bool, radius=None, angle=None):
+                 two_conductor: bool, length=None, width=None, radius=None, angle=None):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -31,6 +33,8 @@ class Cable:
         self.two_conductor = two_conductor
         self.radius = radius    # if radius is not None else 0
         self.angle = angle      # if angle is not None else 0
+        self.length = length
+        self.width = width
 
 
 # Class to create conduits

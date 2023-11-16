@@ -15,9 +15,7 @@ dpi = (121, 121)  # DPI to scale size of file, with the aim to not need to zoom 
 # This function draws individual cables, and is called by generate_cable_image
 # def draw_cable(draw, radius, angle_deg, cable, polar_center):
 def draw_cable(draw, cable):
-
     # scaling factor determines how big the cables are going to be drawn.
-    # scaling_factor = 82 * (6/max_bundle_diameter) + 3
     scaling_factor = 82         # Scaling factor of 82 for diameter of 6 inches
     distance_multiplier = 166   # Convert distance to be on the scale of the image
     text_margin_x = -50         # Cable info text x
@@ -29,84 +27,115 @@ def draw_cable(draw, cable):
     font = ImageFont.truetype("arial.ttf", font_size)
 
     # Convert the angle from degrees to radians
-    # angle_rad = math.radians(360 - cable.radius)
-    # print(f"The cable's angle in degrees is {cable.angle}")
-    angle_rad = math.radians(360 - cable.angle)
-    # print(f"The cable's angle in radians is {angle_rad}")
-    # cable.angle = math.radians(360 - cable.radius)
+    # angle_rad = math.radians(360 - cable.angle)
 
-    # Calculate the scaled radius based on the cable's diameter
-    # cable_radius = cable.diameter * scaling_factor
+    # Convert the angle from degrees to radians
+    if cable.two_conductor:
+        angles = cable.angle
+    else:
+        angles = (cable.angle,)
 
-    # print(f"Cartesian x coordinate: {cable.radius * math.cos(angle_rad)}")
-    # print(f"Cartesian y coordinate: {cable.radius * math.sin(angle_rad)}")
+    for angle in angles:
+        angle_rad = math.radians(360 - angle)
 
-    # Calculate the polar coordinates for the center of the circle
-    center_x = 500 + distance_multiplier * cable.radius * math.cos(angle_rad)
-    center_y = 500 + distance_multiplier * cable.radius * math.sin(angle_rad)
-    # center_x = 500 + cable.radius * math.cos(cable.angle)
-    # center_y = 500 + cable.radius * math.sin(cable.angle)
+    # Check if the cable is a two-conductor cable
+    if cable.two_conductor:
+        # For two-conductor cables, draw two circles
+        for radius, angle in zip(cable.radius, cable.angle):
+            # Calculate the polar coordinates for the center of the circle
+            center_x = 500 + distance_multiplier * radius * math.cos(math.radians(360 - angle))
+            center_y = 500 + distance_multiplier * radius * math.sin(math.radians(360 - angle))
 
-    # Calculate the polar coordinates for the center of the circle
-    # center_x = polar_center[0] + cable.radius * math.cos(166*cable.angle)
-    # print(f"CENTER_X IS A VALUE OF {center_x}")
-    # center_y = polar_center[1] + cable.radius * math.sin(166*cable.angle)
-    # print(f"CENTER_Y IS A VALUE OF {center_y}")
-    # center_x = 500
-    # center_y = 500
+            # Draw the cable as a filled circle
+            cable_color = "#20df35"  # Teal
+            cable_radius = cable.diameter * scaling_factor
 
-    # Draw the cable as a filled circle
-    cable_color = "#20df35"  # Teal
-    cable_radius = cable.diameter * scaling_factor
+            cable_bbox = (
+                center_x - cable_radius,
+                center_y - cable_radius,
+                center_x + cable_radius,
+                center_y + cable_radius,
+            )
+            draw.ellipse(cable_bbox, fill=cable_color)
 
-    cable_bbox = (
-        center_x - cable_radius,
-        center_y - cable_radius,
-        center_x + cable_radius,
-        center_y + cable_radius,
-    )
-    draw.ellipse(cable_bbox, fill=cable_color)
+            # Draw a red circle at the center of the cable
+            circle_radius = 1.5
+            circle_color = "red"
+            circle_center = (center_x, center_y)
+            circle_bbox = (
+                circle_center[0] - circle_radius,
+                circle_center[1] - circle_radius,
+                circle_center[0] + circle_radius,
+                circle_center[1] + circle_radius,
+            )
+            draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
 
-    # Draw a red circle at the center of the cable
-    circle_radius = 1.5
-    circle_color = "red"
-    circle_center = (center_x, center_y)
-    circle_bbox = (
-        circle_center[0] - circle_radius,
-        circle_center[1] - circle_radius,
-        circle_center[0] + circle_radius,
-        circle_center[1] + circle_radius,
-    )
-    draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
+            # Create a text label with the cable information
+            text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
+            text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
 
-    # Create a text label with the cable information
-    text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
-    text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
-    # text_x = center_x - text_margin_x    # Add x-direction offset
-    # text_y = center_y - text_margin_y    # Add y-direction offset
+            text_lines = [
+                f"P: {cable.pull_number}",
+                f"S: {cable.cable_size}",
+                f"R, θ: {radius}, {angle}"
+            ]
+            for line in text_lines:
+                draw.text((text_x, text_y), line, fill=text_color, font=font)
+                text_y += font_size + 5  # Adjust the vertical spacing
 
-    text_lines = [
-        f"P: {cable.pull_number}",
-        # f"E: {cable.express}",
-        f"S: {cable.cable_size}",
-        # f"D: {cable.diameter} inches",
-        # f"W: {cable.weight}",
-        # f"A: {cable.cross_sectional_area}",
-        f"R, θ: {cable.radius}, {cable.angle}"
-    ]
-    for line in text_lines:
-        draw.text((text_x, text_y), line, fill=text_color, font=font)
-        text_y += font_size + 5  # Adjust the vertical spacing
+    else:
+        # For single conductor cables, draw a single circle
+        radius, angle = cable.radius, cable.angle
+        center_x = 500 + distance_multiplier * radius * math.cos(angle_rad)
+        center_y = 500 + distance_multiplier * radius * math.sin(angle_rad)
+
+        # Draw the cable as a filled circle
+        cable_color = "#20df35"  # Teal
+        cable_radius = cable.diameter * scaling_factor
+
+        cable_bbox = (
+            center_x - cable_radius,
+            center_y - cable_radius,
+            center_x + cable_radius,
+            center_y + cable_radius,
+        )
+        draw.ellipse(cable_bbox, fill=cable_color)
+
+        # Draw a red circle at the center of the cable
+        circle_radius = 1.5
+        circle_color = "red"
+        circle_center = (center_x, center_y)
+        circle_bbox = (
+            circle_center[0] - circle_radius,
+            circle_center[1] - circle_radius,
+            circle_center[0] + circle_radius,
+            circle_center[1] + circle_radius,
+        )
+        draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
+
+        # Create a text label with the cable information
+        text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
+        text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
+
+        text_lines = [
+            f"P: {cable.pull_number}",
+            f"S: {cable.cable_size}",
+            f"R, θ: {radius}, {angle}"
+        ]
+        for line in text_lines:
+            draw.text((text_x, text_y), line, fill=text_color, font=font)
+            text_y += font_size + 5  # Adjust the vertical spacing
+
 
 
 # This function draws everything but the individual cables,
 # including the graph and text at the top left
 # This function calls draw_cable()
 def generate_cable_image(bundle):
-    if run_conduit_optimization:
+    # if run_conduit_optimization:
+    #     print(f"\n[STATUS] Running Visualizer on Conduit {Conduit.conduit_number}...")
+    if run_messenger_optimization:
         print(f"\n[STATUS] Running Visualizer on Bundle {bundle.bundle_number}...")
-    elif run_messenger_optimization:
-        print(f"\n[STATUS] Running Visualizer on Conduit {Conduit.conduit_number}...")
 
     # global first_file_flag
     # first_file_flag = False

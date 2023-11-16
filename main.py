@@ -34,7 +34,7 @@ if local_code_flag:
                 print(f"Cable {cable.pull_number}; Radius {cable.radius}; Angle {cable.angle}")
             generate_cable_image(conduit)
 
-        subprocess.run(["start", "", "Optimization Results.pdf"], shell=True, check=True)
+        # subprocess.run(["start", "", "Optimization Results.pdf"], shell=True, check=True)
 
     elif run_messenger_optimization:
         # Perform optimization
@@ -48,8 +48,7 @@ if local_code_flag:
             for cable in bundle.cables:
                 print(f"Cable {cable.pull_number}; Radius {cable.radius}; Angle {cable.angle}")
             generate_cable_image(bundle)
-        subprocess.run(["start", "", "Optimization Results.pdf"], shell=True, check=True)
-
+        # subprocess.run(["start", "", "Optimization Results.pdf"], shell=True, check=True)
 
 
 # Running code on TCIG.nyc website
