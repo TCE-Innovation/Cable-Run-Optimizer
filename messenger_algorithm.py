@@ -323,13 +323,24 @@ def check_overlap(cable, bundle, radius, angle):
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     for existing_cable in bundle.cables:
-        # Calculate distance between cables
-        distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+        if existing_cable.two_conductor:
+            distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # Set overlap flag to true
+                return True
 
-        # If the cables are overlapping
-        if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-            # Set overlap flag to true
-            return True
+            distance = calculate_distance(radius, angle, existing_cable.radius[1], existing_cable.angle[1])
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # Set overlap flag to true
+                return True
+        else:
+            # Calculate distance between cables
+            distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # Set overlap flag to true
+                return True
 
     # If no overlap detected
     return False
