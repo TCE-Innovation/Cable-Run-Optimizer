@@ -202,25 +202,6 @@ def check_diameter_and_weight(bundle, cable):
 
 # Spiraling out from center to find placement
 def find_open_space(bundle, cable):
-
-    # If cable is a 2 Conductor Cable
-    # if cable.two_conductor is True:
-        # First find placement for first conductor of cable, which is represented
-        # with a pseudo diameter within the diameter attribute
-
-        # With a placement found, logic needs to verify if the entire cable can fit
-        # To do this, spiral the second conductor
-
-        # To spiral second conductor, use the same pseudo diameter to represent the second conductor
-        # and spiral it a distance of a half length of the whole cable around the first conductor
-
-        # Start with spiraling with a 180 degree difference of the current angle that the first conductor was placed at
-        # Try angles on both sides incrementally, because a second conductor placement closer towards the center
-        # of the bundle could potentially minimize the total diamter of the bundle
-
-        # Once the entire cable is placed, draw a pseudo continuous array of circles between the placement coordinates
-        # of the two conductors, to draw out the entirety of the two conductor cable
-        # pass
     # elif cable.two_conductor is False:
     # The radis and angle increments are how much you spiral out from the center
     radius_increment = 0.1  # Define the radius increment
@@ -266,24 +247,8 @@ def find_open_space(bundle, cable):
 
                 # For two conductor cables
                 if not check_overlap(cable, bundle, radius + cable.diameter, angle):
-                    cable.radius = round(radius, 5), round(radius + cable.diameter,5)
+                    cable.radius = round(radius, 5), round(radius + (cable.length/2), 5)
                     cable.angle = angle, angle
-                    # Update bundle diameter to be the outermost point of outermost cable
-                    # cable = Cable(
-                    #     cable.pull_number,
-                    #     cable.stationing_start,
-                    #     cable.stationing_end,
-                    #     cable.cable_size,
-                    #     cable.express,
-                    #     cable.diameter,
-                    #     cable.weight,
-                    #     cable.cross_sectional_area,
-                    #     cable.absolute_distance,
-                    #     cable.two_conductor,
-                    #     cable.radius + cable.diameter,
-                    #     cable.angle
-                    # )
-                    # add_cable_to_bundle(bundle, cable)
                     bundle.bundle_diameter = 2 * (cable.radius[1] + (cable.diameter / 2))
                 return 1
                 # Need to spiral the second conductor by an offset of half the length of the cable

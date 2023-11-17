@@ -16,10 +16,10 @@ dpi = (121, 121)  # DPI to scale size of file, with the aim to not need to zoom 
 # def draw_cable(draw, radius, angle_deg, cable, polar_center):
 def draw_cable(draw, cable):
     # scaling factor determines how big the cables are going to be drawn.
-    scaling_factor = 82         # Scaling factor of 82 for diameter of 6 inches
-    distance_multiplier = 166   # Convert distance to be on the scale of the image
-    text_margin_x = -50         # Cable info text x
-    text_margin_y = -50         # Cable info text y
+    scaling_factor = 82  # Scaling factor of 82 for diameter of 6 inches
+    distance_multiplier = 166  # Convert distance to be on the scale of the image
+    text_margin_x = -50  # Cable info text x
+    text_margin_y = -50  # Cable info text y
     text_color = "white"
     cable_color = "#609CCF"
 
@@ -58,41 +58,46 @@ def draw_cable(draw, cable):
                 center_x = 500 + distance_multiplier * radius * math.cos(math.radians(360 - angle))
                 center_y = 500 + distance_multiplier * radius * math.sin(math.radians(360 - angle))
 
-                # Draw the cable as a filled circle
-                # cable_color = "#003EAB"  # Green
-                cable_radius = cable.diameter * scaling_factor
+                if text_drawn_count < 2:
+                    # Draw the cable as a filled circle
+                    cable_radius = cable.diameter * scaling_factor
 
-                cable_bbox = (
-                    center_x - cable_radius,
-                    center_y - cable_radius,
-                    center_x + cable_radius,
-                    center_y + cable_radius,
-                )
-                draw.ellipse(cable_bbox, fill=cable_color)
+                    cable_bbox = (
+                        center_x - cable_radius,
+                        center_y - cable_radius,
+                        center_x + cable_radius,
+                        center_y + cable_radius,
+                    )
+                    draw.ellipse(cable_bbox, fill=cable_color)
 
-                # Draw a red circle at the center of the cable
-                circle_radius = 1.5
-                circle_color = "red"
-                circle_center = (center_x, center_y)
-                circle_bbox = (
-                    circle_center[0] - circle_radius,
-                    circle_center[1] - circle_radius,
-                    circle_center[0] + circle_radius,
-                    circle_center[1] + circle_radius,
-                )
-                draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
+                    # Draw a red circle at the center of the cable
+                    circle_radius = 1.5
+                    circle_color = "red"
+                    circle_center = (center_x, center_y)
+                    circle_bbox = (
+                        circle_center[0] - circle_radius,
+                        circle_center[1] - circle_radius,
+                        circle_center[0] + circle_radius,
+                        circle_center[1] + circle_radius,
+                    )
+                    draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
 
                 print(f"Text_drawn count: {text_drawn_count} for {radius}")
 
                 text_drawn_count -= 1
 
-                if text_drawn_count == 1:
-                    # Draw 10 circles between the two cables
+                if text_drawn_count is 0:
+                    # Draw 10 circles equally spaced between the two cables
                     for i in range(1, 11):
                         # Calculate the position of the circle between the two cables
                         interp_radius = cable.radius[0] + (cable.radius[1] - cable.radius[0]) * (i / 11.0)
-                        interp_center_x = 500 + distance_multiplier * interp_radius * math.cos(math.radians(360 - angle))
-                        interp_center_y = 500 + distance_multiplier * interp_radius * math.sin(math.radians(360 - angle))
+
+                        # Calculate the angle for the circle
+                        interp_angle_rad = math.radians(360 - angle)
+
+                        # Calculate the polar coordinates for the center of the circle
+                        interp_center_x = 500 + distance_multiplier * interp_radius * math.cos(interp_angle_rad)
+                        interp_center_y = 500 + distance_multiplier * interp_radius * math.sin(interp_angle_rad)
 
                         # Draw the circle
                         interp_circle_bbox = (
@@ -101,18 +106,20 @@ def draw_cable(draw, cable):
                             interp_center_x + cable_radius,
                             interp_center_y + cable_radius,
                         )
+
                         draw.ellipse(interp_circle_bbox, fill=cable_color)
 
-                if text_drawn_count == 0:
-                    print(f"[STATUS] Going to write text of the cable")
+                if text_drawn_count < 1:
+                    # print(f"[STATUS] Going to write text of the cable")
                     # Create a text label with the cable information
-                    text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
-                    text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
+                    text_x = center_x - cable_radius - text_margin_x  # Add x-direction offset
+                    text_y = center_y - cable_radius - text_margin_y  # Add y-direction offset
 
                     text_lines = [
-                        f"P: {cable.pull_number}",
-                        f"S: {cable.cable_size}",
-                        f"R, θ: {radius}, {angle}"
+                        f"Cable {cable.pull_number}",
+                        f"{cable.cable_size}",
+                        # f"R, θ: {radius}, {angle}"
+                        f"{radius}, {angle}"
                     ]
                     for line in text_lines:
                         draw.text((text_x, text_y), line, fill=text_color, font=font)
@@ -152,17 +159,20 @@ def draw_cable(draw, cable):
             draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
 
             # Create a text label with the cable information
-            text_x = center_x - cable_radius - text_margin_x    # Add x-direction offset
-            text_y = center_y - cable_radius - text_margin_y    # Add y-direction offset
+            text_x = center_x - cable_radius - text_margin_x  # Add x-direction offset
+            text_y = center_y - cable_radius - text_margin_y  # Add y-direction offset
 
             text_lines = [
-                f"P: {cable.pull_number}",
-                f"S: {cable.cable_size}",
-                f"R, θ: {radius}, {angle}"
+                f"Cable {cable.pull_number}",
+                f"{cable.cable_size}",
+                # f"R, θ: {radius}, {angle}"
+                f"{radius}, {angle}"
             ]
             for line in text_lines:
                 draw.text((text_x, text_y), line, fill=text_color, font=font)
                 text_y += font_size + 5  # Adjust the vertical spacing
+
+
 
 
 # This function draws everything but the individual cables,
