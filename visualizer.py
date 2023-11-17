@@ -36,7 +36,7 @@ def draw_cable(draw, cable):
     else:
         angles = (cable.angle,)
 
-    print(f"draw_cable function called for cable {cable.pull_number}")
+    # print(f"draw_cable function called for cable {cable.pull_number}")
 
     text_drawn = False
     # workaround to get the text to draw on two conductor cables
@@ -82,7 +82,7 @@ def draw_cable(draw, cable):
                     )
                     draw.ellipse(circle_bbox, fill=circle_color, outline=circle_color)
 
-                print(f"Text_drawn count: {text_drawn_count} for {radius}")
+                # print(f"Text_drawn count: {text_drawn_count} for {radius}")
 
                 text_drawn_count -= 1
 
