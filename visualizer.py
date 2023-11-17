@@ -173,8 +173,6 @@ def draw_cable(draw, cable):
                 text_y += font_size + 5  # Adjust the vertical spacing
 
 
-
-
 # This function draws everything but the individual cables,
 # including the graph and text at the top left
 # This function calls draw_cable()
@@ -183,6 +181,8 @@ def generate_cable_image(bundle):
     #     print(f"\n[STATUS] Running Visualizer on Conduit {Conduit.conduit_number}...")
     if run_messenger_optimization:
         print(f"\n[STATUS] Running Visualizer on Bundle {bundle.bundle_number}...")
+
+
 
     # global first_file_flag
     # first_file_flag = False
@@ -394,5 +394,23 @@ def generate_cable_image(bundle):
             image.save(full_file_path, dpi=dpi)  # Higher resolution
 
 
-# def add_to_draw_queue(cable, radius, angle_deg):
-#     draw_queue.append((radius, angle_deg, cable))
+def draw_marker(draw, radius, angle, polar_graph_center):
+    # Convert the angle from degrees to radians
+    angle_rad = math.radians(360 - angle)
+
+    # Calculate the polar coordinates for the center of the red center
+    center_x = polar_graph_center[0] + radius * math.cos(angle_rad)
+    center_y = polar_graph_center[1] + radius * math.sin(angle_rad)
+
+    # Draw a small red center
+    center_radius = 2  # Adjust the size of the red center
+    draw.ellipse(
+        (
+            center_x - center_radius,
+            center_y - center_radius,
+            center_x + center_radius,
+            center_y + center_radius,
+        ),
+        fill="red",
+        outline="red",
+    )

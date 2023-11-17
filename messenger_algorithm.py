@@ -247,7 +247,7 @@ def find_open_space(bundle, cable):
 
                 # For two conductor cables
                 if not check_overlap(cable, bundle, radius + cable.diameter, angle):
-                    cable.radius = round(radius, 5), round(radius + (cable.length/2), 5)
+                    cable.radius = round(radius, 5), round(radius + (cable.length-cable.width), 5)
                     cable.angle = angle, angle
                     bundle.bundle_diameter = 2 * (cable.radius[1] + (cable.diameter / 2))
                 return 1
