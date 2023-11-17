@@ -20,7 +20,8 @@ def draw_cable(draw, cable):
     distance_multiplier = 166   # Convert distance to be on the scale of the image
     text_margin_x = -50         # Cable info text x
     text_margin_y = -50         # Cable info text y
-    text_color = "black"
+    text_color = "white"
+    cable_color = "#609CCF"
 
     # Set the font size
     font_size = 14
@@ -58,7 +59,7 @@ def draw_cable(draw, cable):
                 center_y = 500 + distance_multiplier * radius * math.sin(math.radians(360 - angle))
 
                 # Draw the cable as a filled circle
-                cable_color = "#20df35"  # Teal
+                # cable_color = "#003EAB"  # Green
                 cable_radius = cable.diameter * scaling_factor
 
                 cable_bbox = (
@@ -85,6 +86,23 @@ def draw_cable(draw, cable):
 
                 text_drawn_count -= 1
 
+                if text_drawn_count == 1:
+                    # Draw 10 circles between the two cables
+                    for i in range(1, 11):
+                        # Calculate the position of the circle between the two cables
+                        interp_radius = cable.radius[0] + (cable.radius[1] - cable.radius[0]) * (i / 11.0)
+                        interp_center_x = 500 + distance_multiplier * interp_radius * math.cos(math.radians(360 - angle))
+                        interp_center_y = 500 + distance_multiplier * interp_radius * math.sin(math.radians(360 - angle))
+
+                        # Draw the circle
+                        interp_circle_bbox = (
+                            interp_center_x - cable_radius,
+                            interp_center_y - cable_radius,
+                            interp_center_x + cable_radius,
+                            interp_center_y + cable_radius,
+                        )
+                        draw.ellipse(interp_circle_bbox, fill=cable_color)
+
                 if text_drawn_count == 0:
                     print(f"[STATUS] Going to write text of the cable")
                     # Create a text label with the cable information
@@ -110,7 +128,7 @@ def draw_cable(draw, cable):
             center_y = 500 + distance_multiplier * radius * math.sin(angle_rad)
 
             # Draw the cable as a filled circle
-            cable_color = "#20df35"  # Teal
+            # cable_color = "#003EAB"
             cable_radius = cable.diameter * scaling_factor
 
             cable_bbox = (
