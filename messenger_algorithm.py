@@ -253,7 +253,7 @@ def find_open_space(bundle, cable):
                 # To start at inner part of bundle (beginning checks will fail)
                 second_conductor_angle_increment = 0
                 while True:
-                    print(f"[STATUS] Trying placement at {(angle-180) + second_conductor_angle_increment}...")
+                    # print(f"[STATUS] Trying placement at {(angle-180) + second_conductor_angle_increment}...")
 
                     overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
                                             (angle-180) + second_conductor_angle_increment)
@@ -291,9 +291,10 @@ def find_open_space(bundle, cable):
                 cable.angle = angle
                 # Update bundle diameter to be the outermost point of outermost cable
                 bundle.bundle_diameter = 2 * (cable.radius + (cable.diameter/2))
-                print(f"\nCable radius coordinate: {cable.radius}, cable radius: {cable.diameter/2}")
-                print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter/2)) * 2}")
-                print(f"[STATUS] Bundle {bundle.bundle_number} has an updated diameter of {bundle.bundle_diameter} inches")
+                print(f"\nCable {cable.pull_number} radius coordinate: {cable.radius}, cable radius: {cable.diameter/2}")
+                # print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter/2)) * 2}")
+                # print(f"[STATUS] Bundle {bundle.bundle_number} has an "
+                #       f"updated diameter of {bundle.bundle_diameter} inches")
                 # add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
                 print(f"[STATUS] Cable {cable.pull_number} was placed at {cable.radius}, {cable.angle}")
                 return 1  # Return that a cable was placed
@@ -314,16 +315,22 @@ def find_open_space(bundle, cable):
             print(f"Failed: Bundle is full. Radius coordinate {radius} + Cable radius {cable.radius} > {max_radius}")
             return 0
 
+
 def check_overlap(cable, bundle, radius, angle):
+
     def calculate_distance(r1, a1, r2, a2):
         x1 = r1 * math.cos(math.radians(a1))
         y1 = r1 * math.sin(math.radians(a1))
         x2 = r2 * math.cos(math.radians(a2))
         y2 = r2 * math.sin(math.radians(a2))
+        # print(f"{math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)}")
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     for existing_cable in bundle.cables:
+        # print(f"\nCable {cable.pull_number} is being compared against Cable {existing_cable.pull_number}")
+
         if existing_cable.two_conductor:
+            # print(f"[STATUS] HIT")
             distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
             if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
                 # Set overlap flag to true

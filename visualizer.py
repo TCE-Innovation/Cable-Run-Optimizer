@@ -20,7 +20,7 @@ def draw_cable(draw, cable):
     distance_multiplier = 166  # Convert distance to be on the scale of the image
     text_margin_x = -50  # Cable info text x
     text_margin_y = -50  # Cable info text y
-    text_color = "white"
+    text_color = "black"
     cable_color = "#609CCF"
 
     # Set the font size
@@ -44,7 +44,7 @@ def draw_cable(draw, cable):
     # be overwritten by subsequent conductor drawings
     text_drawn_count = 3
 
-    for angle in angles:
+    for angle in reversed(angles):
         angle_rad = math.radians(360 - angle)
 
         # Check if the cable is a two-conductor cable
@@ -52,13 +52,14 @@ def draw_cable(draw, cable):
             # For two-conductor cables, draw two circles
             # for radius, angle in zip(cable.radius, cable.angle):
             # print(f"Size of cable.radius: {len(cable.radius)}")
-            for radius in cable.radius:
+            for radius in reversed(cable.radius):
                 # print(f"Radius: {radius}, Angle: {angle}")
                 # Calculate the polar coordinates for the center of the circle
                 center_x = 500 + distance_multiplier * radius * math.cos(math.radians(360 - angle))
                 center_y = 500 + distance_multiplier * radius * math.sin(math.radians(360 - angle))
 
                 if text_drawn_count < 2:
+                # if text_drawn_count == 3: # Render just the first conductor
                     # Draw the cable as a filled circle
                     cable_radius = cable.diameter * scaling_factor
 
@@ -86,28 +87,27 @@ def draw_cable(draw, cable):
 
                 text_drawn_count -= 1
 
-                if text_drawn_count is 0:
-                    # Draw 10 circles equally spaced between the two cables
-                    for i in range(1, 11):
-                        # Calculate the position of the circle between the two cables
-                        interp_radius = cable.radius[0] + (cable.radius[1] - cable.radius[0]) * (i / 11.0)
-
-                        # Calculate the angle for the circle
-                        interp_angle_rad = math.radians(360 - angle)
-
-                        # Calculate the polar coordinates for the center of the circle
-                        interp_center_x = 500 + distance_multiplier * interp_radius * math.cos(interp_angle_rad)
-                        interp_center_y = 500 + distance_multiplier * interp_radius * math.sin(interp_angle_rad)
-
-                        # Draw the circle
-                        interp_circle_bbox = (
-                            interp_center_x - cable_radius,
-                            interp_center_y - cable_radius,
-                            interp_center_x + cable_radius,
-                            interp_center_y + cable_radius,
-                        )
-
-                        draw.ellipse(interp_circle_bbox, fill=cable_color)
+                # if text_drawn_count is 0:
+                #     # Draw 10 circles equally spaced between the two cables
+                #     for i in range(1, 11):
+                #         # Calculate the position of the circle between the two cables
+                #         interp_radius = cable.radius[0] + (cable.radius[1] - cable.radius[0]) * (i / 11.0)
+                #
+                #         # Calculate the angle for the circle
+                #         interp_angle_rad = math.radians(360 - angle)
+                #
+                #         # Calculate the polar coordinates for the center of the circle
+                #         interp_center_x = 500 + distance_multiplier * interp_radius * math.cos(interp_angle_rad)
+                #         interp_center_y = 500 + distance_multiplier * interp_radius * math.sin(interp_angle_rad)
+                #
+                #         # Draw the circle
+                #         interp_circle_bbox = (
+                #             interp_center_x - cable_radius,
+                #             interp_center_y - cable_radius,
+                #             interp_center_x + cable_radius,
+                #             interp_center_y + cable_radius,
+                #         )
+                #         draw.ellipse(interp_circle_bbox, fill=cable_color)
 
                 if text_drawn_count < 1:
                     # print(f"[STATUS] Going to write text of the cable")
