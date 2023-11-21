@@ -20,7 +20,7 @@ class CableParameters:
 class Cable:
     def __init__(self, pull_number, stationing_start: int, stationing_end: int,
                  cable_size, express, diameter, weight, cross_sectional_area, absolute_distance,
-                 two_conductor: bool, length=None, width=None, radius=None, angle=None):
+                 two_conductor: bool, length=None, width=None, radius=None, angle=None, x=None, y=None):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -35,7 +35,10 @@ class Cable:
         self.angle = angle      # if angle is not None else 0
         self.length = length
         self.width = width
-
+        # self.x = x
+        # self.y = y
+        self.x = radius * math.cos(math.radians(angle)) if self.angle is not None and self.radius is not None else 404
+        self.y = radius * math.sin(math.radians(angle)) if self.angle is not None and self.radius is not None else 404
 
 # Class to create conduits
 class Conduit:
