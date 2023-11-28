@@ -131,6 +131,9 @@ def draw_cable(draw, cable):
         else:
             # For single conductor cables, draw a single circle
             radius, angle = cable.radius, cable.angle
+
+            # Converting two things. cartesian to polar coords to get x,y relative,
+            # to then get x,y absolute (coordinates on scale of pdf)
             center_x = 500 + distance_multiplier * radius * math.cos(angle_rad)
             center_y = 500 + distance_multiplier * radius * math.sin(angle_rad)
 

@@ -116,13 +116,13 @@ if local_code_flag:
         print(f"[PASS] Cable pull sheet obtained.\n")
         print(len(cable_list))
         # Print out the cables at the end of the function
-        for cable in cable_list:
-            print(f"Cable: Pull #{cable.pull_number}, Size: {cable.cable_size}, Express: {cable.express}, "
-                  f"Stationing Start: {cable.stationing_start}, Stationing End: {cable.stationing_end}, "
-                  f"Absolute Distance: {cable.absolute_distance},\n Diameter: {cable.diameter}, "
-                  f"Weight: {cable.weight}, Cross-sectional Area: {cable.cross_sectional_area}, "
-                  f"Two Conductor: {cable.two_conductor}, Length: {cable.length}, Width: {cable.width}, "
-                  f"Radius: {cable.radius}, Angle: {cable.angle}")
+        # for cable in cable_list:
+        #     print(f"Cable: Pull #{cable.pull_number}, Size: {cable.cable_size}, Express: {cable.express}, "
+        #           f"Stationing Start: {cable.stationing_start}, Stationing End: {cable.stationing_end}, "
+        #           f"Absolute Distance: {cable.absolute_distance},\n Diameter: {cable.diameter}, "
+        #           f"Weight: {cable.weight}, Cross-sectional Area: {cable.cross_sectional_area}, "
+        #           f"Two Conductor: {cable.two_conductor}, Length: {cable.length}, Width: {cable.width}, "
+        #           f"Radius: {cable.radius}, Angle: {cable.angle}")
 
         # Return the cable list if needed for further processing
         return cable_list
@@ -326,10 +326,10 @@ def parse_cable_sizes_excel(sheet):
 
             # Setting the diameter of the cable to be one conductor + jacket surrounding it
             cable = CableParameters(size, width, weight, cross_sectional_area, True, length, width)
-            print(
-                f"Created cable size: {cable.size}, Diameter: {cable.diameter}, Weight: {cable.pounds_per_foot}, "
-                f"Cross-sectional Area: {cable.cross_sectional_area}, \nIs 2C: {cable.two_conductor} "
-                f"Length: {cable.length}, Width: {cable.width}\n")
+            # print(
+            #     f"Created cable size: {cable.size}, Diameter: {cable.diameter}, Weight: {cable.pounds_per_foot}, "
+            #     f"Cross-sectional Area: {cable.cross_sectional_area}, \nIs 2C: {cable.two_conductor} "
+            #     f"Length: {cable.length}, Width: {cable.width}\n")
 
             # Create a CableParameters object with diameter set to "None"
             # cable = CableParameters(size, None, weight, cross_sectional_area, True)

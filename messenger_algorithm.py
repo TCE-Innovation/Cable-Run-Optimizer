@@ -104,7 +104,7 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
 
     if server_code_flag:
         logging.info("End of optimize_for_messenger function.")
-        logging.info("length of cable_list: %s", len(cable_list))
+        # logging.info("length of cable_list: %s", len(cable_list))
 
     return bundles
 
@@ -254,31 +254,31 @@ def find_open_space(bundle, cable):
                 place_second_conductor(cable, bundle, radius, angle)
 
 
-                # second_angle = None
-                # # To start at inner part of bundle (beginning checks will fail)
-                # second_conductor_angle_increment = 0
-                # while True:
-                #     # print(f"[STATUS] Trying placement at {(angle-180) + second_conductor_angle_increment}...")
-                #
-                #     overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
-                #                             (angle-180) + second_conductor_angle_increment)
-                #     if not overlap:
-                #         second_angle = (angle-180) + second_conductor_angle_increment
-                #         break
-                #
-                #     overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
-                #                             (angle-180) - second_conductor_angle_increment)
-                #     if not overlap:
-                #         second_angle = (angle-180) - second_conductor_angle_increment
-                #         break
-                #
-                #     # Logic to continue spiraling
-                #     if overlap and second_conductor_angle_increment < 180:
-                #         second_conductor_angle_increment += 5
-                #     # Full spiral done, second conductor cannot be placed, so cable cannot be placed
-                #     elif overlap and second_conductor_angle_increment == 180:
-                #         break
-                # second_conductor_angle_increment = 5
+                second_angle = None
+                # To start at inner part of bundle (beginning checks will fail)
+                second_conductor_angle_increment = 0
+                while True:
+                    # print(f"[STATUS] Trying placement at {(angle-180) + second_conductor_angle_increment}...")
+
+                    overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
+                                            (angle-180) + second_conductor_angle_increment)
+                    if not overlap:
+                        second_angle = (angle-180) + second_conductor_angle_increment
+                        break
+
+                    overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
+                                            (angle-180) - second_conductor_angle_increment)
+                    if not overlap:
+                        second_angle = (angle-180) - second_conductor_angle_increment
+                        break
+
+                    # Logic to continue spiraling
+                    if overlap and second_conductor_angle_increment < 180:
+                        second_conductor_angle_increment += 5
+                    # Full spiral done, second conductor cannot be placed, so cable cannot be placed
+                    elif overlap and second_conductor_angle_increment == 180:
+                        break
+                second_conductor_angle_increment = 5
 
                 if not overlap:
                     # Cable placed, continue onto next cable
@@ -334,33 +334,135 @@ def check_overlap(cable, bundle, radius, angle):
     for existing_cable in bundle.cables:
         # print(f"\nCable {cable.pull_number} is being compared against Cable {existing_cable.pull_number}")
 
-        if existing_cable.two_conductor:
-            # print(f"[STATUS] HIT")
-            distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
-            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                # Set overlap flag to true
-                return True
+        # if existing_cable.two_conductor:
+        #     # print(f"[STATUS] HIT")
+        #     distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
+        #     if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+        #         # Set overlap flag to true
+        #         return True
+        #
+        #     distance = calculate_distance(radius, angle, existing_cable.radius[1], existing_cable.angle[1])
+        #     if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+        #         # Set overlap flag to true
+        #         return True
+        # else:
 
-            distance = calculate_distance(radius, angle, existing_cable.radius[1], existing_cable.angle[1])
-            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                # Set overlap flag to true
-                return True
-        else:
-            # Calculate distance between cables
-            distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+        # Calculate distance between cables
+        distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
 
-            # If the cables are overlapping
-            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                # Set overlap flag to true
-                return True
+        # If the cables are overlapping
+        if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+            # Set overlap flag to true
+            return True
 
     # If no overlap detected
     return False
 
 
 def place_second_conductor(cable, bundle, radius, angle):
-    cable.radius = radius
+    # Distance multiplier for converting between absolute and relative coordinate system
+    distance_multiplier = 166
+
+    # Relative radius, angle
+    cable.radius = round(radius, 5)
     cable.angle = angle
-    cable.x = radius * math.cos(math.radians(angle))
-    cable.y = radius * math.sin(math.radians(angle))
-    print(f"Cable x coordinate: {cable.x}\nCable y coordinate: {cable.y}")
+
+    # Getting relative cartesian coordinates
+    cable.x = round(radius * math.cos(math.radians(angle)), 5)
+    cable.y = round(radius * math.sin(math.radians(angle)), 5)
+
+    # Calculate x and y offset of the first conductor
+    # First part of equation is the conversion to absolute (pdf) coordinates
+    # For example, if a cable was placed at relative x,y of 1,0
+    # then the absolute coordinates would be 666,500
+    # x_offset would be 166, y_offset would be 0
+    # x_offset_absolute = (500 + 166 * cable.x) - 500
+    # y_offset_absolute = (500 + 166 * cable.y) - 500
+    # x_offset_relative = None
+    # y_offset_relative = None
+
+    # Relative angle, have it facing inward to start, based on the absolute angle
+    # Realistically there won't be clearance on the inner part,
+    # But this function will incrementally move out on both directions
+    # to find the next open space for the second conductor
+    # angle = cable.angle - 180
+    angle = cable.angle     # Start with angle that will definitely work for testing
+
+    # Spacing of the second conductor away from the first conductor
+    # Relative radius, relative to the first conductor
+    # radius = radius + (cable.length-cable.width)
+    radius = (cable.length-cable.width)
+
+    # Overlap flag that will be set/reset by the check_overlap function
+    overlap = True
+    angle_increment = 0
+
+    # While there isn't a second conductor placement
+    while overlap is True:
+
+        # Initialize to false; second conductor is good until it conflicts with another cable
+        overlap = False
+
+        # Convert the radius, angle of second conductor x and y,
+        # where x and y will be relative to 0,0 aka the other placed cables
+        x = radius * math.cos(math.radians(angle + angle_increment)) + cable.x    # Factor in x offset
+        y = radius * math.sin(math.radians(angle + angle_increment)) + cable.y    # Factor in y offset
+
+        for existing_cable in bundle.cables:
+            # Distance between second conductor and already placed cable
+            distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # The second conductor overlaps with a previously placed cable
+                overlap = True
+                break
+
+        # Conductor failed to place at angle + angle_increment, try at angle - angle_increment
+        if overlap is True:
+            # Initialize to false; second conductor is good until it conflicts with another cable
+            overlap = False
+
+            # Convert the radius, angle of second conductor x and y,
+            # where x and y will be relative to 0,0 aka the other placed cables
+            x = radius * math.cos(math.radians(angle - angle_increment)) + cable.x  # Factor in x offset
+            y = radius * math.sin(math.radians(angle - angle_increment)) + cable.y  # Factor in y offset
+
+            for existing_cable in bundle.cables:
+                # Distance between second conductor and already placed cable
+                distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
+                # If the cables are overlapping
+                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    # The second conductor overlaps with a previously placed cable
+                    overlap = True
+                    break
+
+        # If the second conductor placement would overlap with a cable already placed in the bundle
+        if overlap is True:
+            # Add 5 degrees to angle increment
+            angle_increment += 5
+        # If the placement of the second conductor would not conflict with previously placed cables
+        elif overlap is False:
+            # Set the radius,angle pairs for the two conductors of the cables,
+            # adding the new radius and angle
+            cable.angle = cable.angle, cable.angle + angle_increment
+            cable.radius = cable.radius, cable.length-cable.width
+
+
+
+
+
+
+    # Need to check if the clearance at radius, angle is valid
+    
+
+    # relative_x = round(cable.x, 5)
+    relative_x = 1
+    relative_y = round(cable. y, 5)
+
+    absolute_x = 500 + distance_multiplier * relative_x
+    absolute_y = 500 + (distance_multiplier * relative_y)
+
+    print(f"[STATUS] Absolute coordinates: {absolute_x}, {absolute_y}")
+
+    # relative_center_x =
+    # print(f"[STATUS] Cable x coordinate: {cable.x}\nCable y coordinate: {cable.y}")
