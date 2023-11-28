@@ -334,36 +334,42 @@ def check_overlap(cable, bundle, radius, angle):
     for existing_cable in bundle.cables:
         # print(f"\nCable {cable.pull_number} is being compared against Cable {existing_cable.pull_number}")
 
-        # if existing_cable.two_conductor:
-        #     # print(f"[STATUS] HIT")
-        #     distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
-        #     if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-        #         # Set overlap flag to true
-        #         return True
-        #
-        #     distance = calculate_distance(radius, angle, existing_cable.radius[1], existing_cable.angle[1])
-        #     if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-        #         # Set overlap flag to true
-        #         return True
-        # else:
+        if existing_cable.two_conductor:
+            # Calculate distance between cables
+            distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
 
-        # Calculate distance between cables
-        distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # Set overlap flag to true
+                return True
 
-        # If the cables are overlapping
-        if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-            # Set overlap flag to true
-            return True
+            # Calculate distance between cables
+            distance = calculate_distance(radius, angle, existing_cable.radius[1], existing_cable.angle[1])
+
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # Set overlap flag to true
+                return True
+        else:
+            # Calculate distance between cables
+            distance = calculate_distance(radius, angle, existing_cable.radius, existing_cable.angle)
+
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # Set overlap flag to true
+                return True
 
     # If no overlap detected
     return False
 
 
 def place_second_conductor(cable, bundle, radius, angle):
+    print(f"[STATUS] Function place_second_conductor called for Cable {cable.pull_number}")
+
     # Distance multiplier for converting between absolute and relative coordinate system
     distance_multiplier = 166
 
-    # Relative radius, angle
+    # Absolute radius, angle
     cable.radius = round(radius, 5)
     cable.angle = angle
 
@@ -385,8 +391,8 @@ def place_second_conductor(cable, bundle, radius, angle):
     # Realistically there won't be clearance on the inner part,
     # But this function will incrementally move out on both directions
     # to find the next open space for the second conductor
-    # angle = cable.angle - 180
-    angle = cable.angle     # Start with angle that will definitely work for testing
+    angle = cable.angle - 180
+    # angle = cable.angle     # Start with angle that will definitely work for testing
 
     # Spacing of the second conductor away from the first conductor
     # Relative radius, relative to the first conductor
