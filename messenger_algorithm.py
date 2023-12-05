@@ -406,7 +406,7 @@ def place_second_conductor(cable, bundle, radius, angle):
     # But this function will incrementally move out on both directions
     # to find the next open space for the second conductor
     print(f"[STATUS] First conductor angle is {angle}, setting start angle to {angle + 180}")
-    angle = cable.angle + 90    # start at 180
+    angle = cable.angle + 180    # start at 180
     # angle = cable.angle     # Start with angle that will definitely work for testing
 
     # Spacing of the second conductor away from the first conductor
@@ -437,21 +437,60 @@ def place_second_conductor(cable, bundle, radius, angle):
         angle_convert = round(math.degrees(math.atan2(y, x)), 4)
 
         for existing_cable in bundle.cables:
-            # Distance between second conductor and already placed cable
-            distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
-            print(f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x**2 + y**2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
-                  f"will work for placement against Cable {existing_cable.pull_number}...")
-            print(f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable. y}")
+            if existing_cable.two_conductor is False:
+                # Distance between second conductor and already placed cable
+                distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
+                print(f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x**2 + y**2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                      f"will work for placement against Cable {existing_cable.pull_number}...")
+                print(f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable. y}")
 
-            # If the cables are overlapping
-            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                # The second conductor overlaps with a previously placed cable
-                print(f"[STATUS] Cable placement at {x}, {y} failed\n"
-                      f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
-                overlap = True
-                break
-            else:
-                print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+                # If the cables are overlapping
+                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    # The second conductor overlaps with a previously placed cable
+                    print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                          f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                    overlap = True
+                    break
+                else:
+                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+            elif existing_cable.two_conductor is True:
+                #  FIRST CONDUCTOR
+                # Distance between second conductor and already placed cable
+                distance = math.sqrt((x - existing_cable.x[0]) ** 2 + (y - existing_cable.y[0]) ** 2)
+                print(
+                    f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                    f"will work for placement against Cable {existing_cable.pull_number}...")
+                print(
+                    f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
+
+                # If the cables are overlapping
+                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    # The second conductor overlaps with a previously placed cable
+                    print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                          f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                    overlap = True
+                    break
+                else:
+                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+
+                # SECOND CONDUCTOR
+                # Distance between second conductor and already placed cable
+                distance = math.sqrt((x - existing_cable.x[1]) ** 2 + (y - existing_cable.y[1]) ** 2)
+                print(
+                    f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                    f"will work for placement against Cable {existing_cable.pull_number}...")
+                print(
+                    f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
+
+                # If the cables are overlapping
+                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    # The second conductor overlaps with a previously placed cable
+                    print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                          f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                    overlap = True
+                    break
+                else:
+                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
 
         # Conductor failed to place at angle + angle_increment, try at angle - angle_increment
         if overlap is True:
@@ -464,22 +503,59 @@ def place_second_conductor(cable, bundle, radius, angle):
             y = round(radius * math.sin(math.radians(angle - angle_increment)) + cable.y, 8)  # Factor in y offset
 
             for existing_cable in bundle.cables:
-                # Distance between second conductor and already placed cable
-                distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
-                print(
-                    f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
-                    f"will work for placement against Cable {existing_cable.pull_number}...")
-                print(
-                    f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
-                # If the cables are overlapping
-                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
-                    # The second conductor overlaps with a previously placed cable
-                    print(f"[STATUS] Cable placement at {x}, {y} failed\n"
-                          f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
-                    overlap = True
-                    break
-                else:
-                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+                if existing_cable.two_conductor is False:
+                    # Distance between second conductor and already placed cable
+                    distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
+                    print(
+                        f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                        f"will work for placement against Cable {existing_cable.pull_number}...")
+                    print(
+                        f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
+                    # If the cables are overlapping
+                    if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                        # The second conductor overlaps with a previously placed cable
+                        print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                              f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                        overlap = True
+                        break
+                    else:
+                        print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+                elif existing_cable.two_conductor is True:
+                    # FIRST CONDUCTOR
+                    # Distance between second conductor and already placed cable
+                    distance = math.sqrt((x - existing_cable.x[0]) ** 2 + (y - existing_cable.y[0]) ** 2)
+                    print(
+                        f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                        f"will work for placement against Cable {existing_cable.pull_number}...")
+                    print(
+                        f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
+                    # If the cables are overlapping
+                    if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                        # The second conductor overlaps with a previously placed cable
+                        print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                              f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                        overlap = True
+                        break
+                    else:
+                        print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+
+                    # SECOND CONDUCTOR
+                    # Distance between second conductor and already placed cable
+                    distance = math.sqrt((x - existing_cable.x[1]) ** 2 + (y - existing_cable.y[1]) ** 2)
+                    print(
+                        f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                        f"will work for placement against Cable {existing_cable.pull_number}...")
+                    print(
+                        f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
+                    # If the cables are overlapping
+                    if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                        # The second conductor overlaps with a previously placed cable
+                        print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                              f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                        overlap = True
+                        break
+                    else:
+                        print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
 
         # If the second conductor placement would overlap with a cable already placed in the bundle
         if overlap is True:

@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 import math
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import numpy as np  # Add this import for interpolation
 
 from cable_classes import *
 from settings import *
@@ -24,7 +25,7 @@ def draw_cable(draw, cable, radius, angle):
     distance_multiplier = 166   # Convert distance to be on the scale of the image
     text_margin_x = -50         # Cable info text x
     text_margin_y = -50         # Cable info text y
-    text_color = "black"
+    text_color = "white"
 
     # Set the font size
     font_size = 14
@@ -58,7 +59,7 @@ def draw_cable(draw, cable, radius, angle):
     # center_y = 500
 
     # Draw the cable as a filled circle
-    cable_color = "#20df35"  # Teal
+    cable_color = "#609CCF"  # Teal
     cable_radius = cable.diameter * scaling_factor
 
     cable_bbox = (
@@ -94,11 +95,13 @@ def draw_cable(draw, cable, radius, angle):
         # f"D: {cable.diameter} inches",
         # f"W: {cable.weight}",
         # f"A: {cable.cross_sectional_area}",
-        f"R, θ: {radius}, {angle}"
+        f" {round(radius, 2)}, {round(angle, 2)}"
     ]
     for line in text_lines:
         draw.text((text_x, text_y), line, fill=text_color, font=font)
         text_y += font_size + 5  # Adjust the vertical spacing
+
+
 
 # This function draws everything but the individual cables,
 # including the graph and text at the top left
@@ -108,8 +111,6 @@ def generate_cable_image(bundle):
     #     print(f"\n[STATUS] Running Visualizer on Conduit {Conduit.conduit_number}...")
     if run_messenger_optimization:
         print(f"\n[STATUS] Running Visualizer on Bundle {bundle.bundle_number}...")
-
-
 
     # global first_file_flag
     # first_file_flag = False
@@ -186,14 +187,24 @@ def generate_cable_image(bundle):
     for cable in bundle.cables:
         # draw_cable(draw, cable.radius * 166, cable.angle, cable)
         # print(f"generate_cable_image call: about to process cable {cable.pull_number}")
-        if cable.two_conductor:
-            draw_cable(draw, cable, cable.radius[0], cable.angle[0])
-        else:
+        if cable.two_conductor is False:
             draw_cable(draw, cable, cable.radius, cable.angle)
-        if cable.two_conductor:
+        elif cable.two_conductor is True:
+            draw_cable(draw, cable, cable.radius[0], cable.angle[0])
             # Repeat to draw extra conductor
             draw_cable(draw, cable, cable.radius[1], cable.angle[1])
 
+            num_intermediate_cables = 10
+
+            # Calculate the step size for equally spaced cables
+            radius_step = (cable.radius[1] - cable.radius[0]) / (num_intermediate_cables + 1)
+            angle_step = (cable.angle[1] - cable.angle[0]) / (num_intermediate_cables + 1)
+
+            # Draw 10 equally spaced cables between the start and end points
+            for i in range(1, num_intermediate_cables + 1):
+                intermediate_radius = cable.radius[0] + i * radius_step
+                intermediate_angle = cable.angle[0] + i * angle_step
+                draw_cable(draw, cable, intermediate_radius, intermediate_angle)
 
     # DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
 
