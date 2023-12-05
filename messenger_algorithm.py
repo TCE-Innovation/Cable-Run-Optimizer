@@ -50,6 +50,7 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
         express_cables.sort(key=lambda cable: (
         int(cable.stationing_end.replace("+", "")) - int(cable.stationing_start.replace("+", "")),
         -cable.cross_sectional_area), reverse=True)
+
         local_cables.sort(key=lambda cable: (
         int(cable.stationing_end.replace("+", "")) - int(cable.stationing_start.replace("+", "")),
         -cable.cross_sectional_area), reverse=True)
@@ -103,7 +104,7 @@ def optimize_for_messenger(stationing_values_numeric, stationing_text_pairs, cab
 
     if server_code_flag:
         logging.info("End of optimize_for_messenger function.")
-        logging.info("length of cable_list: %s", len(cable_list))
+        # logging.info("length of cable_list: %s", len(cable_list))
 
     return bundles
 
@@ -127,6 +128,17 @@ def add_cable_to_bundle(bundle, cable):
     # print(f"[STATUS] Adding Cable {cable.pull_number} ({cable.cable_size}) to Bundle {bundle.bundle_number}...")
     bundle.add_cable(cable)            # Add cable to bundle
     bundle.calculate_bundle_diameter_and_weight()    # Update total diameter and weight
+
+    if cable.two_conductor is False:
+        cable.x = cable.radius * math.cos(math.radians(cable.angle))
+        cable.y = cable.radius * math.sin(math.radians(cable.angle))
+    elif cable.two_conductor is True:
+        print("PRINT PRINT PRINT PRINT")
+        print(cable.angle[1])
+        print(cable.angle[0])
+        cable.x = (cable.radius[0] * math.cos(math.radians(cable.angle[0])), cable.radius[1] * math.cos(math.radians(cable.angle[1])))
+        cable.y = (cable.radius[0] * math.sin(math.radians(cable.angle[0])), cable.radius[1] * math.sin(math.radians(cable.angle[1])))
+
 
     # placed_cables.append(cable)         # Add cable to list of placed cables
 
@@ -249,39 +261,45 @@ def find_open_space(bundle, cable):
             if cable.two_conductor is True:
                 print(f"[STATUS] Placement found for first conductor. Coordinates: {round(radius, 2)}, {angle}"
                       f"\n          Finding placement for second conductor...")
-                second_angle = None
-                # To start at inner part of bundle (beginning checks will fail)
-                second_conductor_angle_increment = 0
-                while True:
-                    print(f"[STATUS] Trying placement at {(angle-180) + second_conductor_angle_increment}...")
 
-                    overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
-                                            (angle-180) + second_conductor_angle_increment)
-                    if not overlap:
-                        second_angle = (angle-180) + second_conductor_angle_increment
-                        break
+                place_second_conductor(cable, bundle, radius, angle)
+                # Need to add logic where is second conductor placement fails, look for new first conductor placement
 
-                    overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
-                                            (angle-180) - second_conductor_angle_increment)
-                    if not overlap:
-                        second_angle = (angle-180) - second_conductor_angle_increment
-                        break
 
-                    # Logic to continue spiraling
-                    if overlap and second_conductor_angle_increment < 180:
-                        second_conductor_angle_increment += 5
-                    # Full spiral done, second conductor cannot be placed, so cable cannot be placed
-                    elif overlap and second_conductor_angle_increment == 180:
-                        break
-                second_conductor_angle_increment = 5
+                return 1
+                # second_angle = None
+                # # To start at inner part of bundle (beginning checks will fail)
+                # second_conductor_angle_increment = 0
+                # while True:
+                #     # print(f"[STATUS] Trying placement at {(angle-180) + second_conductor_angle_increment}...")
+                #
+                #     overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
+                #                             (angle-180) + second_conductor_angle_increment)
+                #     if not overlap:
+                #         second_angle = (angle-180) + second_conductor_angle_increment
+                #         break
+                #
+                #     overlap = check_overlap(cable, bundle, radius + (cable.length-cable.width),
+                #                             (angle-180) - second_conductor_angle_increment)
+                #     if not overlap:
+                #         second_angle = (angle-180) - second_conductor_angle_increment
+                #         break
+                #
+                #     # Logic to continue spiraling
+                #     if overlap and second_conductor_angle_increment < 180:
+                #         second_conductor_angle_increment += 5
+                #     # Full spiral done, second conductor cannot be placed, so cable cannot be placed
+                #     elif overlap and second_conductor_angle_increment == 180:
+                #         break
+                # second_conductor_angle_increment = 5
 
-                if not overlap:
-                    # Cable placed, continue onto next cable
-                    cable.radius = round(radius, 5), round(radius + (cable.length-cable.width), 5)
-                    cable.angle = angle, second_angle
-                    print(f"Angles: {angle}, {second_angle}")
-                    return 1
-                # Else continue within loop to find another placement for cable
+                # if not overlap:
+                #     # Cable placed, continue onto next cable
+                #     cable.radius = round(radius, 5), round(radius + (cable.length-cable.width), 5)
+                #     cable.angle = angle, second_angle
+                #     print(f"Angles: {angle}, {second_angle}")
+                #     return 1
+                # # Else continue within loop to find another placement for cable
 
             # Otherwise, whole cable was already placed, proceed updating coordinates for cable
             elif cable.two_conductor is False:
@@ -291,9 +309,10 @@ def find_open_space(bundle, cable):
                 cable.angle = angle
                 # Update bundle diameter to be the outermost point of outermost cable
                 bundle.bundle_diameter = 2 * (cable.radius + (cable.diameter/2))
-                print(f"\nCable radius coordinate: {cable.radius}, cable radius: {cable.diameter/2}")
-                print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter/2)) * 2}")
-                print(f"[STATUS] Bundle {bundle.bundle_number} has an updated diameter of {bundle.bundle_diameter} inches")
+                print(f"\nCable {cable.pull_number} radius coordinate: {cable.radius}, cable radius: {cable.diameter/2}")
+                # print(f"Adding up cable.radius + (cable.diameter/2): {(cable.radius + (cable.diameter/2)) * 2}")
+                # print(f"[STATUS] Bundle {bundle.bundle_number} has an "
+                #       f"updated diameter of {bundle.bundle_diameter} inches")
                 # add_to_draw_queue(new_cable, (6/conduit_size) * radius, angle)
                 print(f"[STATUS] Cable {cable.pull_number} was placed at {cable.radius}, {cable.angle}")
                 return 1  # Return that a cable was placed
@@ -314,22 +333,33 @@ def find_open_space(bundle, cable):
             print(f"Failed: Bundle is full. Radius coordinate {radius} + Cable radius {cable.radius} > {max_radius}")
             return 0
 
+
 def check_overlap(cable, bundle, radius, angle):
+
     def calculate_distance(r1, a1, r2, a2):
         x1 = r1 * math.cos(math.radians(a1))
         y1 = r1 * math.sin(math.radians(a1))
         x2 = r2 * math.cos(math.radians(a2))
         y2 = r2 * math.sin(math.radians(a2))
+        # print(f"{math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)}")
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     for existing_cable in bundle.cables:
+        # print(f"\nCable {cable.pull_number} is being compared against Cable {existing_cable.pull_number}")
+
         if existing_cable.two_conductor:
+            # Calculate distance between cables
             distance = calculate_distance(radius, angle, existing_cable.radius[0], existing_cable.angle[0])
+
+            # If the cables are overlapping
             if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
                 # Set overlap flag to true
                 return True
 
+            # Calculate distance between cables
             distance = calculate_distance(radius, angle, existing_cable.radius[1], existing_cable.angle[1])
+
+            # If the cables are overlapping
             if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
                 # Set overlap flag to true
                 return True
@@ -344,3 +374,127 @@ def check_overlap(cable, bundle, radius, angle):
 
     # If no overlap detected
     return False
+
+
+def place_second_conductor(cable, bundle, radius, angle):
+    print(f"\n---------------------------------------------------------------")
+    print(f"[STATUS] Function place_second_conductor called for Cable {cable.pull_number}")
+
+    # Distance multiplier for converting between absolute and relative coordinate system
+    distance_multiplier = 166
+
+    # Absolute radius, angle
+    cable.radius = round(radius, 5)
+    cable.angle = angle
+
+    # Getting relative cartesian coordinates
+    cable.x = round(radius * math.cos(math.radians(angle)), 5)
+    cable.y = round(radius * math.sin(math.radians(angle)), 5)
+
+    # Calculate x and y offset of the first conductor
+    # First part of equation is the conversion to absolute (pdf) coordinates
+    # For example, if a cable was placed at relative x,y of 1,0
+    # then the absolute coordinates would be 666,500
+    # x_offset would be 166, y_offset would be 0
+    # x_offset_absolute = (500 + 166 * cable.x) - 500
+    # y_offset_absolute = (500 + 166 * cable.y) - 500
+    # x_offset_relative = None
+    # y_offset_relative = None
+
+    # Relative angle, have it facing inward to start, based on the absolute angle
+    # Realistically there won't be clearance on the inner part,
+    # But this function will incrementally move out on both directions
+    # to find the next open space for the second conductor
+    print(f"[STATUS] First conductor angle is {angle}, setting start angle to {angle + 180}")
+    angle = cable.angle + 90    # start at 180
+    # angle = cable.angle     # Start with angle that will definitely work for testing
+
+    # Spacing of the second conductor away from the first conductor
+    # Relative radius, relative to the first conductor
+    # radius = radius + (cable.length-cable.width)
+    radius = round((cable.length-cable.width), 4)
+
+    # Overlap flag that will be set/reset by the check_overlap function
+    overlap = True
+    angle_increment = 0
+
+    # While there isn't a second conductor placement
+    while overlap is True:
+
+        # Initialize to false; second conductor is good until it conflicts with another cable
+        overlap = False
+
+        # Convert the radius, angle of second conductor x and y,
+        # where x and y will be relative to 0,0 aka the other placed cables
+        x = round(radius * math.cos(math.radians(angle + angle_increment)) + cable.x, 5)    # Factor in x offset
+        y = round(radius * math.sin(math.radians(angle + angle_increment)) + cable.y, 5)    # Factor in y offset
+        print(f"R: {round(math.sqrt(x ** 2 + y ** 2), 2)}, θ: {round(math.degrees(math.atan2(y, x)), 4)}")
+
+        r = math.sqrt(x ** 2 + y ** 2)
+        theta = math.degrees(math.atan2(y, x))
+
+        radius_convert = round(math.sqrt(x**2 + y**2), 4)
+        angle_convert = round(math.degrees(math.atan2(y, x)), 4)
+
+        for existing_cable in bundle.cables:
+            # Distance between second conductor and already placed cable
+            distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
+            print(f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x**2 + y**2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                  f"will work for placement against Cable {existing_cable.pull_number}...")
+            print(f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable. y}")
+
+            # If the cables are overlapping
+            if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                # The second conductor overlaps with a previously placed cable
+                print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                      f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                overlap = True
+                break
+            else:
+                print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+
+        # Conductor failed to place at angle + angle_increment, try at angle - angle_increment
+        if overlap is True:
+            # Initialize to false; second conductor is good until it conflicts with another cable
+            overlap = False
+
+            # Convert the radius, angle of second conductor x and y,
+            # where x and y will be relative to 0,0 aka the other placed cables
+            x = round(radius * math.cos(math.radians(angle - angle_increment)) + cable.x, 8)  # Factor in x offset
+            y = round(radius * math.sin(math.radians(angle - angle_increment)) + cable.y, 8)  # Factor in y offset
+
+            for existing_cable in bundle.cables:
+                # Distance between second conductor and already placed cable
+                distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
+                print(
+                    f"[STATUS] Testing if {x}, {y} \n            (Polar: {round(math.sqrt(x ** 2 + y ** 2), 4)}, {round(math.degrees(math.atan2(y, x)), 4)}) "
+                    f"will work for placement against Cable {existing_cable.pull_number}...")
+                print(
+                    f"[STATUS] Cable {existing_cable.pull_number} has coordinates {existing_cable.x}, {existing_cable.y}")
+                # If the cables are overlapping
+                if distance < ((cable.diameter / 2) + (existing_cable.diameter / 2)):
+                    # The second conductor overlaps with a previously placed cable
+                    print(f"[STATUS] Cable placement at {x}, {y} failed\n"
+                          f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
+                    overlap = True
+                    break
+                else:
+                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+
+        # If the second conductor placement would overlap with a cable already placed in the bundle
+        if overlap is True:
+            # Add 5 degrees to angle increment
+            angle_increment += 15
+        # If the placement of the second conductor would not conflict with previously placed cables
+        elif overlap is False:
+            # Set the radius,angle pairs for the two conductors of the cables,
+            # adding the new radius and angle
+            cable.radius = cable.radius, round(math.sqrt(x**2 + y**2), 4)
+
+            second_conductor_angle = round(math.degrees(math.atan2(y, x)), 4)
+            if x < 0:
+                second_conductor_angle += 180
+
+            cable.angle = cable.angle, second_conductor_angle
+
+    print(f"---------------------------------------------------------------\n")

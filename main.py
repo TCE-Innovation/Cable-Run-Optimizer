@@ -1,6 +1,6 @@
 from settings import *
 
-# Running code on local machine
+# Running code on my laptop
 if local_code_flag:
 
     from conduit_algorithm import *
