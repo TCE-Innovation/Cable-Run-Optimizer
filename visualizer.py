@@ -102,7 +102,6 @@ def draw_cable(draw, cable, radius, angle):
         text_y += font_size + 5  # Adjust the vertical spacing
 
 
-
 # This function draws everything but the individual cables,
 # including the graph and text at the top left
 # This function calls draw_cable()
@@ -183,15 +182,22 @@ def generate_cable_image(bundle):
     # for radius, angle_deg, cable in draw_queue:
         # draw_cable(draw, radius * 166, angle_deg, cable, polar_graph_center)
     # 166 relates to spacing of cables apart from each other
+    print("********************* DRAWING INDIVIDUAL CABLES ***********************")
 
     for cable in bundle.cables:
         # draw_cable(draw, cable.radius * 166, cable.angle, cable)
         # print(f"generate_cable_image call: about to process cable {cable.pull_number}")
         if cable.two_conductor is False:
+            print(f"[STATUS] Drawing Cable {cable.pull_number} at POLAR: {cable.radius}, {cable.angle}; "
+                  f"CARTESIAN: {round(cable.x, 4)}, {round(cable.y, 4)}...\n")
             draw_cable(draw, cable, cable.radius, cable.angle)
         elif cable.two_conductor is True:
+            print(f"[STATUS] Drawing Cable {cable.pull_number} at {cable.radius[0]}, {cable.angle[0]}; "
+                  f"CARTESIAN: {round(cable.x[0], 4)}, {round(cable.y[0], 4)}...")
             draw_cable(draw, cable, cable.radius[0], cable.angle[0])
             # Repeat to draw extra conductor
+            print(f"[STATUS] Drawing Cable {cable.pull_number} at {cable.radius[1]}, {cable.angle[1]}; "
+                  f"CARTESIAN: {round(cable.x[1], 4)}, {round(cable.y[1], 4)}...\n")
             draw_cable(draw, cable, cable.radius[1], cable.angle[1])
 
             num_intermediate_cables = 10
@@ -201,10 +207,10 @@ def generate_cable_image(bundle):
             angle_step = (cable.angle[1] - cable.angle[0]) / (num_intermediate_cables + 1)
 
             # Draw 10 equally spaced cables between the start and end points
-            for i in range(1, num_intermediate_cables + 1):
-                intermediate_radius = cable.radius[0] + i * radius_step
-                intermediate_angle = cable.angle[0] + i * angle_step
-                draw_cable(draw, cable, intermediate_radius, intermediate_angle)
+            # for i in range(1, num_intermediate_cables + 1):
+            #     intermediate_radius = cable.radius[0] + i * radius_step
+            #     intermediate_angle = cable.angle[0] + i * angle_step
+            #     draw_cable(draw, cable, intermediate_radius, intermediate_angle)
 
     # DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
 
@@ -252,28 +258,8 @@ def generate_cable_image(bundle):
         outline="red",
     )
 
-
-
     # END DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
 
-
-    # global conduit_number
-    # Write "Scale: " text at the bottom left of the image
-    scale_text = "Scale: 0.5 inches/radius increment"
-    # conduit_size_text = f"Conduit Size: {conduit_size} inches"
-    # conduit_number_text = f"Conduit: {conduit_number}"
-
-    # from conduit_algorithm import stationing_start_text
-    # from conduit_algorithm import stationing_end_text
-    # stationing_start_text = f"Start: {stationing_start_text}"
-    # stationing_end_text = f"End: {stationing_end_text}"
-
-    # from conduit_algorithm import conduit_free_air_space
-    # conduit_free_air_space_text = f"{conduit_free_air_space}"
-
-    # from conduit_algorithm import express_text
-    # from conduit_algorithm import conduit_free_air_space
-    #
     text_color = "black"
     font_size = 15
     font = ImageFont.truetype("arial.ttf", font_size)
@@ -289,13 +275,6 @@ def generate_cable_image(bundle):
             f"Bundle: {bundle.bundle_number}",
             f"Weight: {bundle.bundle_weight/1000} lb/ft",
             f"Diameter: {round(bundle.bundle_diameter, 4)} in"
-            # f"Conduit Size: {conduit_size} inches",
-            # f"Conduit Fill: {round(100 - conduit_free_air_space, 2)}%",
-            # f"Conduit Fill: {100 - conduit_free_air_space:.2f}%",
-            # f"Start: {stationing_start_text}",
-            # f"End: {stationing_end_text}",
-            # f"Conduit: {conduit_number}",
-            # express_text
         ]
         for line in text_lines:
             draw.text((text_x, text_y), line, fill=text_color, font=font)
