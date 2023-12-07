@@ -20,7 +20,7 @@ class CableParameters:
 class Cable:
     def __init__(self, pull_number, stationing_start: int, stationing_end: int,
                  cable_size, express, diameter, weight, cross_sectional_area, absolute_distance,
-                 two_conductor: bool, length=None, width=None, radius=None, angle=None, x=None, y=None):
+                 two_conductor: bool, length, width, radius=404, angle=404, x=None, y=None):
         self.pull_number = pull_number
         self.stationing_start = stationing_start
         self.stationing_end = stationing_end
@@ -31,14 +31,17 @@ class Cable:
         self.cross_sectional_area = cross_sectional_area
         self.absolute_distance = absolute_distance
         self.two_conductor = two_conductor
-        self.radius = radius    # if radius is not None else 0
-        self.angle = angle      # if angle is not None else 0
+        self.radius = (404, 404) if self.two_conductor else (radius if radius is not None else 404)
+        self.angle = (404, 404) if self.two_conductor else (angle if angle is not None else 404)
         self.length = length
         self.width = width
-        # self.x = x
-        # self.y = y
-        self.x = radius * math.cos(math.radians(angle)) if self.angle is not None and self.radius is not None else 404
-        self.y = radius * math.sin(math.radians(angle)) if self.angle is not None and self.radius is not None else 404
+        self.x = (404, 404) if self.two_conductor else (
+            radius * math.cos(math.radians(angle)) if self.angle is not None and self.radius is not None else 404
+        )
+        self.y = (404, 404) if self.two_conductor else (
+            radius * math.sin(math.radians(angle)) if self.angle is not None and self.radius is not None else 404
+        )
+
 
 # Class to create conduits
 class Conduit:

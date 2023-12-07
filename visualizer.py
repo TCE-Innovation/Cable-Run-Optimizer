@@ -207,10 +207,10 @@ def generate_cable_image(bundle):
             angle_step = (cable.angle[1] - cable.angle[0]) / (num_intermediate_cables + 1)
 
             # Draw 10 equally spaced cables between the start and end points
-            # for i in range(1, num_intermediate_cables + 1):
-            #     intermediate_radius = cable.radius[0] + i * radius_step
-            #     intermediate_angle = cable.angle[0] + i * angle_step
-            #     draw_cable(draw, cable, intermediate_radius, intermediate_angle)
+            for i in range(1, num_intermediate_cables + 1):
+                intermediate_radius = cable.radius[0] + i * radius_step
+                intermediate_angle = cable.angle[0] + i * angle_step
+                draw_cable(draw, cable, intermediate_radius, intermediate_angle)
 
     # DRAWING THE LINES OVER THE CABLES TO SEE SCALING PROPERLY
 

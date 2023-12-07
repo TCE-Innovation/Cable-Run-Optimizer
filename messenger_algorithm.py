@@ -133,8 +133,10 @@ def add_cable_to_bundle(bundle, cable):
         cable.x = cable.radius * math.cos(math.radians(cable.angle))
         cable.y = cable.radius * math.sin(math.radians(cable.angle))
     elif cable.two_conductor is True:
-        cable.x = (cable.radius[0] * math.cos(math.radians(cable.angle[0])), cable.radius[1] * math.cos(math.radians(cable.angle[1])))
-        cable.y = (cable.radius[0] * math.sin(math.radians(cable.angle[0])), cable.radius[1] * math.sin(math.radians(cable.angle[1])))
+        cable.x = (cable.radius[0] * math.cos(math.radians(cable.angle[0])),
+                   cable.radius[1] * math.cos(math.radians(cable.angle[1])))
+        cable.y = (cable.radius[0] * math.sin(math.radians(cable.angle[0])),
+                   cable.radius[1] * math.sin(math.radians(cable.angle[1])))
 
 
 def create_bundles(cables_to_place, start_stationing, end_stationing, bundles):
@@ -186,7 +188,6 @@ def create_bundles(cables_to_place, start_stationing, end_stationing, bundles):
 
 
 def check_diameter_and_weight(bundle, cable):
-
     global max_bundle_weight
 
     bundle.bundle_weight += cable.weight
@@ -201,6 +202,7 @@ def check_diameter_and_weight(bundle, cable):
     if not find_open_space(bundle, cable):
         return 0
 
+    # If the program got here, it passed the weight and space checks
     # Indicate that cable can be added to bundle
     return 1
 
@@ -329,10 +331,7 @@ def place_second_conductor(cable, bundle, radius, angle):
     print(f"\n---------------------------------------------------------------")
     print(f"[STATUS] Function place_second_conductor called for Cable {cable.pull_number}")
 
-    # Distance multiplier for converting between absolute and relative coordinate system
-    distance_multiplier = 166
-
-    # Absolute radius, angle
+    # Assign first conductor radius,angle coords
     cable.radius = round(radius, 5)
     cable.angle = angle
 
@@ -340,23 +339,12 @@ def place_second_conductor(cable, bundle, radius, angle):
     cable.x = round(radius * math.cos(math.radians(angle)), 5)
     cable.y = round(radius * math.sin(math.radians(angle)), 5)
 
-    # Calculate x and y offset of the first conductor
-    # First part of equation is the conversion to absolute (pdf) coordinates
-    # For example, if a cable was placed at relative x,y of 1,0
-    # then the absolute coordinates would be 666,500
-    # x_offset would be 166, y_offset would be 0
-    # x_offset_absolute = (500 + 166 * cable.x) - 500
-    # y_offset_absolute = (500 + 166 * cable.y) - 500
-    # x_offset_relative = None
-    # y_offset_relative = None
-
     # Relative angle, have it facing inward to start, based on the absolute angle
     # Realistically there won't be clearance on the inner part,
     # But this function will incrementally move out on both directions
     # to find the next open space for the second conductor
     print(f"[STATUS] First conductor angle is {angle}, setting start angle to {angle + 180}")
     angle = cable.angle + 180    # start at 180
-    # angle = cable.angle     # Start with angle that will definitely work for testing
 
     # Spacing of the second conductor away from the first conductor
     # Relative radius, relative to the first conductor
@@ -386,6 +374,7 @@ def place_second_conductor(cable, bundle, radius, angle):
         angle_convert = round(math.degrees(math.atan2(y, x)), 4)
 
         for existing_cable in bundle.cables:
+            # Check spacing between the tentative placement of the second conductor and non-two conductor cable
             if existing_cable.two_conductor is False:
                 # Distance between second conductor and already placed cable
                 distance = math.sqrt((x - existing_cable.x) ** 2 + (y - existing_cable.y) ** 2)
@@ -399,11 +388,12 @@ def place_second_conductor(cable, bundle, radius, angle):
                     print(f"[STATUS] Cable placement at {x}, {y} failed\n"
                           f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
                     overlap = True
+                    # Break out of the loop because this placement won't work
+                    # and it's not worth checking other cables
                     break
-                else:
-                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
+            # Check spacing between the tentative placement of the second conductor and two conductor cable
             elif existing_cable.two_conductor is True:
-                #  FIRST CONDUCTOR
+                # FIRST CONDUCTOR
                 # Distance between second conductor and already placed cable
                 distance = math.sqrt((x - existing_cable.x[0]) ** 2 + (y - existing_cable.y[0]) ** 2)
                 print(
@@ -418,9 +408,9 @@ def place_second_conductor(cable, bundle, radius, angle):
                     print(f"[STATUS] Cable placement at {x}, {y} failed\n"
                           f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
                     overlap = True
+                    # Break out of the loop because this placement won't work
+                    # and it's not worth checking other cables
                     break
-                else:
-                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
 
                 # SECOND CONDUCTOR
                 # Distance between second conductor and already placed cable
@@ -437,9 +427,9 @@ def place_second_conductor(cable, bundle, radius, angle):
                     print(f"[STATUS] Cable placement at {x}, {y} failed\n"
                           f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
                     overlap = True
+                    # Break out of the loop because this placement won't work
+                    # and it's not worth checking other cables
                     break
-                else:
-                    print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
 
         # Conductor failed to place at angle + angle_increment, try at angle - angle_increment
         if overlap is True:
@@ -503,28 +493,33 @@ def place_second_conductor(cable, bundle, radius, angle):
                               f"Distance: {round(distance, 4)} < {((cable.diameter / 2) + (existing_cable.diameter / 2))}\n")
                         overlap = True
                         break
-                    else:
-                        print(f"[STATUS] Second conductor placement at {x}, {y} successful!")
 
         # If the second conductor placement would overlap with a cable already placed in the bundle
-        if overlap is True and angle_increment is 360:
+        if overlap is True and angle_increment == 360:
             # Second conductor was not able to be placed and the first conductor needs a new placement
             return False
         elif overlap is True:
             # Add 5 degrees to angle increment
+            # Keep going to find placement
             angle_increment += 15
         # If the placement of the second conductor would not conflict with previously placed cables
         elif overlap is False:
+            print(f"[PASS] COORDINATES AT {round(x, 3)}, {round(y, 3)} for Cable {cable.pull_number}")
+            print(f"{cable.x}, {cable.y}")
+
+            cable.x = cable.x, x
+            cable.y = cable.y, y
+
             # Set the radius,angle pairs for the two conductors of the cables,
             # adding the new radius and angle
             cable.radius = cable.radius, round(math.sqrt(x**2 + y**2), 4)
 
             second_conductor_angle = round(math.degrees(math.atan2(y, x)), 4)
-            if x < 0:
-                second_conductor_angle += 180
+            # if x < 0:
+            #     second_conductor_angle += 180
 
             cable.angle = cable.angle, second_conductor_angle
-        # Second conductor was able to be placed
-        return True
+            # Second conductor was able to be placed
+            return True
 
     print(f"---------------------------------------------------------------\n")
